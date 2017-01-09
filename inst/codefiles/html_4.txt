@@ -1,0 +1,129 @@
+<style>
+
+div.border {
+    position: absolute;
+    width: 700px;
+    height: 500px;
+    border: 3px solid black;
+}
+
+div.labright {
+    position: absolute;
+    top: 1%;
+    right: 1%;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    font-family: arial;
+}
+
+div.lableft {
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    font-family: arial;   
+}
+
+div.load {
+    position: absolute;
+    top: 55%;
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    font-family: "Times New Roman";   
+}
+
+div.instruct {
+    position: absolute;
+    text-align: center;
+    bottom: 0%;
+    font-size: 16px; 
+    font-family: "Times New Roman";
+    display: none;
+    padding-top: 10px; 
+    padding-right: 10px;
+    padding-bottom: 10px; 
+    padding-left: 10px;
+}
+
+h2.center {
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    line-height: 100%;
+    top: 29%;
+    font-size: 30px; 
+    font-weight: bold;
+    font-family: arial;
+}
+
+p.note {
+    position: absolute;
+    text-align: center;
+    bottom: 1%;
+    font-size: 16px; 
+    width: 100%;
+    line-height: 100%;
+    font-family: "Times New Roman";
+}
+
+h2.err {
+    position: absolute;
+    display: block;
+    text-align: center;
+    width: 100%;
+    line-height: 100%;
+    bottom: 8%;
+    font-size: 80px; 
+    font-weight: bold;
+    font-family: arial;
+    color: red;
+}
+
+</style>
+
+<div class="border">
+
+
+<div class="lableft">
+	<div style="color: tgtCol;">tgtB</div>
+	or
+	<div style="color: catCol;">NEG</div>
+</div>
+
+
+<div class="labright">
+	<div style="color: tgtCol;">tgtA</div>
+	or
+	<div style="color: catCol;">POS</div>
+</div>
+
+
+<h2 class="center" id="message"><br><br><br>+</h2>
+<h2 class="err" id="error"></h2>
+
+<div class="load">
+<p id="loading">Loading all the content...
+<br>
+<br>
+This should take less than 1 minute</p>
+</div>
+
+<div class="instruct" id="instructions">
+<p>Please continue the task as you were just doing it. Again, try to go as fast as possible without making mistakes. <!--colins--> <!--errorins-->
+<br>
+<br>
+When you are ready, please press the [Space] bar to begin.
+<br>
+<br>
+Part 4 of 7</p>
+</div>
+<p class="note" id="note"></p>
+</div>
+
+<div style="opacity: 0; font-size:300px"><p>x</p></div>
