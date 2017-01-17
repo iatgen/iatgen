@@ -2181,8 +2181,6 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
 #' }
 IATreliability <- function(data){
   
-  # data  <- clean
-  
   #put clean latencies in order by stim number, which sorts by pos, neg, A, and B trials and within that, order of presentation    
   b1.prac <-c()
   for (i in 1:nrow(data$clean.latencies.prac1)){
@@ -2215,9 +2213,6 @@ IATreliability <- function(data){
   b1 <- cbind(b1.prac, b1.crit)
   b2 <- cbind(b2.prac, b2.crit)
   
-  
-  ## NOTE: IF PARTICIPANT IS DROPPED IN ONE BLOCK, THEN RESPECTIVE compatible OR incompatible IS NA. THIS WILL RESULT IN AN NA D SCORE. 
-  ## THUS DROPS ARE HANDLED AUTOMATICALLY.
   
   ## BLOCK 1
   odd1 <- seq(1, ncol(b1), by=2)
