@@ -886,6 +886,12 @@ writeIATfull <- function(startqid = 1,
                          note=F
 ) {
 
+  ##IF FORCED ERROR CORRECTION, MAKE ERRORPAUSE THE SAME AS THE REGULAR PAUSE
+  # NOTE: ERRORPAUSE IS USED TO HANDLE ISI FOR ERROR TRIALS. IF FORCED ERROR CORRECTION,
+  # WE WANT TO USE THE SAME PAUSE REGARDLESS OF ERROR OR NOT
+  if (correct.error==T){
+    errorpause <- pause
+  }
   
   ## BY DEFAULT, IMPLEMENTS THE EASY IMAGE METHOD
   if(tgtType == "images" && catType == "words") {
