@@ -33,13 +33,13 @@ Qualtrics.SurveyEngine.addOnload(function() {
 	qID = qID.replace("QID", '');
 	qID = parseInt(qID);
 
-	// GRAB INPUITID AS REFERENCE TO QUESTION AND HIDE TEXT BOX
-	var InputId = $("QR~"+this.questionId);
+	// GRAB INPUTID AS REFERENCE TO QUESTION AND HIDE TEXT BOX
+	var InputId = document.getElementById("QR~"+this.questionId);
 	InputId.style.display="none";
 
 	// HIDE NEXT BUTTON
-	$('NextButton') && $('NextButton').hide(); //OLD API ...MAY NOT WORK NOW
-	$('PreviousButton') && $('PreviousButton').hide(); //OLD API ...MAY NOT WORK NOW
+	if (document.getElementById('NextButton')) document.getElementById('NextButton').style.display="none"; //OLD API ...MAY NOT WORK NOW
+        if (document.getElementById('PrevButton')) document.getElementById('PrevButton').style.display="none"; //OLD API ...MAY NOT WORK NOW
 	this.hideNextButton();
 	
 
@@ -87,7 +87,7 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			
 			images[images.length - 1].onerror = function() {
 				alert("Your web browser encountered an issue running this portion of the study. You will be skipped ahead. You may have to click through this message several times.");
-				$('NextButton') && $('NextButton').click();
+				if (document.getElementById('NextButton')) document.getElementById('NextButton').click();
 			};
 			
 			images[images.length - 1].onload = function() {
@@ -161,7 +161,7 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			must therefore be disabled before continuing. */
 			input.value += "END";
 			document.removeEventListener('keyup', keyCheck, false); 
-	 		$('NextButton') && $('NextButton').click()
+	 		if (document.getElementById('NextButton')) document.getElementById('NextButton').click();
 		}
 	};
 	 
