@@ -3,13 +3,13 @@
 writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, catType, nPos, nNeg, poswords, negwords, tgtType, nA, nB, Awords, Bwords, tgtCol="black", catCol="green",write.me, out){
   
   ## Misspecification errors:
-  if ( n %% 2 != 0 ) {stop("N must be even!")}
+  if ( n %% 2 != 0 ) {stop("The number of trials per block must be even in all IAT blocks in Iatgen. This allows an equal distribution of left-hand and right-hand stimuli.")}
   
   if (type == "combined"){
-    if ( n %% 4 != 0 ) {stop("N must be divisible by 4 for combined blocks.")}
+    if ( n %% 4 != 0 ) {stop("The number of trials per combined block must be divisible by four in Iatgen. This allows an equal distribution of Positive, Negative, Target A, and Target B stimuli.")}
     if (combined.type != "random" && combined.type != "alternating") {stop("Type must be 'random' or 'alternating.'")}
   }
-  if (type != "combined" && type != "target" && type != "category") {stop("Type is misspecified.")}
+  if (type != "combined" && type != "target" && type != "category") {stop("The type of block must be either combined or target. Type is misspecified.")}
   if (catType != "words" && catType != "images") {stop("Category must be either words or images.")}
   if (tgtType != "words" && tgtType != "images") {stop("Targets must be either words or images.")}
   
