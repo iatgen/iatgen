@@ -1911,6 +1911,7 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   
   ## grab means for correct, cleaned values and add error penalty
   # NA handling: only performs calculations for non-missing values
+  # NOTE: replacing values with means and penalties may accidentally resurrect dropped trials. logic now only replaces for nonmissing values.
   
   #prac1
   clean.correct.means.prac1 <- rowMeans(clean.correct.latencies.prac1, na.rm=TRUE)
@@ -1919,11 +1920,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     for (j in 1:ncol(clean.latencies.prac1)){
       if(!is.na(raw.correct.prac1[i,j])){
         if(is.numeric(error.penalty)){
-          if(raw.correct.prac1[i,j] == "X") {clean.latencies.prac1[i,j] = clean.correct.means.prac1[i] + error.penalty}
+          if(raw.correct.prac1[i,j] == "X" && !is.na(clean.latencies.prac1[i,j])) {clean.latencies.prac1[i,j] = clean.correct.means.prac1[i] + error.penalty}
         } else if (error.penalty=="2SD"){
-          if(raw.correct.prac1[i,j] == "X") {clean.latencies.prac1[i,j] = clean.correct.means.prac1[i] + 2*clean.std.correct.prac1[i]}
+          if(raw.correct.prac1[i,j] == "X" && !is.na(clean.latencies.prac1[i,j])) {clean.latencies.prac1[i,j] = clean.correct.means.prac1[i] + 2*clean.std.correct.prac1[i]}
         } else if (error.penalty=="none"){
-          if(raw.correct.prac1[i,j] == "X") {clean.latencies.prac1[i,j] = clean.latencies.prac1[i,j]}
+          if(raw.correct.prac1[i,j] == "X" && !is.na(clean.latencies.prac1[i,j])) {clean.latencies.prac1[i,j] = clean.latencies.prac1[i,j]}
         }
         if(raw.correct.prac1[i,j] == "C") {clean.latencies.prac1[i,j] = clean.correct.latencies.prac1[i,j]}
       }
@@ -1938,11 +1939,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     for (j in 1:ncol(clean.latencies.crit1)){
       if(!is.na(raw.correct.crit1[i,j])){
         if(is.numeric(error.penalty)){
-          if(raw.correct.crit1[i,j] == "X") {clean.latencies.crit1[i,j] = clean.correct.means.crit1[i] + error.penalty}
+          if(raw.correct.crit1[i,j] == "X" && !is.na(clean.latencies.crit1[i,j])) {clean.latencies.crit1[i,j] = clean.correct.means.crit1[i] + error.penalty}
         } else if (error.penalty=="2SD"){
-          if(raw.correct.crit1[i,j] == "X") {clean.latencies.crit1[i,j] = clean.correct.means.crit1[i] + 2*clean.std.correct.crit1[i]}
+          if(raw.correct.crit1[i,j] == "X" && !is.na(clean.latencies.crit1[i,j])) {clean.latencies.crit1[i,j] = clean.correct.means.crit1[i] + 2*clean.std.correct.crit1[i]}
         } else if (error.penalty=="none"){
-          if(raw.correct.crit1[i,j] == "X") {clean.latencies.crit1[i,j] = clean.latencies.crit1[i,j]}
+          if(raw.correct.crit1[i,j] == "X" && !is.na(clean.latencies.crit1[i,j])) {clean.latencies.crit1[i,j] = clean.latencies.crit1[i,j]}
         }
         if(raw.correct.crit1[i,j] == "C") {clean.latencies.crit1[i,j] = clean.correct.latencies.crit1[i,j]}
       }
@@ -1957,11 +1958,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     for (j in 1:ncol(clean.latencies.prac2)){
       if(!is.na(raw.correct.prac2[i,j])){
         if(is.numeric(error.penalty)){
-          if(raw.correct.prac2[i,j] == "X") {clean.latencies.prac2[i,j] = clean.correct.means.prac2[i] + error.penalty}
+          if(raw.correct.prac2[i,j] == "X" && !is.na(clean.latencies.prac2[i,j])) {clean.latencies.prac2[i,j] = clean.correct.means.prac2[i] + error.penalty}
         } else if (error.penalty=="2SD"){
-          if(raw.correct.prac2[i,j] == "X") {clean.latencies.prac2[i,j] = clean.correct.means.prac2[i] + 2*clean.std.correct.prac2[i]}
+          if(raw.correct.prac2[i,j] == "X" && !is.na(clean.latencies.prac2[i,j])) {clean.latencies.prac2[i,j] = clean.correct.means.prac2[i] + 2*clean.std.correct.prac2[i]}
         } else if (error.penalty=="none"){
-          if(raw.correct.prac2[i,j] == "X") {clean.latencies.prac2[i,j] = clean.latencies.prac2[i,j]}
+          if(raw.correct.prac2[i,j] == "X" && !is.na(clean.latencies.prac2[i,j])) {clean.latencies.prac2[i,j] = clean.latencies.prac2[i,j]}
         }
         if(raw.correct.prac2[i,j] == "C") {clean.latencies.prac2[i,j] = clean.correct.latencies.prac2[i,j]}
       }
@@ -1976,11 +1977,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     for (j in 1:ncol(clean.latencies.crit2)){
       if(!is.na(raw.correct.crit2[i,j])){
         if(is.numeric(error.penalty)){
-          if(raw.correct.crit2[i,j] == "X") {clean.latencies.crit2[i,j] = clean.correct.means.crit2[i] + error.penalty}
+          if(raw.correct.crit2[i,j] == "X" && !is.na(clean.latencies.crit2[i,j])) {clean.latencies.crit2[i,j] = clean.correct.means.crit2[i] + error.penalty}
         } else if (error.penalty=="2SD"){
-          if(raw.correct.crit2[i,j] == "X") {clean.latencies.crit2[i,j] = clean.correct.means.crit2[i] + 2*clean.std.correct.crit2[i]}
+          if(raw.correct.crit2[i,j] == "X" && !is.na(clean.latencies.crit2[i,j])) {clean.latencies.crit2[i,j] = clean.correct.means.crit2[i] + 2*clean.std.correct.crit2[i]}
         } else if (error.penalty=="none"){
-          if(raw.correct.crit2[i,j] == "X") {clean.latencies.crit2[i,j] = clean.latencies.crit2[i,j]}
+          if(raw.correct.crit2[i,j] == "X" && !is.na(clean.latencies.crit2[i,j])) {clean.latencies.crit2[i,j] = clean.latencies.crit2[i,j]}
         }
         if(raw.correct.crit2[i,j] == "C") {clean.latencies.crit2[i,j] = clean.correct.latencies.crit2[i,j]}
       }
@@ -2167,6 +2168,8 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     D=D
   ))
 }
+
+
 
 
 
