@@ -1187,10 +1187,11 @@ combineIATtwoblocks <- function(name1, name2){
 
 
 ###### STEP TWO: CLEAN THE RAW DATA
-#' Data analysis function: Processes and cleans raw IAT data for a single block without practice blocks
+#' Data analysis function: Processes and cleans raw IAT data
 #' @description Prior to running, please see \code{combineIATfourblocks()}. This function processes and cleans raw IAT data in preparation for IAT scoring and analysis functions but does not include practice trials. \bold{Note that we highly recommend that users include practice blocks (see} \code{cleanIAT.prac()}\bold{).} By default, the function implements the D600 cleaning procedures (Greenwald et al., 2003, p 214, center column). The function accepts as an input a vector of IAT responses (see \code{data}, below). It returns a list containing a variety of IAT variables, including matrices of clean latencies and other information. These lists should be saved and used as the main arguments for all other IAT analysis functions. To fully score the IAT without practice blocks, this function must be run twice -- once on the 'congruent' (A+Pos, B+Neg) block and once on the 'incongruent' (A+Neg, B+Pos) block. (See Example, below). Details of the function procedure are given here. The function first drops any trials that are beyond the timeout limit (if \code{timeout.drop=TRUE}, which is enabled by default). The default timeout limit is 10,000 ms but can be changed by setting \code{timeout.ms} to a value other than 10000. For users who wish to exclude individual trials less than 400 ms (or other values), one can also set \code{fasttrial.drop=TRUE} and then set \code{fasttrial.ms=400} or any other desired value. (This enables users to use D2SD [Greenwald et al., 2003, p 214, right column] or other scoring algorithms). Next, the function drops participants entirely (scores as missing) if more than 10% of responses are less than 300 ms (if \code{fastprt.drop=TRUE}, which is enabled by default). Users can modify the percentage and speed for this drop feature by changing \code{fastprt.percent=.10} to a different proportion or \code{fastprt.ms=300} to a speed other than 300 ms. Finally, the function imposes an error penalty; by default this follows the D600 procedure of using correct block means + 600 ms (\code{error.penalty=600}, but this can be set to any numeric value or disabled by setting it to \code{error.penalty=0}. If users wish to use the "2 SD" error penalty based on correct trials (D2SD algorithm; Greenwald et al., 2003, p 214, right column), one should set \code{error.penalty="2SD"} (be sure to include the quotation marks). 
 #' @param data A vector of responses, one per participant. This data vector represents one of the two critical blocks of the IAT. Because the two critical blocks are cleaned separately, this function will need to be run twice before the full IAT can be scored. Note that this raw data does not naturally occur in the dataset; because there exist several permutations of the IAT, the raw data will be scattered across IAT permutations and will need to be aggregated into a vector representing either the congruent or incongruent block, which is done using the function such as \code{combineIATfourblocks()} prior to running this function. Within the data vector, each response represents several trials per participant in a comma-separated text format (for each trial: indicating stimulus, correctness, and latency in milliseconds). The block ends with "\code{END}." For example, "\code{02C423, 01C541, 03X133, END}" would be a block with three responses consisting of stimuli 2,1, and 3 with  latencies of 423, 541, and 133 ms. The first two trials were correct but the third was incorrect. 
-#' @param error.penalty Optional (set by default at \code{error.penalty=600}). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. This is the default option but can be manually changed to any desired value or disabled by setting it to zero. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty="2SD"}.
+#' @param error.penalty Optional (set by default at \code{error.penalty=FALSE}). If users are not fored to correct errors, an error penalty is imposed as recommended by Greenwald et al. (2003).
+#' @param error.penalty.ms Optional (set by default at \code{error.penalty.ms=600}). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. This is the default option but can be manually changed to any desired value or disabled by setting it to zero. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}.
 #' @param timeout.drop Optional (set \code{TRUE} by default). Tells the procedure to drop trials over a certain duration; recommended by Greenwald et al. (2003).
 #' @param timeout.ms Optional (set by default). Following the D600 procedure, individual trials over 10,000 ms are dropped (scored as missing). This is the default option but can be manually changed to any desired value. Ignored if \code{timeout.drop=FALSE}.
 #' @param fastprt.drop Optional (set \code{TRUE} by default). Following the D600 procedure, participants who have too many responses faster than 300 ms are not scored. Some alternative scoring procedures do not use this feature (e.g., for single-category IATs), so it can be disabled by setting this option to \code{FALSE}. Note that this is highly recommended, as participants who wish to skip the IAT may press the keys as rapidly as possible. 
@@ -1244,7 +1245,8 @@ combineIATtwoblocks <- function(name1, name2){
 #'
 #' }
 
-cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=10000, fasttrial.drop=FALSE, fasttrial.ms=400, fastprt.drop=TRUE, fastprt.percent=.10, fastprt.ms=300, error.penalty=600) {
+
+cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=10000, fasttrial.drop=FALSE, fasttrial.ms=400, fastprt.drop=TRUE, fastprt.percent=.10, fastprt.ms=300, error.penalty=FALSE, error.penalty.ms=600) {
   
   if (is.null(prac1)){stop("One of your input variables does not exist. Please check your data / variable names and try again.")}
   if (is.null(prac2)){stop("One of your input variables does not exist. Please check your data / variable names and try again.")}
@@ -1919,11 +1921,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   for (i in 1:nrow(clean.latencies.prac1)){
     for (j in 1:ncol(clean.latencies.prac1)){
       if(!is.na(raw.correct.prac1[i,j])){
-        if(is.numeric(error.penalty)){
-          if(raw.correct.prac1[i,j] == "X" && !is.na(clean.latencies.prac1[i,j])) {clean.latencies.prac1[i,j] = clean.correct.means.prac1[i] + error.penalty}
-        } else if (error.penalty=="2SD"){
+        if(error.penalty==TRUE && is.numeric(error.penalty.ms)){
+          if(raw.correct.prac1[i,j] == "X" && !is.na(clean.latencies.prac1[i,j])) {clean.latencies.prac1[i,j] = clean.correct.means.prac1[i] + error.penalty.ms}
+        } else if (error.penalty==TRUE && error.penalty.ms=="2SD"){
           if(raw.correct.prac1[i,j] == "X" && !is.na(clean.latencies.prac1[i,j])) {clean.latencies.prac1[i,j] = clean.correct.means.prac1[i] + 2*clean.std.correct.prac1[i]}
-        } else if (error.penalty=="none"){
+        } else if (error.penalty==FALSE){
           if(raw.correct.prac1[i,j] == "X" && !is.na(clean.latencies.prac1[i,j])) {clean.latencies.prac1[i,j] = clean.latencies.prac1[i,j]}
         }
         if(raw.correct.prac1[i,j] == "C") {clean.latencies.prac1[i,j] = clean.correct.latencies.prac1[i,j]}
@@ -1938,11 +1940,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   for (i in 1:nrow(clean.latencies.crit1)){
     for (j in 1:ncol(clean.latencies.crit1)){
       if(!is.na(raw.correct.crit1[i,j])){
-        if(is.numeric(error.penalty)){
-          if(raw.correct.crit1[i,j] == "X" && !is.na(clean.latencies.crit1[i,j])) {clean.latencies.crit1[i,j] = clean.correct.means.crit1[i] + error.penalty}
-        } else if (error.penalty=="2SD"){
+        if(error.penalty==TRUE && is.numeric(error.penalty.ms)){
+          if(raw.correct.crit1[i,j] == "X" && !is.na(clean.latencies.crit1[i,j])) {clean.latencies.crit1[i,j] = clean.correct.means.crit1[i] + error.penalty.ms}
+        } else if (error.penalty==TRUE && error.penalty.ms=="2SD"){
           if(raw.correct.crit1[i,j] == "X" && !is.na(clean.latencies.crit1[i,j])) {clean.latencies.crit1[i,j] = clean.correct.means.crit1[i] + 2*clean.std.correct.crit1[i]}
-        } else if (error.penalty=="none"){
+        } else if (error.penalty==FALSE){
           if(raw.correct.crit1[i,j] == "X" && !is.na(clean.latencies.crit1[i,j])) {clean.latencies.crit1[i,j] = clean.latencies.crit1[i,j]}
         }
         if(raw.correct.crit1[i,j] == "C") {clean.latencies.crit1[i,j] = clean.correct.latencies.crit1[i,j]}
@@ -1957,11 +1959,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   for (i in 1:nrow(clean.latencies.prac2)){
     for (j in 1:ncol(clean.latencies.prac2)){
       if(!is.na(raw.correct.prac2[i,j])){
-        if(is.numeric(error.penalty)){
-          if(raw.correct.prac2[i,j] == "X" && !is.na(clean.latencies.prac2[i,j])) {clean.latencies.prac2[i,j] = clean.correct.means.prac2[i] + error.penalty}
-        } else if (error.penalty=="2SD"){
+        if(error.penalty==TRUE && is.numeric(error.penalty.ms)){
+          if(raw.correct.prac2[i,j] == "X" && !is.na(clean.latencies.prac2[i,j])) {clean.latencies.prac2[i,j] = clean.correct.means.prac2[i] + error.penalty.ms}
+        } else if (error.penalty==TRUE && error.penalty.ms=="2SD"){
           if(raw.correct.prac2[i,j] == "X" && !is.na(clean.latencies.prac2[i,j])) {clean.latencies.prac2[i,j] = clean.correct.means.prac2[i] + 2*clean.std.correct.prac2[i]}
-        } else if (error.penalty=="none"){
+        } else if (error.penalty==FALSE){
           if(raw.correct.prac2[i,j] == "X" && !is.na(clean.latencies.prac2[i,j])) {clean.latencies.prac2[i,j] = clean.latencies.prac2[i,j]}
         }
         if(raw.correct.prac2[i,j] == "C") {clean.latencies.prac2[i,j] = clean.correct.latencies.prac2[i,j]}
@@ -1976,11 +1978,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   for (i in 1:nrow(clean.latencies.crit2)){
     for (j in 1:ncol(clean.latencies.crit2)){
       if(!is.na(raw.correct.crit2[i,j])){
-        if(is.numeric(error.penalty)){
-          if(raw.correct.crit2[i,j] == "X" && !is.na(clean.latencies.crit2[i,j])) {clean.latencies.crit2[i,j] = clean.correct.means.crit2[i] + error.penalty}
-        } else if (error.penalty=="2SD"){
+        if(error.penalty==TRUE && is.numeric(error.penalty.ms)){
+          if(raw.correct.crit2[i,j] == "X" && !is.na(clean.latencies.crit2[i,j])) {clean.latencies.crit2[i,j] = clean.correct.means.crit2[i] + error.penalty.ms}
+        } else if (error.penalty==TRUE && error.penalty.ms=="2SD"){
           if(raw.correct.crit2[i,j] == "X" && !is.na(clean.latencies.crit2[i,j])) {clean.latencies.crit2[i,j] = clean.correct.means.crit2[i] + 2*clean.std.correct.crit2[i]}
-        } else if (error.penalty=="none"){
+        } else if (error.penalty==FALSE){
           if(raw.correct.crit2[i,j] == "X" && !is.na(clean.latencies.crit2[i,j])) {clean.latencies.crit2[i,j] = clean.latencies.crit2[i,j]}
         }
         if(raw.correct.crit2[i,j] == "C") {clean.latencies.crit2[i,j] = clean.correct.latencies.crit2[i,j]}
@@ -2168,6 +2170,8 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     D=D
   ))
 }
+
+
 
 
 
