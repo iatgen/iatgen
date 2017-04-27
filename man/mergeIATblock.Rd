@@ -12,9 +12,9 @@ mergeIATblock(b1, b2)
 \item{b2}{A vector of responses, one per participant, representing a different block of trials.}
 }
 \value{
-Returns a single vector of responses that includes trials from \code{b1} and \code{b2}, ready for cleaning with \code{cleanIAT()}.
+Returns a single vector of responses that includes trials from \code{b1} and \code{b2}.
 }
 \description{
-Allows the user to append trials from multiple blocks together for analysis as a larger block. Accepts as input two vectors of raw data (e.g., practice and critical blocks) and returns one vector that is suitable for cleaning with \code{cleanIAT()}. This procedure is not currently used in data cleaning but may be useful for reserachers wishing to examine different ways to include practice trials into analyses.
+Allows the user to append trials from multiple blocks together for analysis as a larger block. Accepts as input two vectors of raw data (e.g., practice and critical blocks) and returns one vector. This procedure is not currently used in data cleaning but may be useful for researchers wishing to examine different properties of IAT data.
 }
 

@@ -7,21 +7,21 @@
 combineIATtwoblocks(name1, name2)
 }
 \arguments{
-\item{name1}{A vector of responses representing a critical block (either congruent or incongruent) of trials for one of the IAT permutations.}
+\item{name1}{A vector of responses representing a critical block (either compatible or incompatible) of trials for one of the IAT permutations.}
 
-\item{name2}{A vector of responses representing a critical block (either congruent or incongruent) of trials for the other IAT permutation.}
+\item{name2}{A vector of responses representing a critical block (either compatible or incompatible) of trials for the other IAT permutation.}
 }
 \value{
 Returns a single vector of responses that contains all four permutations collapsed into one variable.
 }
 \description{
-This function is a variation of \code{combineIATfourblocks()} but using two permutations instead of four. Some users may opt to reduce the number of permutations of the IAT (e.g., affixing one target to the left side and the other to the right across participants) for various reasons (e.g., to match an in-lab configuration or for other reasons). This can be done with this function.
+This function is a variation of \code{combineIATfourblocks()} but using two permutations as inputs instead of four. Some users may opt to reduce the number of permutations of the IAT (e.g., fixing one category or target to the left side and the other to the right across participants). This was used in intial testing of iatgen and was retained should it be of interest.
 }
 \examples{
 \dontrun{
 ### Example with only Target A on the right and Target B on the left  ####
-dat$congruent <- combineIATtwoblocks(dat$Q4.RP4, dat$Q14.RN7)
-dat$incongruent <- combineIATtwoblocks(dat$Q7.RP7, dat$Q11.RN4)
+dat$compatible <- combineIATtwoblocks(dat$Q4.RP4, dat$Q14.RN7)
+dat$incompatible <- combineIATtwoblocks(dat$Q7.RP7, dat$Q11.RN4)
 }
 }
 

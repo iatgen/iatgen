@@ -10,73 +10,142 @@ cleanIAT(prac1, crit1, prac2, crit2, timeout.drop = TRUE,
   error.penalty = FALSE, error.penalty.ms = 600)
 }
 \arguments{
-\item{timeout.drop}{Optional (set \code{TRUE} by default). Tells the procedure to drop trials over a certain duration; recommended by Greenwald et al. (2003).}
+\item{prac1}{A vector of one kind of practice responses (e.g., compatible practice), one per participant.}
 
-\item{timeout.ms}{Optional (set by default). Following the D600 procedure, individual trials over 10,000 ms are dropped (scored as missing). This is the default option but can be manually changed to any desired value. Ignored if \code{timeout.drop=FALSE}.}
+\item{crit1}{A vector of that same kind of critical responses (e.g., compatible critical), one per participant.}
 
-\item{fastprt.drop}{Optional (set \code{TRUE} by default). Following the D600 procedure, participants who have too many responses faster than 300 ms are not scored. Some alternative scoring procedures do not use this feature (e.g., for single-category IATs), so it can be disabled by setting this option to \code{FALSE}. Note that this is highly recommended, as participants who wish to skip the IAT may press the keys as rapidly as possible.}
+\item{prac2}{A vector of the other kind of practice responses (e.g., incompatible practice), one per participant.}
 
-\item{fastprt.percent}{Optional (set \code{.10} default). If \code{fastprt.drop=TRUE}, then \code{cleanIAT} needs to know what percentage of responses must be below the threshold to disqualify a participant. Following Greenwald et al. (2003), this is 10 percent but can be adjusted here.}
+\item{timeout.drop}{(Required, set \code{TRUE} by default). Tells the procedure to drop trials over a certain duration; recommended by Greenwald et al. (2003).}
 
-\item{fastprt.ms}{Optional (set by default). If \code{fastprt.drop=TRUE}, then the user can change the threshold for the rapid response parameter used to disqualify participants. By default, this is 300 ms but can be changed here.}
+\item{timeout.ms}{(Required if \code{timeout.drop=TRUE}; set to 10000 by default). Following the Greenwald et al. (2003), individual trials over 10000 ms are dropped (scored as missing). Ignored if \code{timeout.drop=FALSE}.}
 
-\item{error.penalty}{Optional (set by default at \code{error.penalty=FALSE}). If users are not fored to correct errors, an error penalty is imposed as recommended by Greenwald et al. (2003).}
+\item{fasttrial.drop}{(Required, set \code{FALSE} by default). Tells the procedure to drop trials under a certain duration. Not recommended but was validated by Greenwald et al. (2003) as an alternative to dropping fast participants.}
 
-\item{error.penalty.ms}{Optional (set by default at \code{error.penalty.ms=600}). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. This is the default option but can be manually changed to any desired value or disabled by setting it to zero. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}.}
+\item{fasttrial.ms}{(Required if \code{fasttrial.drop=TRUE}; set to 400 ms by default). The threshold for \code{fastprt.drop}, above. Ignored if \code{fastprt.drop=FALSE}.}
 
-\item{data}{A vector of responses, one per participant. This data vector represents one of the two critical blocks of the IAT. Because the two critical blocks are cleaned separately, this function will need to be run twice before the full IAT can be scored. Note that this raw data does not naturally occur in the dataset; because there exist several permutations of the IAT, the raw data will be scattered across IAT permutations and will need to be aggregated into a vector representing either the congruent or incongruent block, which is done using the function such as \code{combineIATfourblocks()} prior to running this function. Within the data vector, each response represents several trials per participant in a comma-separated text format (for each trial: indicating stimulus, correctness, and latency in milliseconds). The block ends with "\code{END}." For example, "\code{02C423, 01C541, 03X133, END}" would be a block with three responses consisting of stimuli 2,1, and 3 with  latencies of 423, 541, and 133 ms. The first two trials were correct but the third was incorrect.}
+\item{fastprt.drop}{(Required, set \code{TRUE} by default). If enabled, follows Greenwald et al. (2003) in which participants who have more than 10 percent of responses (\code{fastprt.percent = .10}) faster than 300 ms (\code{fastprt.ms=300}) are dropped entirely.}
+
+\item{fastprt.percent}{(Required if \code{fastprt.drop=TRUE}; set to .10 by default). Set the proportion threshold for \code{fastprt.drop}, above. Ignored if \code{fastprt.drop=FALSE}.}
+
+\item{fastprt.ms}{(Required if \code{fastprt.drop=TRUE}; set to 300 ms by default). Sets the time threshold for for \code{fastprt.drop}, above. Ignored if \code{fastprt.drop=FALSE}.}
+
+\item{error.penalty}{(Required, set \code{FALSE} by default). Logical value stating whether an error penalty is added. This should be disabled if forced error correction was used in the IAT and enabled otherwise (Greenwald et al., 2003).}
+
+\item{error.penalty.ms}{(Required if \code{error.penalty=TRUE}; set to \code{error.penalty.ms=600} by default). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. Can be manually set to any desired value. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}. Ignored if \code{error.penalty=FALSE}.}
+
+\item{cric2}{A vector of that same kind of critical responses (e.g., incompatible critical), one per participant.}
 }
 \value{
 Returns a list containing several important elements. 
-\code{skipped} is a vector indicating whether the participant completed the IAT or skipped it. 
-\code{total.trials} is a single number, the total number of total trials completed in the study. This is used to recalculate rates by other functions when examining multiple blocks at once.
-\code{num.raw.trials} is a vector of the raw number of trials (including those scored as missing in data cleaning) per participant. 
-\code{raw.latencies} is a dataframe of the raw latencies prior to any data cleaning.
-\code{raw.stim.number} is a dataframe indicating which stimuli were presented in each trial prior to any data cleaning. Consult the JavaScript in Qualtrics for any IAT block to match stimuli numbers to content. 
-\code{raw.correct} is a dataframe indicating whether each response is correct or incorrect prior to any data cleaning.
-\code{timeout.drop} logical value stating whether this feature was enabled in the function call, reported here (see above).
-\code{timeout.ms} is the single number specified in the function call, reported here (see above).
-\code{num.timeout.removed} is a vector indicating the number of responses per participant that were scored as missing due to timeouts.
-\code{timeout.rate} is a vector indicating the percentage of responses per participant that were scored as missing due to timeouts.
-\code{fasttrial.drop} logical value stating whether this feature was enabled in the function call, reported here (see above).
-\code{fasttrial.ms} is the single number specified in the function call, reported here (see above).
-\code{num.fasttrial.removed} is a vector indicating the number of responses per participant that were scored as missing due to rapid speeds. Note that if participant dropping is enabled, this will report redundant information (i.e., this will report trials that are included among the dropped participants). This provides a more accurate reporting value.
+\code{skipped} is a vector indicating whether the participant completed the IAT or skipped it. They are dropped from analysis if the IAT was skipped.
+\code{raw.latencies.prac1} is a matrix of the raw latencies in the first practice block prior to any data cleaning.
+\code{raw.latencies.crit1} is a matrix of the raw latencies in the first critical block prior to any data cleaning.
+\code{raw.latencies.prac2} is a matrix of the raw latencies in the second practice block prior to any data cleaning.
+\code{raw.latencies.crit2} is a matrix of the raw latencies in the second critical block prior to any data cleaning.
+\code{raw.stim.number.prac1} is a matrix of the raw stimuli ID numbers in the first practice block prior to any data cleaning.
+\code{raw.stim.number.crit1} is a matrix of the raw stimuli ID numbers in the first critical block prior to any data cleaning.
+\code{raw.stim.number.prac2} is a matrix of the raw stimuli ID numbers in the second practice block prior to any data cleaning.
+\code{raw.stim.number.crit2} is a matrix of the raw stimuli ID numbers in the second critical block prior to any data cleaning.
+\code{raw.correct.prac1} is a matrix stating whether each trial was correct (logical) in the first practice block prior to cleaning. 
+\code{raw.correct.crit1} is a matrix stating whether each trial was correct (logical) in the first critical block prior to cleaning. 
+\code{raw.correct.prac2} is a matrix stating whether each trial was correct (logical) in the second practice block prior to cleaning. 
+\code{raw.correct.crit2} is a matrix stating whether each trial was correct (logical) in the second critical block prior to cleaning. 
+\code{timeout.drop} is the logical value stating whether this feature was enabled in the function call (see above).
+\code{timeout.ms} is the timeout threshold specified in the function call (see above), used if timeout.drop is enabled.
+\code{num.timeout.removed} is the grand total number of trials removed because they exceeded the timeout threshold in timeout.ms. 
+\code{timeout.rate} is a vector indicating the proportion of responses per participant that were scored as missing due to timeouts.
+\code{num.timeout.removed.prac1} is the number of trials removed in the first practice block because they exceeded the timeout threshold in timeout.ms. 
+\code{num.timeout.removed.crit1} is the number of trials removed in the first critical block because they exceeded the timeout threshold in timeout.ms. 
+\code{num.timeout.removed.prac2} is the number of trials removed in the second practice block because they exceeded the timeout threshold in timeout.ms. 
+\code{num.timeout.removed.crit2} is the number of trials removed in the second critical block because they exceeded the timeout threshold in timeout.ms. 
+\code{fasttrial.drop} is the logical value stating whether this feature was enabled in the function call (see above).
+\code{fasttrial.ms} is the time threshold specified in the function call (see above), used if fasttrial.drop is enabled. 
+\code{num.fasttrial.removed} is the grand total number of trials removed because they exceeded the fasttrial threshold in fasttrial.ms. 
 \code{fasttrial.rate} is a vector indicating the percentage of responses per participant that were scored as missing due to rapid speeds.
-\code{fastprt.drop} is either TRUE or FALSE as specified by the function call, reported here (see above).
-\code{fastprt.ms} is a single number specified in the function call, reported here (see above).
-\code{fastprt.percent} is a single number specified in the function call, reported here (see above).
-\code{drop.participant} is a logical vector indicating whether the participant's responses have been dropped due to excessive fast responses. Note that for these purposes, fast trials are not removed (otherwise it would be impossible to drop a participant). Thus, \code{drop.participant} may report information redundant to \code{fasttrial} output, above.
-\code{error.penalty} is a single number or character value specified in the function call, reported here (see above).
-\code{error.num} is a vector of the number of erroneous trials per participant (after data cleaning / dropping is complete).
-\code{error.rate} is a vector of the percentage of trials that are erroneous per participant (after data cleaning / dropping is complete). 
-\code{num.clean.trials} is a vector of the number of clean trials per participant (after data cleaning / dropping is complete).
-\code{clean.latencies} is a dataframe of clean response latencies (after data cleaning / dropping is complete).
-\code{clean.correct} is a dataframe indicating whether each response is correct or incorrect (after data cleaning / dropping is complete).
-\code{clean.stim.number} is a matrix indicating which stimuli were presented in each trial (after data cleaning / dropping is complete).
-\code{clean.std} is a vector of block standard deviations, one per participant (after data cleaning / dropping is complete). This follows the original syntax used by Greenwald et al. (2003).
-\code{clean.means} is a vector of block means of clean latencies, one per participant (after data cleaning / dropping is complete).
+\code{num.fasttrial.removed.prac1} is the number of trials removed in the first practice block because they exceeded the fasttrial threshold in fasttrial.ms. 
+\code{num.fasttrial.removed.crit1} is the number of trials removed in the first critical block because they exceeded the fasttrial threshold in fasttrial.ms. 
+\code{num.fasttrial.removed.prac2} is the number of trials removed in the second practice block because they exceeded the fasttrial threshold in fasttrial.ms. 
+\code{num.fasttrial.removed.crit2} is the number of trials removed in the second critical block because they exceeded the fasttrial threshold in fasttrial.ms. 
+\code{fastprt.drop} is the logical value as specified by the function call (see above).
+\code{fastprt.ms} is the threshold for as  specified in the function call (see above), used if fastprt.drop is enabled.
+\code{fastprt.percent} is the proportion of trials specified in the function call (see above).
+\code{drop.participant} is a logical vector indicating whether the participant's responses have been dropped due to excessive fast responses (if fastprt.drop is enabled).
+\code{fastprt.count} is the number of participants dropped for excessive fast responding (if fastprt.drop is enabled).
+\code{fastprt.rate} is the proportion of participants dropped for excessive fast responding (if fastprt.drop is enabled).
+\code{error.penalty} is a logical value stating whether an error penalty is enabled. 
+\code{error.num.prt} is a vector of the number of erroneous trials per participant (after data cleaning is complete).
+\code{error.rate.prt} is a vector of the proportion of erroneous trials per participant (after data cleaning is complete).
+\code{error.rate} is the proportion of the entire set of clean trials which are erroneous trials. 
+\code{clean.latencies.prac1} is a matrix of the clean latencies in the first practice block.
+\code{clean.latencies.crit1} is a matrix of the clean latencies in the first critical block.
+\code{clean.latencies.prac2} is a matrix of the clean latencies in the second practice block.
+\code{clean.latencies.crit2} is a matrix of the clean latencies in the second critical block.
+\code{clean.stim.number.prac1} is a matrix of the clean stimuli ID numbers in the first practice block.
+\code{clean.stim.number.crit1} is a matrix of the clean stimuli ID numbers in the first critical block.
+\code{clean.stim.number.prac2} is a matrix of the clean stimuli ID numbers in the second practice block.
+\code{clean.stim.number.crit2} is a matrix of the clean stimuli ID numbers in the second critical block.
+\code{clean.correct.prac1} is a matrix stating whether each trial was correct (logical) in the first practice block. 
+\code{clean.correct.crit1} is a matrix stating whether each trial was correct (logical) in the first critical block. 
+\code{clean.correct.prac2} is a matrix stating whether each trial was correct (logical) in the second practice block. 
+\code{clean.correct.crit2} is a matrix stating whether each trial was correct (logical) in the second critical block.
+\code{clean.std.prac1} is a vector of clean block standard deviations in the first practice block, one per participant.
+\code{clean.std.crit1} is a vector of clean block standard deviations in the first critical block, one per participant.
+\code{clean.std.prac2} is a vector of clean block standard deviations in the second practice block, one per participant.
+\code{clean.std.crit2} is a vector of clean block standard deviations in the second critical block, one per participant.
+\code{clean.means.prac1} is a vector of clean block mean of latencies in the first practice block, one per participant.
+\code{clean.means.crit1} is a vector of clean block mean of latencies in the first critical block, one per participant.
+\code{clean.means.prac2} is a vector of clean block mean of latencies in the second practice block, one per participant.
+\code{clean.means.crit2} is a vector of clean block mean of latencies in the second critical block, one per participant.
+\code{diff.prac} is a vector (one per person) of the difference between mean latencies compatible and incompatible (practice) blocks.
+\code{diff.crit} is a vector (one per person) of the difference between mean latencies compatible and incompatible (critical) blocks.
+\code{pool.sd.prac} is a vector (one per person) of the pooled SDs for the clean practice blocks. 
+\code{pool.sd.crit} is a vector (one per person) of the pooled SDs for the clean critical blocks. 
+\code{D} is a vector (one per person) of the final D scores (i.e., IAT scores).
 }
 \description{
-Prior to running, please see \code{combineIATfourblocks()}. This function processes and cleans raw IAT data in preparation for IAT scoring and analysis functions but does not include practice trials. \bold{Note that we highly recommend that users include practice blocks (see} \code{cleanIAT.prac()}\bold{).} By default, the function implements the D600 cleaning procedures (Greenwald et al., 2003, p 214, center column). The function accepts as an input a vector of IAT responses (see \code{data}, below). It returns a list containing a variety of IAT variables, including matrices of clean latencies and other information. These lists should be saved and used as the main arguments for all other IAT analysis functions. To fully score the IAT without practice blocks, this function must be run twice -- once on the 'congruent' (A+Pos, B+Neg) block and once on the 'incongruent' (A+Neg, B+Pos) block. (See Example, below). Details of the function procedure are given here. The function first drops any trials that are beyond the timeout limit (if \code{timeout.drop=TRUE}, which is enabled by default). The default timeout limit is 10,000 ms but can be changed by setting \code{timeout.ms} to a value other than 10000. For users who wish to exclude individual trials less than 400 ms (or other values), one can also set \code{fasttrial.drop=TRUE} and then set \code{fasttrial.ms=400} or any other desired value. (This enables users to use D2SD [Greenwald et al., 2003, p 214, right column] or other scoring algorithms). Next, the function drops participants entirely (scores as missing) if more than 10% of responses are less than 300 ms (if \code{fastprt.drop=TRUE}, which is enabled by default). Users can modify the percentage and speed for this drop feature by changing \code{fastprt.percent=.10} to a different proportion or \code{fastprt.ms=300} to a speed other than 300 ms. Finally, the function imposes an error penalty; by default this follows the D600 procedure of using correct block means + 600 ms (\code{error.penalty=600}, but this can be set to any numeric value or disabled by setting it to \code{error.penalty=0}. If users wish to use the "2 SD" error penalty based on correct trials (D2SD algorithm; Greenwald et al., 2003, p 214, right column), one should set \code{error.penalty="2SD"} (be sure to include the quotation marks).
+Prior to running, please see \code{combineIATfourblocks()}. This function processes, cleans, and scores the combined IAT data. In addition, it returns diagnostics (see examples, below). By default, the function implements the D600 cleaning procedures (Greenwald et al., 2003, p 214, center column) but can be easily configured to do other scoring procedures as well. The function accepts as an input four vectors of IAT responses (see \code{prac1}, \code{crit1}, \code{prac2}, and \code{crit2}, below). It returns a list containing a variety of IAT variables, including matrices of clean latencies and other information (see below). The most important is \code{clean$D}, which is the final D score for the analysis. Users can also extract clean block means for each participant using \code{clean$clean.means.prac1}, \code{clean$clean.means.crit1}, \code{clean$clean.means.prac2}, and \code{clean$clean.means.crit2}. Users can extract matricies of clean latencies using \code{clean$clean.latencies.prac1}, \code{clean$clean.latencies.crit1}, etc. Raw latencies can be requested with \code{clean$raw.latencies.prac1}, etc. Users can request to know whether a trial was correct with \code{clean$clean.correct.prac1}, etc. and precisely which stimulus was used on a given trial with \code{clean$clean.stim.number.prac1}, etc. (Stimuli are numbered based on their order entered within each category and following the sequence "positive, negative, tgtA, tgtB". For example, stimulus 1 is the first positive stimulus). See below for more details on other information that is returned from this function. The data cleaning function adheres ton Greenwald et al. (2003; see also Lane et al., 2005, p. 92 for a simplified table of data cleaning steps). There are four main data cleaning options. First, long responses are usually dealt with by setting \code{timeout.drop=TRUE} (enabled by default), which drops individual trials over a given threshold (\code{timeout.ms}, which is 10000 ms by default). Next, overly short responses (i.e., button mashing) are dealt with by setting \code{fastprt.drop=TRUE} (enabled by default), which drops participants who have too many fast responses (more than a \code{fastprt.percent} proportion [default = .10] of responses faster than \code{fastprt.ms} [default = 300 ms]). Alternatively, one can remove individual fast trials by setting \code{fasttrial.drop=TRUE} (disabled by default), which uses a default threshold of \code{fasttrial.ms=400} ms. (This is seldom used but enables users to use alternative scoring methods [e.g., Greenwald et al., 2003, p 214, right column]). Finally, an error penalty is imposed on incorrect responses in some variants. If the IAT forces participants to correct errors, then no error penalty should be imposed (\code{error.penalty=FALSE}, the default setting). However, if participants are not forced to correct errors, one is added. Most common is a 600 ms penalty above the clean block mean (Greenwald et al., 2003), which is done by setting \code{error.penalty.ms=600}, sometimes known as the D600 scoring procedure. Greenwald et al. (2003) also suggested one could use two standard deviations instead of 600 ms, which is done by setting \code{error.penalty.ms="2SD"}.
 }
 \examples{
 \dontrun{
-### Clean the IAT USING THE D600 PROECEDURE### 
-congruent.clean <- cleanIAT(congruent)
-incongruent.clean <- cleanIAT(incongruent)
 
-### Clean the IAT USING THE D600 PROCEDURE DROPPING TRIALS UNDER 400 MS### 
-congruent.clean <- cleanIAT(congruent, fasttrial.drop=TRUE, fasttrial.ms=400)
-incongruent.clean <- cleanIAT(incongruent, fasttrial.drop=TRUE, fasttrial.ms=400)
+### CLEAN THE IAT USING THE BUILT IN ERROR PENALTY FOR FORCED-ERROR CORRECTION ### 
+clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit) 
 
-### Clean the IAT USING THE D2SD PROCEDURE WITH TRIALS UNDER 400 MS DROPPED### 
-congruent.clean <- cleanIAT(congruent, error.penalty="2SD", fasttrial.drop=TRUE, fasttrial.ms=400)
-incongruent.clean <- cleanIAT(incongruent, error.penalty="2SD", fasttrial.drop=TRUE, fasttrial.ms=400)
+### CLEAN THE IAT USING THE D600 PROCEDURE ### 
+clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, error.penalty=TRUE, error.penalty.ms=600) 
 
-### Clean the IAT USING THE BUILT IN ERROR PENALTY FOR FORCED-ERROR CORRECTION### 
-congruent.clean <- cleanIAT(congruent, error.penalty=0)
-incongruent.clean <- cleanIAT(incongruent, error.penalty=0)
+### CLEAN THE IAT USING THE D2SD PROCEDURE###
+clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, error.penalty=TRUE, error.penalty.ms = "2SD") 
 
+### CLEAN THE IAT USING THE D2SD PROCEDURE WITH TRIALS UNDER 400 MS DROPPED ###
+clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, fastprt.drop=FALSE, fasttrial.drop=TRUE, fasttrial.ms=400, error.penalty=TRUE, error.penalty.ms = "2SD") 
+
+### EXAMINE CLEAN IAT SCORES
+clean$D
+
+### EXAMINE IAT DIAGNOSTICS ###
+# TIMEOUT DROP RATE (\% of TRIALS) #
+clean$timeout.rate
+
+# LOWER TAIL DROP RATE (\% of TRIALS) - NOTE: DISABLED BY DEFAULT #
+clean$fasttrial.rate
+
+# FAST PARTICIPANT DROP COUNT AND RATE (\% of SAMPLE) #
+clean$fastprt.count
+clean$fastprt.rate
+
+# ERROR RATE #
+clean$error.rate
 }
+}
+\references{
+Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
+
+Greenwald, A. G., Nosek, B. A., & Banaji, M. R. (2003). Understanding and using the Implicit Association Test: I. An improved scoring algorithm. \emph{Journal of Personality and Social Psychology, 85}, 197–216. https://doi.org/10.1037/0022-3514.85.2.197
+
+Lane, K. A., Banaji, M. R., Nosek, B. A., & Greenwald, A. G. (2007). Understanding and using the Implicit Association Test: IV: What we know (so far) about the method. In B. Wittenbrink & N. Schwarz (Eds.), \emph{Implicit measures of attitudes}. (pp. 59–102). New York, NY: Guilford Press.
+
+Nosek, B. A., Greenwald, A. G., & Banaji, M. R. (2005). Understanding and using the implicit association test: II. Method variables and construct validity. \emph{Personality and Social Psychology Bulletin, 31}, 166–180. https://doi.org/10.1177/0146167204271418
 }
 
