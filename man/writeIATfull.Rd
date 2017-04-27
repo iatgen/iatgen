@@ -4,28 +4,26 @@
 \alias{writeIATfull}
 \title{Builds a fully functional IAT with counterbalanced permutations}
 \usage{
-writeIATfull(startqid = 1, posname, negname, Aname, Bname, IATname = "IAT",
-  n = c(20, 20, 20, 40, 40, 20, 40), catType, catCol = "green", poswords,
-  negwords, posimgs, negimgs, nPos, nNeg, tgtType, tgtCol = "black", nA, nB,
-  Awords, Bwords, Aimgs, Bimgs, qsf = FALSE, combined.type = "alternating",
-  pause = 250, errorpause = 300, correct.error = F, note = F)
+writeIATfull(IATname = "IAT", posname, negname, Aname, Bname, n = c(20, 20,
+  20, 40, 40, 20, 40), catType, catCol = "green", poswords, negwords, posimgs,
+  negimgs, tgtType, tgtCol = "black", Awords, Bwords, Aimgs, Bimgs,
+  qsf = FALSE, pause = 250, errorpause = 300, correct.error = F,
+  note = F, startqid = 1)
 }
 \arguments{
-\item{startqid}{(Required, set by default). Numeric value indicating starting Qualtrics question number. By default, starts IAT with question 1 in Qualtrics (\code{startqid=1}), which is appropriate if using one of the pre-built templates or starting with a new survey. The only time you should adjust this value is if you are adding an IAT to an existing survey or including more than one IAT in your survey. In those cases, see the online tutorials for multiple-IAT designs.}
+\item{IATname}{(Required, set by default). A short string of text that serves to name the IAT. By default, set as 'IAT'. Do not add spaces or special characters.}
 
-\item{posname}{(Required). The name of the positive category as appears to participants. Appears in HTML files.}
+\item{posname}{(Required). The name of the positive category as appears to participants.}
 
-\item{negname}{(Required). The name of the negative category as appears to participants. Appears in HTML files.}
+\item{negname}{(Required). The name of the negative category as appears to participants.}
 
-\item{Aname}{(Required). The name of Target A as appears to participants. Appears in HTML files.}
+\item{Aname}{(Required). The name of Target A as appears to participants.}
 
-\item{Bname}{(Required). The name of Target B as appears to participants. Appears in HTML files.}
+\item{Bname}{(Required). The name of Target B as appears to participants.}
 
-\item{IATname}{(Required, set by default). A short string of text that serves to name the IAT. By default, set as 'IAT'.}
+\item{n}{(Required, set by default). A numeric vector of length seven, indicating the number of trials in each block. By default, \code{c(20, 20, 20, 40, 40, 20, 40)}. Block 5 is set, by default, to 40 trials following Nosek et al. (2005). Trials should be even numbers, and for combined blocks, divisible by 4.}
 
-\item{n}{(Required, set by default). A numeric vector of length seven, indicating the number of trials in each block. By default, \code{c(20, 20, 20, 40, 40, 20, 40)}. Block 5 is set, by default, to 40 trials following Nosek et al. (2005), who found this eliminates the order effects of initial pairing. Trials should be even numbers, and for combined blocks, divisible by 4.}
-
-\item{catType}{(Required). Can be \code{catType="words"} or \code{catType="images"}. Determines whether the code adds text or images for category stimuli. If \code{catType="words"}, user must specify two additional arguments: \code{poswords} and \code{negwords}. If \code{catType="images"}, the user must specify two additional arguments: \code{nPos} and \code{nNeg}.}
+\item{catType}{(Required). Can be \code{catType="words"} or \code{catType="images"}. Determines whether the code adds text or images for category stimuli. If \code{catType="words"}, user must specify two additional arguments: \code{poswords} and \code{negwords}. If \code{catType="images"}, the user must specify two additional arguments: \code{posimgs} and \code{negimgs}.}
 
 \item{catCol}{(Required, set by default). Sets the color of the category stimuli and on-screen labels. By default, set to \code{catCol="green"} but can be set to any CSS color name.}
 
@@ -33,9 +31,9 @@ writeIATfull(startqid = 1, posname, negname, Aname, Bname, IATname = "IAT",
 
 \item{negwords}{(Required if \code{catType="words"}). Should be a vector of stimuli, e.g.  \code{negwords=c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt")}. Ignored if \code{catType="images"}.}
 
-\item{posimgs}{(Required if \code{catType="images"}). Should be a vector of image URLs, e.g. \code{posimgs=c("www.website.com/gentle.jpg", "www.website.com/enjoy.jpg")}. Because this can be quite lengthy, it is recommended that users save this in a separate line of code and refer to it by name here (see examples below). It is advised that users ensure they have legal rights to use all images and post them to their own Qualtrics URLs (see online tutorials) to ensure they will have consistent access to them during the study. Ignored if \code{catType="words"}.}
+\item{posimgs}{(Required if \code{catType="images"}). Should be a vector of image URLs, e.g. \code{posimgs=c("www.website.com/gentle.jpg", "www.website.com/enjoy.jpg")}. Users should have legal rights to use images and should host them personally (or via Qualtrics). For more on image sizing and how to host images, see tutorial at www.iatgen.wordpress.com. Ignored if \code{catType="words"}.}
 
-\item{negimgs}{(Required if \code{catType="images"}). Should be a vector of image URLs, e.g. \code{negimgs=c("www.website.com/poison.jpg", "www.website.com/evil.jpg")}. Because this can be quite lengthy, it is recommended that users save this in a separate line of code and refer to it by name here (see examples below). It is advised that users ensure they have legal rights to use all images and post them to their own Qualtrics URLs (see online tutorials) to ensure they will have consistent access to them during the study. Ignored if \code{catType="words"}.}
+\item{negimgs}{(Required if \code{catType="images"}). Should be a vector of image URLs, e.g. \code{negimgs=c("www.website.com/poison.jpg", "www.website.com/evil.jpg")}. Users should have legal rights to use images and should host them personally (or via Qualtrics). For more on image sizing and how to host images, see tutorial at www.iatgen.wordpress.com. Ignored if \code{catType="words"}.}
 
 \item{tgtType}{(Required). Can be \code{tgtType="words"} or \code{tgtType="images"}. Determines whether text or images are used for tgt stimuli. If \code{tgtType="words"}, user must specify two additional arguments: \code{Awords} and \code{Bwords}. If \code{tgtType="images"}, the user must specify two additional arguments: \code{Aimgs} and \code{Bimgs}.}
 
@@ -45,154 +43,223 @@ writeIATfull(startqid = 1, posname, negname, Aname, Bname, IATname = "IAT",
 
 \item{Bwords}{(Required if \code{tgtType="words"}). Should be a vector of stimuli, e.g. \code{Bwords=c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat")}. Ignored if \code{tgtType="images"}.}
 
-\item{Aimgs}{(Required if \code{tgtType="images"}). Should be a vector of image URLs, e.g. \code{Aimgs=c("www.website.com/Orchid.jpg", "www.website.com/Tulip.jpg")}. Because this can be quite lengthy, it is recommended that users save this in a separate line of code and refer to it by name here (see examples below). It is advised that users ensure they have legal rights to use all images and post them to their own Qualtrics URLs (see online tutorials) to ensure they will have consistent access to them during the study. Ignored if \code{tgtType="words"}.}
+\item{Aimgs}{(Required if \code{tgtType="images"}). Should be a vector of image URLs, e.g. \code{Aimgs=c("www.website.com/Orchid.jpg", "www.website.com/Tulip.jpg")}. Users should have legal rights to use images and should host them personally (or via Qualtrics). For more on image sizing and how to host images, see tutorial at www.iatgen.wordpress.com. Ignored if \code{tgtType="words"}.}
 
-\item{Bimgs}{(Required if \code{tgtType="images"}). Should be a vector of image URLs, e.g. \code{Bimgs=c("www.website.com/Wasp.jpg", "www.website.com/flea.jpg")}. Because this can be quite lengthy, it is recommended that users save this in a separate line of code and refer to it by name here (see examples below). It is advised that users ensure they have legal rights to use all images and post them to their own Qualtrics URLs (see online tutorials) to ensure they will have consistent access to them during the study. Ignored if \code{tgtType="words"}.}
+\item{Bimgs}{(Required if \code{tgtType="images"}). Should be a vector of image URLs, e.g. \code{Bimgs=c("www.website.com/Wasp.jpg", "www.website.com/flea.jpg")}. Users should have legal rights to use images and should host them personally (or via Qualtrics). For more on image sizing and how to host images, see tutorial at www.iatgen.wordpress.com. Ignored if \code{tgtType="words"}.}
 
-\item{qsf}{Logical argument (required, set to \code{FALSE} by default). If \code{qsf=TRUE}, creates a functional Qualtrics Survey File (*.qsf) for the user to import directly into Qualtrics. If set to \code{qsf=FALSE}, the user must copy paste JavaScript and HTML files into a template. The QSF feature is only is not compatible with multi-IAT designs.}
+\item{qsf}{(Required, set by default). Logical value, set to \code{FALSE} by default. If \code{qsf=TRUE}, creates a functional Qualtrics Survey File (*.qsf) for the user to import directly into Qualtrics. If set to \code{qsf=FALSE}, the user must copy paste JavaScript and HTML files into a template. The QSF feature is not compatible with multi-IAT designs. See tutorial on www.iatgen.wordpress.com for multi-IAT designs and usage of manual mode.}
 
-\item{pause}{(Required, set by default at 250 ms). Numeric value sets the delay between trials (displaying the fixation cross) in milliseconds. By default, set to 250 (Greenwald et al., 1998) but can be set to any value.}
+\item{pause}{(Required, set by default). Numeric value sets the delay between trials (displaying the fixation cross) in milliseconds. By default, set to 250 (Greenwald et al., 1998) but can be set to any value.}
 
 \item{errorpause}{(Required if \code{correct.error=TRUE}). This sets the amount of time in milliseconds to display the red X in case of an error. By default, set to 300 ms (Greenwald et al., 1998) but can be set to any value. Ignored if \code{correct.error=T}.}
 
-\item{correct.error}{(Required logical value, set to \code{note=FALSE} by default). When \code{correct.error=TRUE}, creates a variant where participants must correct errors in order to proceed from one trial to the next (see Greenwald et al., 2003). This is also specified in the IAT instructions. When \code{correct.error=FALSE}, the IAT follows the original Greenwald et al. (1998) procedure in which an error message flashes on the screen between trials.}
+\item{correct.error}{(Required, set by default). Logical value, set to \code{FALSE} by default. When \code{correct.error=TRUE}, creates a variant where participants must correct errors in order to proceed from one trial to the next (see Greenwald et al., 2003). When \code{correct.error=FALSE}, the IAT follows the original Greenwald et al. (1998) procedure in which an error message flashes on the screen between trials. Note that forced error correction is the default in most modern IAT software.}
 
-\item{note}{(Required, set to \code{note=FALSE} by default). When \code{note=TRUE}, displays a persistent note at the bottom of the window reminding participants which keys to press and how to handle errors (if \code{correct.error=TRUE}). This is recommended for non-laboratory use, where participants are unable to ask for assistance.}
+\item{note}{(Required, set by default). Logical value, set to \code{FALSE} by default. When \code{note=TRUE}, displays a persistent note at the bottom of the window reminding participants which keys to press and how to handle errors (if \code{correct.error=TRUE}). This is recommended for non-laboratory use, where participants are unable to ask for assistance.}
+
+\item{startqid}{(Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).}
 }
 \value{
 Nothing is returned. However, a QSF file (if \code{qsf=T}) or folders (if \code{qsf=F}) are made in the working directory containing both HTML and JavaScript files that are to be pasted into Qualtrics.
 }
 \description{
-The function has two modes. In automatic mode (set \code{qsf=TRUE}), it creates in the working directory a fully functional *.qsf file (Qualtrics survey file) ready to import into Qualtrics. In manual mode (default, \code{qsf=FALSE}), creates four numbered folders in the working directory containing HTML and JavaScript code for manual pasting into a template (corresponding to all left/right permutations of the IAT). In both modes, the user may specify any features of the IAT. The user must always specify the four names for the targets and categories to appear in the corners of the screen (\code{posname}, \code{negname}, \code{Aname}, and \code{Bname}). The user must also always specify the type of stimuli for both targets (\code{tgtType="words"} or \code{tgtType="images"}) and categories (\code{catType="words"} or \code{catType="images"}). Finally, the user must specify the stimuli sets for each of the four terms (when images: \code{Aimgs}, \code{Bimgs}, \code{posimgs}, and \code{negimgs}; when words: \code{Awords}, \code{Bwords}, \code{poswords}, and \code{negwords}). Words are specified by vectors of words (e.g., \code{poswords=c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend")}, whereas images are specified by vectors of image URLs: (e.g., \code{posimgs=c("www.website.com/gentle.jpg", "www.website.com/enjoy.jpg", "www.website.com/Heaven.jpg")}. Typically users create image vectors beforehand and refer to them by name in the IAT function call (e.g., \code{posimgs=pleasantjpgs}; see examples below). \bold{There are also a number of optional settings}. By default, the IAT creates a 250-ms pause between trials but this can be changed using the \code{pause} argument (e.g., \code{pause=500}). By default, the function also produces the original Greenwald et al. (1998) version in which an error message flashes in the place of the stimulus and automatically starting the next trial (default = 300 ms, can be changed by setting \code{errorpause} to a number other than 300). This can be changed by setting \code{correct.error=TRUE}, in which case the function builds an IAT such that participants must correct errors before proceeding. Users can also edit the color of the targets using the optional \code{tgtCol} argument (e.g., \code{tgtCol="black"}) which is set to black by default. Users can change the color of attributes using the \code{catCol} argument (e.g., \code{catCol="green"}), which is set to green by default. These colors mirror those commonly found in IATs (e.g., www.projectimplicit.org) but can be set to any CSS color (see www.w3schools.com/colors/colors_names.asp for a list of all compatible colors). The user can set the number of trials by specifying the \code{n} argument. By default, combined blocks alternate between target and category stimuli (recommended), but this can be changed by setting \code{combined.type="random"} (by default, \code{combined.type="alternating"}. Users can enable a note reminding participants about the keypress directions during the IAT by setting \code{note=TRUE}. In manual mode ONLY, users can also set the file numbering to start at a question number other than 1 by setting \code{startqid} to something other than 1. This is useful when adding a second IAT to an existing survey, for example, when questions may already exist in the survey.
+This is the primary function for building IATs. It has two modes. In automatic mode (set \code{qsf=TRUE}), the function creates a fully functional *.qsf file (Qualtrics survey file) in the user’s working directory, ready to import into Qualtrics. In manual mode (the default option, \code{qsf=FALSE}), it creates four numbered folders which contain HTML and JavaScript code which can be pasted into a template (see tutorial for manual mode at www.iatgen.wordpress.com). In both modes, the user specifies features of the IAT. The user must specify a name for the IAT (\code{IATname}) and the four labels for the targets and categories (\code{posname}, \code{negname}, \code{Aname}, and \code{Bname}). The user must also always specify the type of stimuli for both targets (\code{tgtType="words"} or \code{tgtType="images"}) and categories (\code{catType="words"} or \code{catType="images"}). The user must also specify the stimuli sets for each of the four terms (when images: \code{Aimgs}, \code{Bimgs}, \code{posimgs}, and \code{negimgs}; when words: \code{Awords}, \code{Bwords}, \code{poswords}, and \code{negwords}). Word stimuli are specified by vectors of words (e.g., \code{poswords=c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend")}, whereas images are specified by vectors of image URLs: (e.g., \code{posimgs=c("www.website.com/gentle.jpg", "www.website.com/enjoy.jpg", "www.website.com/Heaven.jpg"}). We recommend users host their own images to avoid issues for participants (see tutorial on www.iatgen.wordpress.com). Beyond the above, there are a number of additional settings. By default, the IAT creates a 250-ms pause between trials (Greenwald et al., 1998), but this can be changed using the pause argument (e.g., \code{pause=500}). By default, the function also produces the original Greenwald et al. (1998) variant in which an error message (a red X) flashes for a pause before automatically starting the next trial (default = 300 ms, can be changed by setting \code{errorpause} to a number other than 300 [e.g., \code{errorpause = 400}]). We recommend using a popular variant of the IAT in which the user must correct errors before proceeding to the next trial, which is accomplisehd by setting \code{correct.error=TRUE}. Users can also edit the color of the targets using the optional \code{tgtCol} argument (e.g., \code{tgtCol="black"}) which is set to black by default. Users can change the color of attributes using the \code{catCol} argument (e.g., \code{catCol="green"}), and can be set to any CSS color (see www.w3schools.com/colors/colors_names.asp for a list of all compatible colors). The user can set the number of trials by specifying the n argument.   Users can enable a note reminding participants about the keypress directions during the IAT by setting \code{note=TRUE}, which is used on some popular IAT websites (e.g., www.projectimplicit.org) and may be useful in online settings where participants cannot directly approach an experimenter with questions.
 }
 \examples{
 \dontrun{
 
-### Builds a words-only insect/flower IAT named "flowins" with all four permutations. Builds a QSF file automatically:
+### A words-only IAT with recommended settings. IAT examines insects vs. flowers and is named "flowins". Recommended settings builds a QSF file automatically with forced error correction and a note reminding participants of the instructions.
+## Note: the following are specified below for example purposes but are specified by default automatically and can be omitted: coloring of stimuli, number of trials per block, pause between trials
 
-writeIATfull(posname="Pleasant", negname="Unpleasant", 
-     Aname="Flowers", Bname="Insects",
-     IATname="flowins",
-     catType="words", 
-     poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-     negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-     tgtType="words",
-     Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-     Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
-     qsf=T
-     )
+writeIATfull(IATname="flowins",
+           posname="Pleasant", 
+           negname="Unpleasant",
+           Aname="Flowers",
+           Bname="Insects",
+           catType="words",
+           poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+           negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+           tgtType="words",
+           Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+           Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+           
+           #advanced options with recommended IAT settings
+           n=c(20, 20, 20, 40, 40, 20, 40),
+           qsf=T, 
+           note=T,
+           correct.error=T,
+           pause=250, 
+           tgtCol="black",
+           catCol="green"
+)
      
- ### Same IAT but with pink targets and black categories, random combined blocks, forced error correction enabled, and a reminder note about task directions:
+ ### Same IAT but with the persistent task directions disabled (\\code{note=FALSE}), forced error correction disabled (\\code{correct.error=FALSE}) and a 300 ms pause for the error message (\\code{errorpause=300}).
 
-writeIATfull(posname="Pleasant", negname="Unpleasant", 
-     Aname="Flowers", Bname="Insects",
-     IATname="flowins",
-     note=TRUE, combined.type="random",
-     correct.error=TRUE,
-     catType="words", 
-     catCol="black",
-     poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-     negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-     tgtType="words",
-     tgtCol="pink",
-     Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-     Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
-     qsf=T
-     )
+writeIATfull(IATname="flowins",
+            posname="Pleasant", 
+            negname="Unpleasant",
+            Aname="Flowers",
+            Bname="Insects",
+            catType="words",
+            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+            tgtType="words",
+            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+            
+            #advanced options 
+            n=c(20, 20, 20, 40, 40, 20, 40),
+            qsf=T, 
+            note=F,
+            correct.error=F,
+            pause=250, 
+            errorpause=300,
+            tgtCol="black",
+            catCol="green"
+)
 
+### Same IAT as prior example but with 10 trials for all non-critical blocks and 12 trials for all critical blocks.
 
-### Same IAT but with a half-second (500 ms) pause between trials a 7/10 second (700 ms) error message. 
+writeIATfull(IATname="flowins",
+            posname="Pleasant", 
+            negname="Unpleasant",
+            Aname="Flowers",
+            Bname="Insects",
+            catType="words",
+            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+            tgtType="words",
+            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+            
+            #advanced options
+            n=c(10, 10, 10, 12, 10, 10, 12),
+            qsf=T, 
+            note=F,
+            correct.error=F,
+            pause=250, 
+            errorpause=300,
+            tgtCol="black",
+            catCol="green"
+)
 
-writeIATfull(posname="Pleasant", negname="Unpleasant", 
-     Aname="Flowers", Bname="Insects",
-     IATname="flowins",
-     catType="words", 
-     poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-     negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-     tgtType="words",
-     Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-     Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
-     qsf=T,
-     pause=500, errorpause=700
-     )
-
-
-
-### A full words-only IAT using 12 trials per non-critical block and 32 trials per critical block
-
-writeIATfull(posname="Pleasant", negname="Unpleasant", 
-     Aname="Flowers", Bname="Insects",
-     IATname="flowins",
-     n=c(12, 12, 12, 32, 12, 12, 32),
-     catType="words", 
-     poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-     negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-     tgtType="words",
-     Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-     Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
-     qsf=T
-     )
-     
-     
-### An IAT that uses images for all four options:
-
-goodjpg <- c("www.website.com/gentle.jpg", 
-              "www.website.com/enjoy.jpg", 
-               "www.website.com/Heaven.jpg",
-               "www.website.com/Cheer.jpg")
-               
+### An images-only IAT with recommended settings. Note that image URL vectors are specified first to simplify the code.
+goodjpg <- c("www.website.com/gentle.jpg",
+             "www.website.com/enjoy.jpg",
+             "www.website.com/Heaven.jpg",
+             "www.website.com/Cheer.jpg")
+             
 badjpg <- c("www.website.com/Poison.jpg",
             "www.website.com/Evil.jpg.",
             "www.website.com/Vomit.jpg",
             "www.website.com/Ugly.jpg")
             
-flowjpg <- c("www.website.com/Orchid.jpg",
-            "www.website.com/Tulip.jpg",
-            "www.website.com/Rose.jpg",
-            "www.website.com/Daisy.jpg")
+Ajpg <- c("www.website.com/Orchid.jpg",
+          "www.website.com/Tulip.jpg",
+          "www.website.com/Rose.jpg",
+          "www.website.com/Daisy.jpg")
+          
+Bjpg <- c("www.website.com/Wasp.jpg",
+          "www.website.com/Flea.jpg",
+          "www.website.com/Moth.jpg",
+          "www.website.com/Bedbug.jpg")
+          
+writeIATfull(IATname="flowins",
+            posname="Pleasant", 
+            negname="Unpleasant",
+            Aname="Flowers",
+            Bname="Insects",
+            catType="images",
+            posimgs = goodjpg,
+            negimgs = badjpg,
+            tgtType="images",
+            Aimgs = Ajpg,
+            Bimgs = Bjpg,
             
-bugjpg <- c("www.website.com/Wasp.jpg",
-            "www.website.com/Flea.jpg",
-            "www.website.com/Moth.jpg",
-            "www.website.com/Bedbug.jpg")      
+            #advanced options with recommended IAT settings
+            n=c(20, 20, 20, 40, 40, 20, 40),
+            qsf=T, 
+            note=T,
+            correct.error=T,
+            pause=250, 
+            tgtCol="black",
+            catCol="green"
+)
 
-writeIATfull(posname="Pleasant", negname="Unpleasant", 
-             Aname="Flowers", Bname="Insects",
-             IATname="flowins",
-             catType="images", 
-             posimgs = goodjpg,
-             negimgs = badjpg,
-             tgtType="images",
-             Aimgs = flowjpg,
-             Bimgs = bugjpg,
-             qsf=T
-             )
-
-### A full IAT with words for categories and images for targets:
-
-flowjpg <- c("www.website.com/Orchid.jpg",
-            "www.website.com/Tulip.jpg",
-            "www.website.com/Rose.jpg",
-            "www.website.com/Daisy.jpg")
+### Example IAT with images for categories and words for targets, with recommended settings. 
+goodjpg <- c("www.website.com/gentle.jpg",
+             "www.website.com/enjoy.jpg",
+             "www.website.com/Heaven.jpg",
+             "www.website.com/Cheer.jpg")
+             
+badjpg <- c("www.website.com/Poison.jpg",
+            "www.website.com/Evil.jpg.",
+            "www.website.com/Vomit.jpg",
+            "www.website.com/Ugly.jpg")
             
-bugjpg <- c("www.website.com/Wasp.jpg",
-            "www.website.com/Flea.jpg",
-            "www.website.com/Moth.jpg",
-            "www.website.com/Bedbug.jpg")  
+writeIATfull(IATname="flowins",
+            posname="Pleasant", 
+            negname="Unpleasant",
+            Aname="Flowers",
+            Bname="Insects",
+            catType="images",
+            posimgs = goodjpg,
+            negimgs = badjpg,
+            tgtType="words",
+            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
             
-                
-writeIATfull(posname="Pleasant", negname="Unpleasant", 
-             Aname="Flowers", Bname="Insects",
-             IATname="flowins",
-             catType="words", 
-             poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-             negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-             tgtType="images",
-             Aimgs = flowjpg,
-             Bimgs = bugjpg,
-             qsf=T
-             )
+            #advanced options with recommended IAT settings
+            n=c(20, 20, 20, 40, 40, 20, 40),
+            qsf=T, 
+            note=T,
+            correct.error=T,
+            pause=250, 
+            tgtCol="black",
+            catCol="green"
+)
+
+###
+Ajpg <- c("www.website.com/Orchid.jpg",
+          "www.website.com/Tulip.jpg",
+          "www.website.com/Rose.jpg",
+          "www.website.com/Daisy.jpg")
+          
+Bjpg <- c("www.website.com/Wasp.jpg",
+          "www.website.com/Flea.jpg",
+          "www.website.com/Moth.jpg",
+          "www.website.com/Bedbug.jpg")
+          
+writeIATfull(IATname="flowins",
+            posname="Pleasant", 
+            negname="Unpleasant",
+            Aname="Flowers", 
+            Bname="Insects",
+            catType="words",
+            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+            tgtType="images",
+            Aimgs = Ajpg,
+            Bimgs = Bjpg,
+            
+            #advanced options with recommended IAT settings
+            n=c(20, 20, 20, 40, 40, 20, 40),
+            qsf=T, 
+            note=T,
+            correct.error=T,
+            pause=250, 
+            tgtCol="black",
+            catCol="green"
+)
+
 }
+}
+\references{
+Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
+
+Greenwald, A. G., Nosek, B. A., & Banaji, M. R. (2003). Understanding and using the Implicit Association Test: I. An improved scoring algorithm. \emph{Journal of Personality and Social Psychology, 85}, 197–216. https://doi.org/10.1037/0022-3514.85.2.197
+
+Nosek, B. A., Greenwald, A. G., & Banaji, M. R. (2005). Understanding and using the implicit association test: II. Method variables and construct validity. \emph{Personality and Social Psychology Bulletin, 31}, 166–180. https://doi.org/10.1177/0146167204271418
 }
 \seealso{
 See www.iatgen.wordpress.com for tutorials and files.

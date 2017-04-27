@@ -2,12 +2,12 @@
 % Please edit documentation in R/iatgen.R
 \name{cleanIAT}
 \alias{cleanIAT}
-\title{Data analysis function: Processes and cleans raw IAT data for a single block without practice blocks}
+\title{Data analysis function: Processes and cleans raw IAT data}
 \usage{
 cleanIAT(prac1, crit1, prac2, crit2, timeout.drop = TRUE,
   timeout.ms = 10000, fasttrial.drop = FALSE, fasttrial.ms = 400,
   fastprt.drop = TRUE, fastprt.percent = 0.1, fastprt.ms = 300,
-  error.penalty = 600)
+  error.penalty = FALSE, error.penalty.ms = 600)
 }
 \arguments{
 \item{timeout.drop}{Optional (set \code{TRUE} by default). Tells the procedure to drop trials over a certain duration; recommended by Greenwald et al. (2003).}
@@ -20,7 +20,9 @@ cleanIAT(prac1, crit1, prac2, crit2, timeout.drop = TRUE,
 
 \item{fastprt.ms}{Optional (set by default). If \code{fastprt.drop=TRUE}, then the user can change the threshold for the rapid response parameter used to disqualify participants. By default, this is 300 ms but can be changed here.}
 
-\item{error.penalty}{Optional (set by default at \code{error.penalty=600}). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. This is the default option but can be manually changed to any desired value or disabled by setting it to zero. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty="2SD"}.}
+\item{error.penalty}{Optional (set by default at \code{error.penalty=FALSE}). If users are not fored to correct errors, an error penalty is imposed as recommended by Greenwald et al. (2003).}
+
+\item{error.penalty.ms}{Optional (set by default at \code{error.penalty.ms=600}). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. This is the default option but can be manually changed to any desired value or disabled by setting it to zero. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}.}
 
 \item{data}{A vector of responses, one per participant. This data vector represents one of the two critical blocks of the IAT. Because the two critical blocks are cleaned separately, this function will need to be run twice before the full IAT can be scored. Note that this raw data does not naturally occur in the dataset; because there exist several permutations of the IAT, the raw data will be scattered across IAT permutations and will need to be aggregated into a vector representing either the congruent or incongruent block, which is done using the function such as \code{combineIATfourblocks()} prior to running this function. Within the data vector, each response represents several trials per participant in a comma-separated text format (for each trial: indicating stimulus, correctness, and latency in milliseconds). The block ends with "\code{END}." For example, "\code{02C423, 01C541, 03X133, END}" would be a block with three responses consisting of stimuli 2,1, and 3 with  latencies of 423, 541, and 133 ms. The first two trials were correct but the third was incorrect.}
 }
