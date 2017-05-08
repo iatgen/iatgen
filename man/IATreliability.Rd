@@ -2,7 +2,7 @@
 % Please edit documentation in R/iatgen.R
 \name{IATreliability}
 \alias{IATreliability}
-\title{Data analysis function: Estiamte reliability of IAT}
+\title{Data analysis function: Estimate reliability of IAT}
 \usage{
 IATreliability(data)
 }
