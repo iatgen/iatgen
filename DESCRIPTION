@@ -1,7 +1,7 @@
 Package: iatgen
 Type: Package
 Title: Generates IATs for Qualtrics
-Version: 10.2.10
+Version: 10.2.12
 Date: 2017-04-26
 Author: Tom Carpenter
 Maintainer: Tom Carpenter <tcarpenter@spu.edu>
