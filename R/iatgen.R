@@ -1515,6 +1515,20 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   }
   
   
+  temp.prac1 <- median(num.raw.trials.prac1[num.raw.trials.prac1 != 0])
+  temp.crit1 <- median(num.raw.trials.crit1[num.raw.trials.crit1 != 0])
+  temp.prac2 <- median(num.raw.trials.prac2[num.raw.trials.prac2 != 0])
+  temp.crit2 <- median(num.raw.trials.crit2[num.raw.trials.crit2 != 0])
+  raw.prac1 <- raw.prac1[,1:temp.prac1]
+  raw.crit1 <- raw.crit1[,1:temp.crit1]
+  raw.prac2 <- raw.prac2[,1:temp.prac2]
+  raw.crit2 <- raw.crit2[,1:temp.crit2]
+  num.raw.trials.prac1[num.raw.trials.prac1 > temp.prac1] <- temp.prac1
+  num.raw.trials.crit1[num.raw.trials.crit1 > temp.crit1] <- temp.crit1
+  num.raw.trials.prac2[num.raw.trials.prac2 > temp.prac2] <- temp.prac2
+  num.raw.trials.crit2[num.raw.trials.crit2 > temp.crit2] <- temp.crit2
+  rm(temp.crit1); rm(temp.crit2); rm(temp.prac1); rm(temp.prac2)
+  
   ## SAVE stimuli numbers as a data frame. NA handled naturally.
   #prac1
   raw.stim.number.prac1 <- raw.prac1
@@ -2315,6 +2329,8 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     D=D
   ))
 }
+
+
 
 
 
