@@ -165,6 +165,10 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   p.crit1 <- as.logical(p.crit1 + check.me(crit1))
   p.prac2 <- as.logical(p.prac2 + check.me(prac2))
   p.crit2 <- as.logical(p.crit2 + check.me(crit2))
+  p.prac1 <- (p.prac1 & (prac1 != ""))
+  p.crit1 <- (p.crit1 & (crit1 != ""))
+  p.prac2 <- (p.prac2 & (prac2 != ""))
+  p.crit2 <- (p.crit2 & (crit2 != ""))
   
   p.prt <- as.logical(p.prac1 + p.crit1 + p.prac2 + p.crit2)
   rm(p.prac1);rm(p.crit1);rm(p.prac2);rm(p.crit2)
@@ -174,6 +178,7 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   crit1[flag] <- ""
   prac2[flag] <- ""
   crit2[flag] <- ""
+  
   for(i in 1:length(flag)){
     warning(paste("Participant ",flag[i],"'s web browser encountered an error during the survey. Their IAT data are not used.", sep=""))
   }
