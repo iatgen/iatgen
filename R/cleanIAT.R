@@ -139,11 +139,27 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     return(temp)
   }
   
-  #check data integrity
+  #Check for people who skipped IAT or who have nonvalid data
+  #Are there 3 "END" characters at end of string? If not, did not complete IAT; mark skipped
   p.prac1 <- substring(prac1, (stringr::str_length(prac1)-2), stringr::str_length(prac1)) != "END"
   p.crit1 <- substring(crit1, (stringr::str_length(crit1)-2), stringr::str_length(crit1)) != "END"
   p.prac2 <- substring(prac2, (stringr::str_length(prac2)-2), stringr::str_length(prac2)) != "END"
   p.crit2 <- substring(crit2, (stringr::str_length(crit2)-2), stringr::str_length(crit2)) != "END"
+  prac1[p.prac1] <- ""
+  crit1[p.crit1] <- ""
+  prac2[p.prac2] <- ""
+  crit2[p.crit2] <- ""
+  #mark people who skipped IAT as such
+  skipped.prac1 <- prac1 == ""
+  skipped.crit1 <- crit1 == ""
+  skipped.prac2 <- prac2 == ""
+  skipped.crit2 <- crit2 == ""
+  #check integrity of people who completed IAT
+  p.prac1 <- (p.prac1 & !skipped.prac1)
+  p.crit1 <- (p.crit1 & !skipped.crit1)
+  p.prac2 <- (p.prac2 & !skipped.prac2)
+  p.crit2 <- (p.crit2 & !skipped.crit2)
+  
   check.me <- function(temp){
     temp <- stringr::str_replace(temp, "END", "")
     temp <- stringr::str_replace_all(temp, ",", "")  
@@ -165,10 +181,6 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   p.crit1 <- as.logical(p.crit1 + check.me(crit1))
   p.prac2 <- as.logical(p.prac2 + check.me(prac2))
   p.crit2 <- as.logical(p.crit2 + check.me(crit2))
-  p.prac1 <- (p.prac1 & (prac1 != ""))
-  p.crit1 <- (p.crit1 & (crit1 != ""))
-  p.prac2 <- (p.prac2 & (prac2 != ""))
-  p.crit2 <- (p.crit2 & (crit2 != ""))
   
   p.prt <- as.logical(p.prac1 + p.crit1 + p.prac2 + p.crit2)
   rm(p.prac1);rm(p.crit1);rm(p.prac2);rm(p.crit2)
@@ -178,17 +190,11 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   crit1[flag] <- ""
   prac2[flag] <- ""
   crit2[flag] <- ""
-  
-  for(i in 1:length(flag)){
-    warning(paste("Participant ",flag[i],"'s web browser encountered an error during the survey. Their IAT data are not used.", sep=""))
+  if(length(flag) > 0){
+    for(i in 1:length(flag)){
+      warning(paste("Participant ",flag[i],"'s web browser encountered an error during the survey. Their IAT data are not used.", sep=""))
+    }
   }
-  
-  
-  ## Detect if task was skipped
-  skipped.prac1 <- prac1 == ""
-  skipped.crit1 <- crit1 == ""
-  skipped.prac2 <- prac2 == ""
-  skipped.crit2 <- crit2 == ""
   
   
   ## BUILD data frames
