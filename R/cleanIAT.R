@@ -1,7 +1,7 @@
 library(stringr)
 
 #' Data analysis function: Processes and cleans raw IAT data
-#' @description Prior to running, please see \code{combineIATfourblocks()}. This function processes, cleans, and scores the combined IAT data. In addition, it returns diagnostics (see examples, below). By default, the function implements the D600 cleaning procedures (Greenwald et al., 2003, p 214, center column) but can be easily configured to do other scoring procedures as well. The function accepts as an input four vectors of IAT responses (see \code{prac1}, \code{crit1}, \code{prac2}, and \code{crit2}, below). It returns a list containing a variety of IAT variables, including matrices of clean latencies and other information (see below). The most important is \code{clean$D}, which is the final D score for the analysis. Users can also extract clean block means for each participant using \code{clean$clean.means.prac1}, \code{clean$clean.means.crit1}, \code{clean$clean.means.prac2}, and \code{clean$clean.means.crit2}. Users can extract matricies of clean latencies using \code{clean$clean.latencies.prac1}, \code{clean$clean.latencies.crit1}, etc. Raw latencies can be requested with \code{clean$raw.latencies.prac1}, etc. Users can request to know whether a trial was correct with \code{clean$clean.correct.prac1}, etc. and precisely which stimulus was used on a given trial with \code{clean$clean.stim.number.prac1}, etc. (Stimuli are numbered based on their order entered within each category and following the sequence "positive, negative, tgtA, tgtB". For example, stimulus 1 is the first positive stimulus). See below for more details on other information that is returned from this function. The data cleaning function adheres to Greenwald et al. (2003; see also Lane et al., 2005, p. 92 for a simplified table of data cleaning steps). There are four main data cleaning options. First, long responses are usually dealt with by setting \code{timeout.drop=TRUE} (enabled by default), which drops individual trials over a given threshold (\code{timeout.ms}, which is 10000 ms by default). Next, overly short responses (i.e., button mashing) are dealt with by setting \code{fastprt.drop=TRUE} (enabled by default), which drops participants who have too many fast responses (more than a \code{fastprt.percent} proportion [default = .10] of responses faster than \code{fastprt.ms} [default = 300 ms]). Alternatively, one can remove individual fast trials by setting \code{fasttrial.drop=TRUE} (disabled by default), which uses a default threshold of \code{fasttrial.ms=400} ms. (This is seldom used but enables users to use alternative scoring methods [e.g., Greenwald et al., 2003, p 214, right column]). Finally, an error penalty is imposed on incorrect responses in some variants. If the IAT forces participants to correct errors, then no error penalty should be imposed (\code{error.penalty=FALSE}, the default setting). However, if participants are not forced to correct errors, one is added. Most common is a 600 ms penalty above the clean block mean (Greenwald et al., 2003), which is done by setting \code{error.penalty.ms=600}, sometimes known as the D600 scoring procedure. Greenwald et al. (2003) also suggested one could use two standard deviations instead of 600 ms, which is done by setting \code{error.penalty.ms="2SD"}. 
+#' @description Prior to running, please see \code{combineIATfourblocks()}. This function processes, cleans, and scores the combined IAT data. In addition, it returns diagnostics (see examples, below). By default, the function implements the D-score algorithm (Greenwald et al., 2003, p 214, center column). Because it assumes users were forced to correct errors, no error penalty is imposed (unless the user requests it; see below). The function can be easily configured to do other scoring procedures as well. The function accepts as an input four vectors of IAT responses (see \code{prac1}, \code{crit1}, \code{prac2}, and \code{crit2}, below). It returns a list containing a variety of IAT variables, including matrices of clean latencies and other information (see below). The most important is \code{clean$D}, which is the final D scores for the analysis. Users can also extract clean block means for each participant using \code{clean$clean.means.prac1}, \code{clean$clean.means.crit1}, \code{clean$clean.means.prac2}, and \code{clean$clean.means.crit2}. Users can extract matrices of clean latencies using \code{clean$clean.latencies.prac1}, \code{clean$clean.latencies.crit1}, etc. Raw latencies can be requested with \code{clean$raw.latencies.prac1}, etc. Users can request to know whether a trial was correct with \code{clean$clean.correct.prac1}, etc. and precisely which stimulus was used on a given trial with \code{clean$clean.stim.number.prac1}, etc. (Stimuli are numbered based on their order entered within each category and following the sequence "positive, negative, tgtA, tgtB". For example, stimulus 1 is the first positive stimulus). See below for more information on what is returned from this function. The data cleaning function adheres to Greenwald et al. (2003; see also Lane et al., 2005, p. 92 for a simplified table of data cleaning steps). There are four main data cleaning options. First, long responses are usually dealt with by setting \code{timeout.drop=TRUE} (enabled by default), which drops individual trials over a given threshold (\code{timeout.ms}, which is 10000 ms by default). Next, overly short responses (i.e., button mashing) are dealt with by setting \code{fastprt.drop=TRUE} (enabled by default), which drops participants who have too many fast responses (more than a \code{fastprt.percent} proportion [default = .10] of responses faster than \code{fastprt.ms} [default = 300 ms]). Alternatively, one can remove individual fast trials by setting \code{fasttrial.drop=TRUE} (disabled by default), which uses a default threshold of \code{fasttrial.ms=400} ms. (This is seldom used but enables users to use alternative scoring methods [e.g., Greenwald et al., 2003, p 214, right column]). Finally, an error penalty is imposed on incorrect responses in some variants. If the IAT forces participants to correct errors, then no error penalty should be imposed (\code{error.penalty=FALSE}, the default setting). However, if participants are not forced to correct errors, one is added. Most common is a 600 ms penalty above the clean block mean (Greenwald et al., 2003), which is done by setting \code{error.penalty.ms=600}, sometimes known as the D600 scoring procedure. Greenwald et al. (2003) also suggested one could use two standard deviations instead of 600 ms, which is done by setting \code{error.penalty.ms="2SD"}. Finally, the function ensures that the data are not corrupted (i.e., JavaScript malfunction on participant's computer when completing the survey) by requiring that only appropriate characters (numbers, commas, "C", "X", and "END) are in the raw data.
 #' @param prac1 A vector of one kind of practice responses (e.g., compatible practice), one per participant. 
 #' @param crit1 A vector of that same kind of critical responses (e.g., compatible critical), one per participant. 
 #' @param prac2 A vector of the other kind of practice responses (e.g., incompatible practice), one per participant. 
@@ -139,12 +139,52 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     return(temp)
   }
   
+  #check data integrity
+  p.prac1 <- substring(prac1, (stringr::str_length(prac1)-2), stringr::str_length(prac1)) != "END"
+  p.crit1 <- substring(crit1, (stringr::str_length(crit1)-2), stringr::str_length(crit1)) != "END"
+  p.prac2 <- substring(prac2, (stringr::str_length(prac2)-2), stringr::str_length(prac2)) != "END"
+  p.crit2 <- substring(crit2, (stringr::str_length(crit2)-2), stringr::str_length(crit2)) != "END"
+  check.me <- function(temp){
+    temp <- stringr::str_replace(temp, "END", "")
+    temp <- stringr::str_replace_all(temp, ",", "")  
+    temp <- stringr::str_replace_all(temp, "C", "")  
+    temp <- stringr::str_replace_all(temp, "X", "")  
+    temp <- stringr::str_replace_all(temp, "0", "")  
+    temp <- stringr::str_replace_all(temp, "1", "")  
+    temp <- stringr::str_replace_all(temp, "2", "")  
+    temp <- stringr::str_replace_all(temp, "3", "")  
+    temp <- stringr::str_replace_all(temp, "4", "")  
+    temp <- stringr::str_replace_all(temp, "5", "")  
+    temp <- stringr::str_replace_all(temp, "6", "")  
+    temp <- stringr::str_replace_all(temp, "7", "")  
+    temp <- stringr::str_replace_all(temp, "8", "")  
+    temp <- stringr::str_replace_all(temp, "9", "")
+    return(!temp=="")
+  }
+  p.prac1 <- as.logical(p.prac1 + check.me(prac1))
+  p.crit1 <- as.logical(p.crit1 + check.me(crit1))
+  p.prac2 <- as.logical(p.prac2 + check.me(prac2))
+  p.crit2 <- as.logical(p.crit2 + check.me(crit2))
+  
+  p.prt <- as.logical(p.prac1 + p.crit1 + p.prac2 + p.crit2)
+  rm(p.prac1);rm(p.crit1);rm(p.prac2);rm(p.crit2)
+  index.prt <- 1:length(p.prt)
+  flag<-index.prt[p.prt==TRUE]; rm(index.prt); rm(p.prt)
+  prac1[flag] <- ""
+  crit1[flag] <- ""
+  prac2[flag] <- ""
+  crit2[flag] <- ""
+  for(i in 1:length(flag)){
+    warning(paste("Participant ",flag[i],"'s web browser encountered an error during the survey. Their IAT data are not used.", sep=""))
+  }
+  
   
   ## Detect if task was skipped
   skipped.prac1 <- prac1 == ""
   skipped.crit1 <- crit1 == ""
   skipped.prac2 <- prac2 == ""
   skipped.crit2 <- crit2 == ""
+  
   
   ## BUILD data frames
   raw.prac1 <- data.frame() 
@@ -385,24 +425,6 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   for (j in 1:ncol(raw.latencies.crit2)){
     raw.latencies.crit2[,j] <- as.numeric(raw.latencies.crit2[,j])
   }
-  
-  # NA any glitch trials  trials [not used; if JavaScript glitches, drop participant instead]
-  #raw.latencies.crit1[!(raw.latencies.crit1 >= 0)] <- NA
-  #raw.latencies.crit2[!(raw.latencies.crit2 >= 0)] <- NA
-  #raw.latencies.prac1[!(raw.latencies.prac1 >= 0)] <- NA
-  #raw.latencies.prac2[!(raw.latencies.prac2 >= 0)] <- NA
-  #raw.correct.crit1[!(raw.latencies.crit1 >= 0)] <- NA
-  #raw.correct.crit2[!(raw.latencies.crit2 >= 0)] <- NA
-  #raw.correct.prac1[!(raw.latencies.prac1 >= 0)] <- NA
-  #raw.correct.prac2[!(raw.latencies.prac2 >= 0)] <- NA
-  #raw.stim.number.crit1[!(raw.latencies.crit1 >= 0)] <- NA
-  #raw.stim.number.crit2[!(raw.latencies.crit2 >= 0)] <- NA
-  #raw.stim.number.prac1[!(raw.latencies.prac1 >= 0)] <- NA
-  #raw.stim.number.prac2[!(raw.latencies.prac2 >= 0)] <- NA
-  num.raw.trials.prac1 <- rowSums(!is.na(raw.latencies.prac1))
-  num.raw.trials.prac2 <- rowSums(!is.na(raw.latencies.prac2))
-  num.raw.trials.crit1 <- rowSums(!is.na(raw.latencies.crit1))
-  num.raw.trials.crit2 <- rowSums(!is.na(raw.latencies.crit2))
   
   
   ## CREATE containers for clean versions
