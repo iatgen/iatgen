@@ -161,7 +161,7 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   p.crit2 <- (p.crit2 & !skipped.crit2)
   
   check.me <- function(temp){
-    temp <- stringr::str_replace(temp, "END", "")
+    temp <- stringr::str_replace_all(temp, "END", "")
     temp <- stringr::str_replace_all(temp, ",", "")  
     temp <- stringr::str_replace_all(temp, "C", "")  
     temp <- stringr::str_replace_all(temp, "X", "")  
