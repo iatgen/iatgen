@@ -192,9 +192,14 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   crit2[flag] <- ""
   if(length(flag) > 0){
     for(i in 1:length(flag)){
-      warning(paste("Participant ",flag[i],"'s web browser encountered an error during the survey. Their IAT data are not used.", sep=""))
+      warning(paste("Participant ",flag[i],"'s web browser encountered an error during the survey. Their IAT data are not usable and not included in analysis.", sep=""))
     }
   }
+  #update skip counts to reflect number of validly completed IATs
+  skipped.prac1 <- prac1 == ""
+  skipped.crit1 <- crit1 == ""
+  skipped.prac2 <- prac2 == ""
+  skipped.crit2 <- crit2 == ""
   
   
   ## BUILD data frames
