@@ -943,8 +943,8 @@ writeIATfull <- function(IATname="IAT",
                          qsf=FALSE,
                          pause=250,
                          errorpause=300,
-                         correct.error=T,
-                         note=F,
+                         correct.error=TRUE,
+                         note=FALSE,
                          startqid = 1
 ) {
 
