@@ -7,7 +7,7 @@
 cleanIAT(prac1, crit1, prac2, crit2, timeout.drop = TRUE,
   timeout.ms = 10000, fasttrial.drop = FALSE, fasttrial.ms = 400,
   fastprt.drop = TRUE, fastprt.percent = 0.1, fastprt.ms = 300,
-  error.penalty = FALSE, error.penalty.ms = 600)
+  error.penalty = FALSE, error.penalty.ms = 600, inclusive.sd = TRUE)
 }
 \arguments{
 \item{prac1}{A vector of one kind of practice responses (e.g., compatible practice), one per participant.}
@@ -89,18 +89,14 @@ Returns a list containing several important elements.
 \code{clean.correct.crit1} is a matrix stating whether each trial was correct (logical) in the first critical block. 
 \code{clean.correct.prac2} is a matrix stating whether each trial was correct (logical) in the second practice block. 
 \code{clean.correct.crit2} is a matrix stating whether each trial was correct (logical) in the second critical block.
-\code{clean.std.prac1} is a vector of clean block standard deviations in the first practice block, one per participant.
-\code{clean.std.crit1} is a vector of clean block standard deviations in the first critical block, one per participant.
-\code{clean.std.prac2} is a vector of clean block standard deviations in the second practice block, one per participant.
-\code{clean.std.crit2} is a vector of clean block standard deviations in the second critical block, one per participant.
 \code{clean.means.prac1} is a vector of clean block mean of latencies in the first practice block, one per participant.
 \code{clean.means.crit1} is a vector of clean block mean of latencies in the first critical block, one per participant.
 \code{clean.means.prac2} is a vector of clean block mean of latencies in the second practice block, one per participant.
 \code{clean.means.crit2} is a vector of clean block mean of latencies in the second critical block, one per participant.
 \code{diff.prac} is a vector (one per person) of the difference between mean latencies compatible and incompatible (practice) blocks.
 \code{diff.crit} is a vector (one per person) of the difference between mean latencies compatible and incompatible (critical) blocks.
-\code{pool.sd.prac} is a vector (one per person) of the pooled SDs for the clean practice blocks. 
-\code{pool.sd.crit} is a vector (one per person) of the pooled SDs for the clean critical blocks. 
+\code{inclusive.sd.prac} is a vector (one per person) of the inclusive SD for the practice trials, per Greenwald et al. (2003).
+\code{inclusive.sd.crit} is a vector (one per person) of the inclusive SD for the critical trials, per Greenwald et al. (2003).
 \code{D} is a vector (one per person) of the final D scores (i.e., IAT scores).
 }
 \description{

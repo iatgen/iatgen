@@ -67,18 +67,14 @@ library(stringr)
 #' \code{clean.correct.crit1} is a matrix stating whether each trial was correct (logical) in the first critical block. 
 #' \code{clean.correct.prac2} is a matrix stating whether each trial was correct (logical) in the second practice block. 
 #' \code{clean.correct.crit2} is a matrix stating whether each trial was correct (logical) in the second critical block.
-#' \code{clean.std.prac1} is a vector of clean block standard deviations in the first practice block, one per participant.
-#' \code{clean.std.crit1} is a vector of clean block standard deviations in the first critical block, one per participant.
-#' \code{clean.std.prac2} is a vector of clean block standard deviations in the second practice block, one per participant.
-#' \code{clean.std.crit2} is a vector of clean block standard deviations in the second critical block, one per participant.
 #' \code{clean.means.prac1} is a vector of clean block mean of latencies in the first practice block, one per participant.
 #' \code{clean.means.crit1} is a vector of clean block mean of latencies in the first critical block, one per participant.
 #' \code{clean.means.prac2} is a vector of clean block mean of latencies in the second practice block, one per participant.
 #' \code{clean.means.crit2} is a vector of clean block mean of latencies in the second critical block, one per participant.
 #' \code{diff.prac} is a vector (one per person) of the difference between mean latencies compatible and incompatible (practice) blocks.
 #' \code{diff.crit} is a vector (one per person) of the difference between mean latencies compatible and incompatible (critical) blocks.
-#' \code{pool.sd.prac} is a vector (one per person) of the pooled SDs for the clean practice blocks. 
-#' \code{pool.sd.crit} is a vector (one per person) of the pooled SDs for the clean critical blocks. 
+#' \code{inclusive.sd.prac} is a vector (one per person) of the inclusive SD for the practice trials, per Greenwald et al. (2003).
+#' \code{inclusive.sd.crit} is a vector (one per person) of the inclusive SD for the critical trials, per Greenwald et al. (2003).
 #' \code{D} is a vector (one per person) of the final D scores (i.e., IAT scores).
 #' @references Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
 #' @references Greenwald, A. G., Nosek, B. A., & Banaji, M. R. (2003). Understanding and using the Implicit Association Test: I. An improved scoring algorithm. \emph{Journal of Personality and Social Psychology, 85}, 197–216. https://doi.org/10.1037/0022-3514.85.2.197
@@ -117,7 +113,7 @@ library(stringr)
 #' }
 
 
-cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=10000, fasttrial.drop=FALSE, fasttrial.ms=400, fastprt.drop=TRUE, fastprt.percent=.10, fastprt.ms=300, error.penalty=FALSE, error.penalty.ms=600) {
+cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=10000, fasttrial.drop=FALSE, fasttrial.ms=400, fastprt.drop=TRUE, fastprt.percent=.10, fastprt.ms=300, error.penalty=FALSE, error.penalty.ms=600, inclusive.sd=TRUE) {
   
   if (is.null(prac1)){stop("One of your input variables does not exist. Please check your data / variable names and try again.")}
   if (is.null(prac2)){stop("One of your input variables does not exist. Please check your data / variable names and try again.")}
@@ -926,68 +922,24 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   clean.means.crit2 <- rowMeans(clean.latencies.crit2, na.rm=TRUE)
   clean.means.crit2[is.nan(clean.means.crit2)] <- NA
   
-  ## save clean block SD
-  
-  #prac1
-  num.clean.trials.prac1 <- clean.latencies.prac1   # skip handling: make NA
-  num.clean.trials.prac1[!is.na(num.clean.trials.prac1)] <- 1
-  num.clean.trials.prac1 <- rowSums(num.clean.trials.prac1, na.rm=TRUE)
-  num.clean.trials.prac1[skipped.prac1] <- NA
-  clean.std.prac1 <- numeric()
-  for(i in 1:nrow(clean.latencies.prac1)){
-    row <- clean.latencies.prac1[i,]
-    avg <- sum(row, na.rm=TRUE) / num.clean.trials.prac1[i]
-    clean.std.prac1[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (num.clean.trials.prac1[i]-1))
+  ## generate inclusive SD for D score
+  inclusive.sd.prac <- numeric()
+  inclusive.trials <- cbind(clean.latencies.prac1, clean.latencies.prac2)
+  inclusive.num <- num.clean.trials.prac1 + num.clean.trials.prac2
+  for(i in 1:nrow(inclusive.trials)){
+    row <- inclusive.trials[i,]
+    avg <- sum(row, na.rm=TRUE) / (inclusive.num[i])
+    inclusive.sd.prac[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (inclusive.num[i]-1))
   }
-  clean.std.prac1[clean.std.prac1==0] <- NA # when fastprt.drop is off and fasttrial.drop is on, this may happen b/c all trials are cut
-  clean.std.prac1[clean.std.prac1==Inf] <- NA
-  clean.std.prac1[is.nan(clean.std.prac1)] <- NA
   
-  #crit1
-  num.clean.trials.crit1 <- clean.latencies.crit1   # skip handling: make NA
-  num.clean.trials.crit1[!is.na(num.clean.trials.crit1)] <- 1
-  num.clean.trials.crit1 <- rowSums(num.clean.trials.crit1, na.rm=TRUE)
-  num.clean.trials.crit1[skipped.crit1] <- NA
-  clean.std.crit1 <- numeric()
-  for(i in 1:nrow(clean.latencies.crit1)){
-    row <- clean.latencies.crit1[i,]
-    avg <- sum(row, na.rm=TRUE) / num.clean.trials.crit1[i]
-    clean.std.crit1[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (num.clean.trials.crit1[i]-1))
+  inclusive.sd.crit <- numeric()
+  inclusive.trials <- cbind(clean.latencies.crit1, clean.latencies.crit2)
+  inclusive.num <- num.clean.trials.crit1 + num.clean.trials.crit2
+  for(i in 1:nrow(inclusive.trials)){
+    row <- inclusive.trials[i,]
+    avg <- sum(row, na.rm=TRUE) / (inclusive.num[i])
+    inclusive.sd.crit[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (inclusive.num[i]-1))
   }
-  clean.std.crit1[clean.std.crit1==0] <- NA # when fastprt.drop is off and fasttrial.drop is on, this may happen b/c all trials are cut
-  clean.std.crit1[clean.std.crit1==Inf] <- NA
-  clean.std.crit1[is.nan(clean.std.crit1)] <- NA
-  
-  
-  #prac2
-  num.clean.trials.prac2 <- clean.latencies.prac2   # skip handling: make NA
-  num.clean.trials.prac2[!is.na(num.clean.trials.prac2)] <- 1
-  num.clean.trials.prac2 <- rowSums(num.clean.trials.prac2, na.rm=TRUE)
-  num.clean.trials.prac2[skipped.prac2] <- NA
-  clean.std.prac2 <- numeric()
-  for(i in 1:nrow(clean.latencies.prac2)){
-    row <- clean.latencies.prac2[i,]
-    avg <- sum(row, na.rm=TRUE) / num.clean.trials.prac2[i]
-    clean.std.prac2[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (num.clean.trials.prac2[i]-1))
-  }
-  clean.std.prac2[clean.std.prac2==0] <- NA # when fastprt.drop is off and fasttrial.drop is on, this may happen b/c all trials are cut
-  clean.std.prac2[clean.std.prac2==Inf] <- NA
-  clean.std.prac2[is.nan(clean.std.prac2)] <- NA
-  
-  #crit2
-  num.clean.trials.crit2 <- clean.latencies.crit2   # skip handling: make NA
-  num.clean.trials.crit2[!is.na(num.clean.trials.crit2)] <- 1
-  num.clean.trials.crit2 <- rowSums(num.clean.trials.crit2, na.rm=TRUE)
-  num.clean.trials.crit2[skipped.crit2] <- NA
-  clean.std.crit2 <- numeric()
-  for(i in 1:nrow(clean.latencies.crit2)){
-    row <- clean.latencies.crit2[i,]
-    avg <- sum(row, na.rm=TRUE) / num.clean.trials.crit2[i]
-    clean.std.crit2[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (num.clean.trials.crit2[i]-1))
-  }
-  clean.std.crit2[clean.std.crit2==0] <- NA # when fastprt.drop is off and fasttrial.drop is on, this may happen b/c all trials are cut
-  clean.std.crit2[clean.std.crit2==Inf] <- NA
-  clean.std.crit2[is.nan(clean.std.crit2)] <- NA
   
   ## final total for calculations
   num.clean.trials <- num.clean.trials.prac1 + num.clean.trials.crit1 + num.clean.trials.prac2 + num.clean.trials.crit2
@@ -1020,11 +972,77 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   diff.prac <- clean.means.prac2-clean.means.prac1
   diff.crit <- clean.means.crit2-clean.means.crit1
   
-  pool.sd.prac <- sqrt((clean.std.prac1^2 * (num.clean.trials.prac1-1) + clean.std.prac2^2 * (num.clean.trials.prac2-1)) / (num.clean.trials.prac1-1 + num.clean.trials.prac2-1))
-  pool.sd.crit <- sqrt((clean.std.crit1^2 * (num.clean.trials.crit1-1) + clean.std.crit2^2 * (num.clean.trials.crit2-1)) / (num.clean.trials.crit1-1 + num.clean.trials.crit2-1))
-  D.prac <- diff.prac / pool.sd.prac
-  D.crit <- diff.crit / pool.sd.crit
+  D.prac <- diff.prac / inclusive.sd.prac
+  D.crit <- diff.crit / inclusive.sd.crit
   D <- (D.prac + D.crit) / 2
+
+  #### FOR TESTING ONLY--DO NOT USE IN ACTUAL ANALYSEES ###  
+  if(inclusive.sd==FALSE){
+    
+    ## generate within-block SDs for pooling based on final clean data
+    #prac1
+    num.clean.trials.prac1 <- clean.latencies.prac1   # skip handling: make NA
+    num.clean.trials.prac1[!is.na(num.clean.trials.prac1)] <- 1
+    num.clean.trials.prac1 <- rowSums(num.clean.trials.prac1, na.rm=TRUE)
+    num.clean.trials.prac1[skipped.prac1] <- NA
+    clean.std.prac1 <- numeric()
+    for(i in 1:nrow(clean.latencies.prac1)){
+      row <- clean.latencies.prac1[i,]
+      avg <- sum(row, na.rm=TRUE) / num.clean.trials.prac1[i]
+      clean.std.prac1[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (num.clean.trials.prac1[i]-1))
+    }
+    clean.std.prac1[clean.std.prac1==0] <- NA # when fastprt.drop is off and fasttrial.drop is on, this may happen b/c all trials are cut
+    clean.std.prac1[clean.std.prac1==Inf] <- NA
+    clean.std.prac1[is.nan(clean.std.prac1)] <- NA
+    #crit1
+    num.clean.trials.crit1 <- clean.latencies.crit1   # skip handling: make NA
+    num.clean.trials.crit1[!is.na(num.clean.trials.crit1)] <- 1
+    num.clean.trials.crit1 <- rowSums(num.clean.trials.crit1, na.rm=TRUE)
+    num.clean.trials.crit1[skipped.crit1] <- NA
+    clean.std.crit1 <- numeric()
+    for(i in 1:nrow(clean.latencies.crit1)){
+      row <- clean.latencies.crit1[i,]
+      avg <- sum(row, na.rm=TRUE) / num.clean.trials.crit1[i]
+      clean.std.crit1[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (num.clean.trials.crit1[i]-1))
+    }
+    clean.std.crit1[clean.std.crit1==0] <- NA # when fastprt.drop is off and fasttrial.drop is on, this may happen b/c all trials are cut
+    clean.std.crit1[clean.std.crit1==Inf] <- NA
+    clean.std.crit1[is.nan(clean.std.crit1)] <- NA
+    #prac2
+    num.clean.trials.prac2 <- clean.latencies.prac2   # skip handling: make NA
+    num.clean.trials.prac2[!is.na(num.clean.trials.prac2)] <- 1
+    num.clean.trials.prac2 <- rowSums(num.clean.trials.prac2, na.rm=TRUE)
+    num.clean.trials.prac2[skipped.prac2] <- NA
+    clean.std.prac2 <- numeric()
+    for(i in 1:nrow(clean.latencies.prac2)){
+      row <- clean.latencies.prac2[i,]
+      avg <- sum(row, na.rm=TRUE) / num.clean.trials.prac2[i]
+      clean.std.prac2[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (num.clean.trials.prac2[i]-1))
+    }
+    clean.std.prac2[clean.std.prac2==0] <- NA # when fastprt.drop is off and fasttrial.drop is on, this may happen b/c all trials are cut
+    clean.std.prac2[clean.std.prac2==Inf] <- NA
+    clean.std.prac2[is.nan(clean.std.prac2)] <- NA
+    #crit2
+    num.clean.trials.crit2 <- clean.latencies.crit2   # skip handling: make NA
+    num.clean.trials.crit2[!is.na(num.clean.trials.crit2)] <- 1
+    num.clean.trials.crit2 <- rowSums(num.clean.trials.crit2, na.rm=TRUE)
+    num.clean.trials.crit2[skipped.crit2] <- NA
+    clean.std.crit2 <- numeric()
+    for(i in 1:nrow(clean.latencies.crit2)){
+      row <- clean.latencies.crit2[i,]
+      avg <- sum(row, na.rm=TRUE) / num.clean.trials.crit2[i]
+      clean.std.crit2[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (num.clean.trials.crit2[i]-1))
+    }
+    clean.std.crit2[clean.std.crit2==0] <- NA # when fastprt.drop is off and fasttrial.drop is on, this may happen b/c all trials are cut
+    clean.std.crit2[clean.std.crit2==Inf] <- NA
+    clean.std.crit2[is.nan(clean.std.crit2)] <- NA
+    
+    pool.sd.prac <- sqrt((clean.std.prac1^2 * (num.clean.trials.prac1-1) + clean.std.prac2^2 * (num.clean.trials.prac2-1)) / (num.clean.trials.prac1-1 + num.clean.trials.prac2-1))
+    pool.sd.crit <- sqrt((clean.std.crit1^2 * (num.clean.trials.crit1-1) + clean.std.crit2^2 * (num.clean.trials.crit2-1)) / (num.clean.trials.crit1-1 + num.clean.trials.crit2-1))
+    D.prac <- diff.prac / pool.sd.prac
+    D.crit <- diff.crit / pool.sd.crit
+    D <- (D.prac + D.crit) / 2
+  }
   
   return(list(
     skipped=skipped,
@@ -1078,18 +1096,14 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     clean.correct.crit1=clean.correct.crit1, 
     clean.correct.prac2=clean.correct.prac2, 
     clean.correct.crit2=clean.correct.crit2, 
-    clean.std.prac1=clean.std.prac1,
-    clean.std.crit1=clean.std.crit1,
-    clean.std.prac2=clean.std.prac2,
-    clean.std.crit2=clean.std.crit2,
     clean.means.prac1=clean.means.prac1,
     clean.means.crit1=clean.means.crit1,
     clean.means.prac2=clean.means.prac2,
     clean.means.crit2=clean.means.crit2,
     diff.prac=diff.prac,
     diff.crit=diff.crit,
-    pool.sd.prac=pool.sd.prac,
-    pool.sd.crit=pool.sd.crit,
+    inclulsive.sd.prac=inclusive.sd.prac,
+    inclusive.sd.crit=inclusive.sd.crit,
     D=D
   ))
 }
