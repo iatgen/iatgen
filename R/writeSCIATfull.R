@@ -379,6 +379,10 @@ writeSCIATblocks <- function(startqid=1, foldernum=1, posname, Aname, Bname, pos
     file.copy(system.file("codefiles", "SCcodeA.txt", package="iatgen"), file.path(mainDir, subDir))
     file.copy(system.file("codefiles", "SCcodeB.txt", package="iatgen"), file.path(mainDir, subDir))
     file.copy(system.file("codefiles", "SCcodeC.txt", package="iatgen"), file.path(mainDir, subDir))
+    file.rename(frome="SChtml_1.txt", to = "html_1.txt")
+    file.rename(frome="SChtml_2.txt", to = "html_2.txt")
+    file.rename(frome="SChtml_3.txt", to = "html_3.txt")
+    file.rename(frome="SChtml_4.txt", to = "html_4.txt")
     setwd(file.path(mainDir, subDir))
   } else {
     dir.create(file.path(mainDir, subDir))
@@ -391,7 +395,11 @@ writeSCIATblocks <- function(startqid=1, foldernum=1, posname, Aname, Bname, pos
     file.copy(system.file("codefiles", "SCcodeC.txt", package="iatgen"), file.path(mainDir, subDir))
     setwd(file.path(mainDir, subDir)) 
   }
-  
+
+  file.rename(from="SChtml_1.txt", to = "html_1.txt")
+  file.rename(from="SChtml_2.txt", to = "html_2.txt")
+  file.rename(from="SChtml_3.txt", to = "html_3.txt")
+  file.rename(from="SChtml_4.txt", to = "html_4.txt")
   writeSCIATjs(type = "combined",
              n=n[1],
              tgtType = tgtType,
@@ -478,7 +486,7 @@ writeSCIATblocks <- function(startqid=1, foldernum=1, posname, Aname, Bname, pos
 
   
   ### change the html text
-  blocknames <- c("SChtml_1.txt", "SChtml_2.txt", "SChtml_3.txt", "SChtml_4.txt")
+  blocknames <- c("html_1.txt", "html_2.txt", "html_3.txt", "html_4.txt")
   
   ## NOTE: HTML files are hard-coded with the defaults (green for targets, black for categories). Thus, these just need to be swapped out for tgtCol and catCol regardless of configuration.
   
@@ -565,10 +573,10 @@ writeSCIATblocks <- function(startqid=1, foldernum=1, posname, Aname, Bname, pos
   file.remove("SCcodeA.txt")
   file.remove("SCcodeB.txt")
   file.remove("SCcodeC.txt")
-  file.remove("SChtml_1.txt")
-  file.remove("SChtml_2.txt")
-  file.remove("SChtml_3.txt")
-  file.remove("SChtml_4.txt")
+  file.remove("html_1.txt")
+  file.remove("html_2.txt")
+  file.remove("html_3.txt")
+  file.remove("html_4.txt")
   setwd(mainDir) #revert WD back to original
 }
 
