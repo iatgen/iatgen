@@ -642,7 +642,7 @@ writeSCIATfull <- function(IATname="IAT",
   
   if(tgtType == "images" & catType == "images") {
     # add error message if there are not appropriately specified images
-    imgs <- c(posimgs, negimgs, Aimgs, Bimgs)
+    imgs <- c(posimgs, Aimgs, Bimgs)
     nA <- length(Aimgs)
     nB <- length(Bimgs)
     nPos <- length(posimgs)
