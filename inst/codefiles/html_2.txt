@@ -125,4 +125,4 @@ Part 2 of 7</p>
 <p class="note" id="note"></p>
 </div>
 
-<div style="opacity: 0; font-size:300px"><p>x</p></div>
+<div style="opacity: 0; font-size:300px; color:#fff;"><p>x</p></div>
