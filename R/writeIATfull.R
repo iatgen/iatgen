@@ -281,7 +281,7 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
     for (i in 1:length(imgs)) {
       codeimage <- rbind(codeimage, paste('\t\t\"',imgs[i],'\",', sep=""))
     }
-    codeimage[length(codeimage)] <- gsub(",", "", codeimage[length(codeimage)]) # remove comma from last line
+    codeimage[length(codeimage)] <- gsub(",$", "", codeimage[length(codeimage)]) # remove comma from last line
     codeimage <- rbind(codeimage,"\t];")
   } else {
     codeimage <- "\timage_srcs = [];"
@@ -943,8 +943,8 @@ writeIATfull <- function(IATname="IAT",
                          qsf=FALSE,
                          pause=250,
                          errorpause=300,
-                         correct.error=T,
-                         note=F,
+                         correct.error=TRUE,
+                         note=FALSE,
                          startqid = 1
 ) {
 
