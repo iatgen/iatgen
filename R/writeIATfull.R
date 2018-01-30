@@ -966,7 +966,7 @@ writeIATfull <- function(IATname="IAT",
   if (length(n) != 7){
     stop("n argument is not correctly specified. You must provide the number of trials for all seven blocks.")
   }
-    
+
   ## BY DEFAULT, IMPLEMENTS THE EASY IMAGE METHOD. nA, nB, nPos, and nNeg not specified by user in this version. Pulls that information from image URL vectors directly.
   if(tgtType == "images" & catType == "words") {
     # add error message if there are not appropriately specified images

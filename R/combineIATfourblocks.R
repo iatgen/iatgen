@@ -32,6 +32,10 @@ combineIATfourblocks <- function(name1, name2, name3, name4){
   name2[is.na(name2)] <- ""
   name3[is.na(name3)] <- ""
   name4[is.na(name4)] <- ""
+  name1[name1==" "] <- ""
+  name2[name2==" "] <- ""
+  name3[name3==" "] <- ""
+  name4[name4==" "] <- ""
   namecombined <- name1
   namecombined[name1==""] <- as.character(name2[name1==""]) # for blank ones, use alts
   namecombined[name1=="" & name2==""] <- as.character(name3[name1=="" & name2==""]) # for blank ones, use alts
@@ -59,6 +63,8 @@ combineIATtwoblocks <- function(name1, name2){
   name2 <- as.character(name2)
   name1[is.na(name1)] <- ""
   name2[is.na(name2)] <- ""
+  name1[name1==" "] <- ""
+  name2[name2==" "] <- ""
   
   if ( all(is.na(name1)) | all(is.na(name2)) ){warning("One or more of your input variables contained no data. Please check your variable names and raw data. This function is alerting you to the problem; portions of the IAT may not be scored.")}
   
