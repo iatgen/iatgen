@@ -38,6 +38,13 @@ processing the resulting data.
 non-commercial (e.g., academic) use under a Creative Commons (CC BY-NC
 4.0) license. More details are provided under Licsense, below.*
 
+Please also note that the official IAT software remains Project Implicit
+(<http://implicit.Harvard.edu>) and any software endorsed by the IAT's
+creators. Although the use of Qualtrics as an IAT tool has been
+validated by Carpenter et al. (2018), this procedure and its code were
+generated from scratch by its authors and were not provided or endorsed
+by the IAT's creators.
+
 Getting Started
 ---------------
 
