@@ -1,12 +1,12 @@
 Package: iatgen
 Type: Package
-Title: Generates IATs for Qualtrics
-Version: 1.1.3
-Date: 2018-01-30
+Title: IATs for Qualtrics
+Version: 1.2.0
+Date: 2018-04-02
 Author: Tom Carpenter
 Maintainer: Tom Carpenter <tcarpenter@spu.edu>
 Description: Package generates and analyzes IATs for use in Qualtrics.
-License: GNU-3
+License: CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/legalcode)
 Imports:
     stringr,
     jsonlite
