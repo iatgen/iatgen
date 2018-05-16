@@ -258,7 +258,7 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   
   fin <- rbind(trials, "", "", "\t//BUILD TRIALS", "", call)
   
-  if (write.me){ writeLines(fin, con=out) }
+  if (write.me){ writeLines(fin, con=out,sep="\n") }
   return(fin)
 }
 
@@ -319,7 +319,7 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
   #replace the default 300 ms error pause with one set by the user.  Greenwald et al 1998 settled on 300 ms
   temp <- gsub(300, errorpause, temp)
   
-  writeLines(temp, out)
+  writeLines(temp, out,sep="\n")
 }
 
 
