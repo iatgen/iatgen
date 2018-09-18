@@ -5,13 +5,14 @@ iatgen (pronounced "I A T gen") is an R package and Shiny App that
 builds and analyzes Qualtrics surveys that contain IATs (Implicit
 Association Tests; Greenwald et al., 1998) following a procedure
 developed by Carpenter et al. (2018; preprint available at
-<https://psyarxiv.com/6xdyj/>). Specifically, Carpenter et al. developed
-procedures for configuring Qualtrics (<http://www.qualtrics.com>)
-surveys such that they can run IATs and then developed
-Qualtrics-friendly JavaScript and HTML code to implement a basic IAT in
-Qualtrics. The R "iatgen" package was developed as a tool for
-customizing and pasting this code into Qualtrics so that functional IAT
-surveys can be rapidly built and analyzed.
+<https://psyarxiv.com/hgy3z/>).
+
+Specifically, Carpenter et al. developed procedures for "survey-based"
+IATs. These are IATs constructed out of modified survey elements that
+have been edited by adding custom JavaScript and HTML code. The R
+"iatgen" package was developed as a tool for customizing and pasting
+this code into Qualtrics so that functional IAT surveys can be rapidly
+built and analyzed.
 
 #### What Exactly Does iatgen do?
 
@@ -19,9 +20,7 @@ First, iatgen is *not* a software tool for running IATs.
 
 All IATs are run in and by Qualtrics (thus, Qualtrics is the "IAT
 software"). This can be done without iatgen by adding custom HTML and
-JavaScript to Qualtrics to implement an IAT. Anyone can produce such
-JavaScript / HTML and there exist several custom HTML/JavaScript
-variants of the IAT freely available online.
+JavaScript to Qualtrics to implement an IAT.
 
 What Carpenter et al. (2018) did was identify the necessary conditions
 to make a valid IAT survey in *Qualtrics* and developed JavaScript and
@@ -212,7 +211,7 @@ advance and referencing them in the function call:
 
 Detailed information about this Qualtrics survey is beyond the scope of
 this document and is discussed in depth in the Carpenter et al. (2018)
-preprint found at <https://psyarxiv.com/6xdyj/>.
+preprint found at <https://psyarxiv.com/hgy3z/>.
 
 Of note, however, is that (1) each IAT block is one question and (2)
 there are four permutations of the IAT exist, counterbalancing the
@@ -253,7 +252,7 @@ representing practice/critical versions of the compatible and
 incompatible blocks. At present, these are scattered across four
 hard-coded permutations of the IAT representing left/right
 counterbalancing of the starting positions (naming of these variables is
-discussed above and in our manuscript at <https://psyarxiv.com/6xdyj/>).
+discussed above and in our manuscript at <https://psyarxiv.com/hgy3z/>).
 The next step in the analysis is to collapse this down using
 `combineIATfourblocks()`:
 
