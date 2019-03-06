@@ -258,7 +258,11 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   
   fin <- rbind(trials, "", "", "\t//BUILD TRIALS", "", call)
   
-  if (write.me){ writeLines(fin, con=out) }
+  if (write.me){ 
+    con <- file(out, open="wb") 
+    writeLines(fin, con=out, sep="\n")
+    close(con) 
+  }
   return(fin)
 }
 
@@ -281,7 +285,7 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
     for (i in 1:length(imgs)) {
       codeimage <- rbind(codeimage, paste('\t\t\"',imgs[i],'\",', sep=""))
     }
-    codeimage[length(codeimage)] <- gsub(",", "", codeimage[length(codeimage)]) # remove comma from last line
+    codeimage[length(codeimage)] <- gsub(",$", "", codeimage[length(codeimage)]) # remove comma from last line
     codeimage <- rbind(codeimage,"\t];")
   } else {
     codeimage <- "\timage_srcs = [];"
@@ -319,7 +323,9 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
   #replace the default 300 ms error pause with one set by the user.  Greenwald et al 1998 settled on 300 ms
   temp <- gsub(300, errorpause, temp)
   
-  writeLines(temp, out)
+  con <- file(out, open="wb") 
+  writeLines(temp, con, sep="\n")
+  close(con) 
 }
 
 
@@ -401,32 +407,22 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
   mainDir <- getwd()
   subDir <- paste(foldernum, " ",IATname,"_",suffix,sep="")
   
-  if (file.exists(subDir)){
-    file.copy(system.file("codefiles", "html_1.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_2.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_3.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_4.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_5.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_6.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_7.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "codeA.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "codeB.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "codeC.txt", package="iatgen"), file.path(mainDir, subDir))
-    setwd(file.path(mainDir, subDir))
-  } else {
+  if (!file.exists(subDir)){
     dir.create(file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_1.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_2.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_3.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_4.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_5.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_6.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "html_7.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "codeA.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "codeB.txt", package="iatgen"), file.path(mainDir, subDir))
-    file.copy(system.file("codefiles", "codeC.txt", package="iatgen"), file.path(mainDir, subDir))
-    setwd(file.path(mainDir, subDir)) 
   }
+  
+  file.copy(system.file("codefiles", "html_1.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_2.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_3.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_4.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_5.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_6.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_7.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "codeA.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "codeB.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "codeC.txt", package="iatgen"), file.path(mainDir, subDir))
+  setwd(file.path(mainDir, subDir))
+
   
   writeIATjs(type = "target",
              combined.type=combined.type,
@@ -611,13 +607,17 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       bltemp <- gsub("POS", posname, bltemp)
       bltemp <- gsub("NEG", negname, bltemp) 
       bltemp <- gsub("catCol", catCol, bltemp)
+
       if (tolower(tgtCol) != "black" || tolower(catCol) != "black") {
         bltemp <- gsub("<!-- colins -->", "The label/item colors may help you identify the appropriate category.", bltemp)
       }
       if (correct.error==T) {
         bltemp <- gsub("<!--errorins-->", "Correct errors by hitting the other key.", bltemp)
       }
-      writeLines(as.matrix(bltemp), paste("Q",qids[i], " ",blocknames[i],sep=""))
+      
+      con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb") 
+      writeLines(as.matrix(bltemp), con,sep="\n")
+      close(con)
     }
   }
   
@@ -631,13 +631,16 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       bltemp <- gsub("POS", negname, bltemp)
       bltemp <- gsub("NEG", posname, bltemp)
       bltemp <- gsub("catCol", catCol, bltemp)
+
       if (tolower(tgtCol) != "black" || tolower(catCol) != "black") {
         bltemp <- gsub("<!-- colins -->", "The label/item colors may help you identify the appropriate category.", bltemp)
       }
       if (correct.error==T) {
         bltemp <- gsub("<!--errorins-->", "Correct errors by hitting the other key.", bltemp)
       }
-      writeLines(as.matrix(bltemp), paste("Q",qids[i], " ",blocknames[i],sep=""))
+      con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb") 
+      writeLines(as.matrix(bltemp), con,sep="\n")
+      close(con)
     }
   }
   
@@ -651,14 +654,17 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       bltemp <- gsub("POS", posname, bltemp)
       bltemp <- gsub("NEG", negname, bltemp) 
       bltemp <- gsub("catCol", catCol, bltemp)
+
       if (tolower(tgtCol) != "black" || tolower(catCol) != "black") {
         bltemp <- gsub("<!-- colins -->", "The label/item colors may help you identify the appropriate category.", bltemp)
       }
       if (correct.error==T) {
         bltemp <- gsub("<!--errorins-->", "Correct errors by hitting the other key.", bltemp)
       }
-      writeLines(as.matrix(bltemp), paste("Q",qids[i], " ",blocknames[i],sep=""))
-    }
+      con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb") 
+      writeLines(as.matrix(bltemp), con,sep="\n")
+      close(con)
+      }
   }
   
   ## A starts left, good
@@ -671,14 +677,17 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       bltemp <- gsub("POS", negname, bltemp)
       bltemp <- gsub("NEG", posname, bltemp) 
       bltemp <- gsub("catCol", catCol, bltemp)
+
       if (tolower(tgtCol) != "black" || tolower(catCol) != "black") {
         bltemp <- gsub("<!-- colins -->", "The label/item colors may help you identify the appropriate category.", bltemp)
       }
       if (correct.error==T) {
         bltemp <- gsub("<!--errorins-->", "Correct errors by hitting the other key.", bltemp)
       }
-      writeLines(as.matrix(bltemp), paste("Q",qids[i], " ",blocknames[i],sep=""))
-    }
+      con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb") 
+      writeLines(as.matrix(bltemp), con,sep="\n")
+      close(con)
+      }
   }
   
   file.remove("codeA.txt")
@@ -943,8 +952,8 @@ writeIATfull <- function(IATname="IAT",
                          qsf=FALSE,
                          pause=250,
                          errorpause=300,
-                         correct.error=T,
-                         note=F,
+                         correct.error=TRUE,
+                         note=FALSE,
                          startqid = 1
 ) {
 
@@ -1145,7 +1154,10 @@ writeIATfull <- function(IATname="IAT",
     cat("Generating JSON....\n")
     qjson <- toJSON(q,null="null",auto_unbox=T)
     minify(qjson)
-    write(qjson, filename())
+    con <- file(filename(), open="wb") 
+    write(qjson, con)
+    close(con) 
+    
   
     #remove template
     file.remove("FullTemplate_-_For_Shiny_V10.qsf")
