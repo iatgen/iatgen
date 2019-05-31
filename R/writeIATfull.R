@@ -1,5 +1,7 @@
 ############## WRITE IAT STIMULI POOLS AND CODE ##############
-library(stringr)
+requireNamespace("stringr")
+requireNamespace("jsonlite")
+
 writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, catType, nPos, nNeg, poswords, negwords, tgtType, nA, nB, Awords, Bwords, tgtCol="black", catCol="green",write.me, out){
   
   ## Misspecification errors:
@@ -1065,7 +1067,7 @@ writeIATfull <- function(IATname="IAT",
     
     qsfTemplate="FullTemplate_-_For_Shiny_V10.qsf"
     
-    library(jsonlite)
+    # library(jsonlite)
     
     q <- fromJSON(qsfTemplate)
     
