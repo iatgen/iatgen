@@ -1,5 +1,4 @@
-library(stringr)
-
+requireNamespace("stringr")
 
 ########## STEP SIX: RELIABILITY ANALYSIS
 #' Data analysis function: Estimate reliability of IAT
