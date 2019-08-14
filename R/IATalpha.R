@@ -1,4 +1,4 @@
-IATalpha <- function(data, inclusive.sd=TRUE){
+IATalpha <- function(data){
   require(psych)
   prac1 <- data$clean.latencies.prac1
   prac2 <- data$clean.latencies.prac2
