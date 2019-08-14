@@ -1,7 +1,7 @@
 Package: iatgen
 Type: Package
 Title: IATs for Qualtrics
-Version: 1.2.4
+Version: 1.2.5
 Author: Tom Carpenter
 Maintainer: Tom Carpenter <tcarpenter@spu.edu>
 Description: Package generates and analyzes IATs for use in Qualtrics.
@@ -11,4 +11,5 @@ LazyData: true
 RoxygenNote: 6.1.1
 Imports:
     stringr,
-    jsonlite
+    jsonlite,
+    psych
