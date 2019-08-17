@@ -8,7 +8,8 @@ writeIATfull(IATname = "IAT", posname, negname, Aname, Bname, n = c(20,
   20, 20, 40, 40, 20, 40), catType, catCol = "green", poswords, negwords,
   posimgs, negimgs, tgtType, tgtCol = "black", Awords, Bwords, Aimgs,
   Bimgs, qsf = FALSE, pause = 250, errorpause = 300,
-  correct.error = TRUE, note = FALSE, startqid = 1)
+  correct.error = TRUE, note = FALSE, norepeat = FALSE,
+  startqid = 1)
 }
 \arguments{
 \item{IATname}{(Required, set by default). A short string of text that serves to name the IAT. By default, set as 'IAT'. Do not add spaces or special characters.}
@@ -57,6 +58,8 @@ writeIATfull(IATname = "IAT", posname, negname, Aname, Bname, n = c(20,
 
 \item{note}{(Required, set by default). Logical value, set to \code{FALSE} by default. When \code{note=TRUE}, displays a persistent note at the bottom of the window reminding participants which keys to press and how to handle errors (if \code{correct.error=TRUE}). This is recommended for non-laboratory use, where participants are unable to ask for assistance.}
 
+\item{norepeat}{(Required, set by default). Logical value, set to \code{FALSE} by default. This controls the order in which stimuli are displayed. In the IAT, we always sample stimuli randomly without replacement from pools, replenishing the pools after they are depleted. However, iatgen then randomizes (within each block) the order in which those stimuli are displayed (e.g., Gawronski, 2002). Setting this to \code{TRUE} displays stimuli in the order sampled, meaning that there are no repeats seen *by the participant* until all stimuli from that stimuli set have been seen.}
+
 \item{startqid}{(Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).}
 }
 \value{
@@ -72,7 +75,7 @@ This is the primary function for building IATs. It has two modes. In automatic m
 ## Note: the following are specified below for example purposes but are specified by default automatically and can be omitted: coloring of stimuli, number of trials per block, pause between trials
 
 writeIATfull(IATname="flowins",
-           posname="Pleasant", 
+           posname="Pleasant",
            negname="Unpleasant",
            Aname="Flowers",
            Bname="Insects",
@@ -82,21 +85,21 @@ writeIATfull(IATname="flowins",
            tgtType="words",
            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
-           
+
            #advanced options with recommended IAT settings
            n=c(20, 20, 20, 40, 40, 20, 40),
-           qsf=T, 
+           qsf=T,
            note=T,
            correct.error=T,
-           pause=250, 
+           pause=250,
            tgtCol="black",
            catCol="green"
 )
-     
+
  ### Same IAT but with the persistent task directions disabled (\\code{note=FALSE}), forced error correction disabled (\\code{correct.error=FALSE}) and a 300 ms pause for the error message (\\code{errorpause=300}).
 
 writeIATfull(IATname="flowins",
-            posname="Pleasant", 
+            posname="Pleasant",
             negname="Unpleasant",
             Aname="Flowers",
             Bname="Insects",
@@ -106,13 +109,13 @@ writeIATfull(IATname="flowins",
             tgtType="words",
             Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
             Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
-            
-            #advanced options 
+
+            #advanced options
             n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T, 
+            qsf=T,
             note=F,
             correct.error=F,
-            pause=250, 
+            pause=250,
             errorpause=300,
             tgtCol="black",
             catCol="green"
@@ -121,7 +124,7 @@ writeIATfull(IATname="flowins",
 ### Same IAT as prior example but with 10 trials for all non-critical blocks and 12 trials for all critical blocks.
 
 writeIATfull(IATname="flowins",
-            posname="Pleasant", 
+            posname="Pleasant",
             negname="Unpleasant",
             Aname="Flowers",
             Bname="Insects",
@@ -131,13 +134,13 @@ writeIATfull(IATname="flowins",
             tgtType="words",
             Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
             Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
-            
+
             #advanced options
             n=c(10, 10, 10, 12, 10, 10, 12),
-            qsf=T, 
+            qsf=T,
             note=F,
             correct.error=F,
-            pause=250, 
+            pause=250,
             errorpause=300,
             tgtCol="black",
             catCol="green"
@@ -148,24 +151,24 @@ goodjpg <- c("www.website.com/gentle.jpg",
              "www.website.com/enjoy.jpg",
              "www.website.com/Heaven.jpg",
              "www.website.com/Cheer.jpg")
-             
+
 badjpg <- c("www.website.com/Poison.jpg",
             "www.website.com/Evil.jpg.",
             "www.website.com/Vomit.jpg",
             "www.website.com/Ugly.jpg")
-            
+
 Ajpg <- c("www.website.com/Orchid.jpg",
           "www.website.com/Tulip.jpg",
           "www.website.com/Rose.jpg",
           "www.website.com/Daisy.jpg")
-          
+
 Bjpg <- c("www.website.com/Wasp.jpg",
           "www.website.com/Flea.jpg",
           "www.website.com/Moth.jpg",
           "www.website.com/Bedbug.jpg")
-          
+
 writeIATfull(IATname="flowins",
-            posname="Pleasant", 
+            posname="Pleasant",
             negname="Unpleasant",
             Aname="Flowers",
             Bname="Insects",
@@ -175,30 +178,30 @@ writeIATfull(IATname="flowins",
             tgtType="images",
             Aimgs = Ajpg,
             Bimgs = Bjpg,
-            
+
             #advanced options with recommended IAT settings
             n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T, 
+            qsf=T,
             note=T,
             correct.error=T,
-            pause=250, 
+            pause=250,
             tgtCol="black",
             catCol="green"
 )
 
-### Example IAT with images for categories and words for targets, with recommended settings. 
+### Example IAT with images for categories and words for targets, with recommended settings.
 goodjpg <- c("www.website.com/gentle.jpg",
              "www.website.com/enjoy.jpg",
              "www.website.com/Heaven.jpg",
              "www.website.com/Cheer.jpg")
-             
+
 badjpg <- c("www.website.com/Poison.jpg",
             "www.website.com/Evil.jpg.",
             "www.website.com/Vomit.jpg",
             "www.website.com/Ugly.jpg")
-            
+
 writeIATfull(IATname="flowins",
-            posname="Pleasant", 
+            posname="Pleasant",
             negname="Unpleasant",
             Aname="Flowers",
             Bname="Insects",
@@ -208,13 +211,13 @@ writeIATfull(IATname="flowins",
             tgtType="words",
             Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
             Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
-            
+
             #advanced options with recommended IAT settings
             n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T, 
+            qsf=T,
             note=T,
             correct.error=T,
-            pause=250, 
+            pause=250,
             tgtCol="black",
             catCol="green"
 )
@@ -224,16 +227,16 @@ Ajpg <- c("www.website.com/Orchid.jpg",
           "www.website.com/Tulip.jpg",
           "www.website.com/Rose.jpg",
           "www.website.com/Daisy.jpg")
-          
+
 Bjpg <- c("www.website.com/Wasp.jpg",
           "www.website.com/Flea.jpg",
           "www.website.com/Moth.jpg",
           "www.website.com/Bedbug.jpg")
-          
+
 writeIATfull(IATname="flowins",
-            posname="Pleasant", 
+            posname="Pleasant",
             negname="Unpleasant",
-            Aname="Flowers", 
+            Aname="Flowers",
             Bname="Insects",
             catType="words",
             poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
@@ -241,17 +244,42 @@ writeIATfull(IATname="flowins",
             tgtType="images",
             Aimgs = Ajpg,
             Bimgs = Bjpg,
-            
+
             #advanced options with recommended IAT settings
             n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T, 
+            qsf=T,
             note=T,
             correct.error=T,
-            pause=250, 
+            pause=250,
             tgtCol="black",
             catCol="green"
 )
 
+### EXAMPLE IAT USING 'norepeat=TRUE" TO SUPPRESS REPEAT STIMULI UNTIL ALL STIMULI FROM THAT CATEGORY HAVE BEEN SEEN
+
+#'writeIATfull(IATname="flowins",
+            posname="Pleasant",
+            negname="Unpleasant",
+            Aname="Flowers",
+            Bname="Insects",
+            catType="words",
+            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+            tgtType="words",
+            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+
+            #advanced options
+            n=c(20, 20, 20, 40, 40, 20, 40),
+            qsf=T,
+            note=F,
+            correct.error=F,
+            pause=250,
+            errorpause=300,
+            tgtCol="black",
+            catCol="green",
+            norepeat=TRUE
+)
 }
 }
 \references{

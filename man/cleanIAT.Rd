@@ -37,7 +37,7 @@ cleanIAT(prac1, crit1, prac2, crit2, timeout.drop = TRUE,
 \item{cric2}{A vector of that same kind of critical responses (e.g., incompatible critical), one per participant.}
 }
 \value{
-Returns a list containing several important elements. 
+Returns a list containing several important elements.
 \code{skipped} is a vector indicating whether the participant completed the IAT or skipped it. They are dropped from analysis if the IAT was skipped.
 \code{raw.latencies.prac1} is a matrix of the raw latencies in the first practice block prior to any data cleaning.
 \code{raw.latencies.crit1} is a matrix of the raw latencies in the first critical block prior to any data cleaning.
@@ -47,36 +47,40 @@ Returns a list containing several important elements.
 \code{raw.stim.number.crit1} is a matrix of the raw stimuli ID numbers in the first critical block prior to any data cleaning.
 \code{raw.stim.number.prac2} is a matrix of the raw stimuli ID numbers in the second practice block prior to any data cleaning.
 \code{raw.stim.number.crit2} is a matrix of the raw stimuli ID numbers in the second critical block prior to any data cleaning.
-\code{raw.correct.prac1} is a matrix stating whether each trial was correct (logical) in the first practice block prior to cleaning. 
-\code{raw.correct.crit1} is a matrix stating whether each trial was correct (logical) in the first critical block prior to cleaning. 
-\code{raw.correct.prac2} is a matrix stating whether each trial was correct (logical) in the second practice block prior to cleaning. 
-\code{raw.correct.crit2} is a matrix stating whether each trial was correct (logical) in the second critical block prior to cleaning. 
+\code{raw.correct.prac1} is a matrix stating whether each trial was correct (logical) in the first practice block prior to cleaning.
+\code{raw.correct.crit1} is a matrix stating whether each trial was correct (logical) in the first critical block prior to cleaning.
+\code{raw.correct.prac2} is a matrix stating whether each trial was correct (logical) in the second practice block prior to cleaning.
+\code{raw.correct.crit2} is a matrix stating whether each trial was correct (logical) in the second critical block prior to cleaning.
 \code{timeout.drop} is the logical value stating whether this feature was enabled in the function call (see above).
 \code{timeout.ms} is the timeout threshold specified in the function call (see above), used if timeout.drop is enabled.
-\code{num.timeout.removed} is the grand total number of trials removed because they exceeded the timeout threshold in timeout.ms. 
+\code{num.timeout.removed} is the grand total number of trials removed because they exceeded the timeout threshold in timeout.ms.
 \code{timeout.rate} is a vector indicating the proportion of responses per participant that were scored as missing due to timeouts.
-\code{num.timeout.removed.prac1} is the number of trials removed in the first practice block because they exceeded the timeout threshold in timeout.ms. 
-\code{num.timeout.removed.crit1} is the number of trials removed in the first critical block because they exceeded the timeout threshold in timeout.ms. 
-\code{num.timeout.removed.prac2} is the number of trials removed in the second practice block because they exceeded the timeout threshold in timeout.ms. 
-\code{num.timeout.removed.crit2} is the number of trials removed in the second critical block because they exceeded the timeout threshold in timeout.ms. 
+\code{num.timeout.removed.prac1} is the number of trials removed in the first practice block because they exceeded the timeout threshold in timeout.ms.
+\code{num.timeout.removed.crit1} is the number of trials removed in the first critical block because they exceeded the timeout threshold in timeout.ms.
+\code{num.timeout.removed.prac2} is the number of trials removed in the second practice block because they exceeded the timeout threshold in timeout.ms.
+\code{num.timeout.removed.crit2} is the number of trials removed in the second critical block because they exceeded the timeout threshold in timeout.ms.
 \code{fasttrial.drop} is the logical value stating whether this feature was enabled in the function call (see above).
-\code{fasttrial.ms} is the time threshold specified in the function call (see above), used if fasttrial.drop is enabled. 
-\code{num.fasttrial.removed} is the grand total number of trials removed because they exceeded the fasttrial threshold in fasttrial.ms. 
+\code{fasttrial.ms} is the time threshold specified in the function call (see above), used if fasttrial.drop is enabled.
+\code{num.fasttrial.removed} is the grand total number of trials removed because they exceeded the fasttrial threshold in fasttrial.ms.
 \code{fasttrial.rate} is a vector indicating the percentage of responses per participant that were scored as missing due to rapid speeds.
-\code{num.fasttrial.removed.prac1} is the number of trials removed in the first practice block because they exceeded the fasttrial threshold in fasttrial.ms. 
-\code{num.fasttrial.removed.crit1} is the number of trials removed in the first critical block because they exceeded the fasttrial threshold in fasttrial.ms. 
-\code{num.fasttrial.removed.prac2} is the number of trials removed in the second practice block because they exceeded the fasttrial threshold in fasttrial.ms. 
-\code{num.fasttrial.removed.crit2} is the number of trials removed in the second critical block because they exceeded the fasttrial threshold in fasttrial.ms. 
+\code{num.fasttrial.removed.prac1} is the number of trials removed in the first practice block because they exceeded the fasttrial threshold in fasttrial.ms.
+\code{num.fasttrial.removed.crit1} is the number of trials removed in the first critical block because they exceeded the fasttrial threshold in fasttrial.ms.
+\code{num.fasttrial.removed.prac2} is the number of trials removed in the second practice block because they exceeded the fasttrial threshold in fasttrial.ms.
+\code{num.fasttrial.removed.crit2} is the number of trials removed in the second critical block because they exceeded the fasttrial threshold in fasttrial.ms.
 \code{fastprt.drop} is the logical value as specified by the function call (see above).
 \code{fastprt.ms} is the threshold for as  specified in the function call (see above), used if fastprt.drop is enabled.
 \code{fastprt.percent} is the proportion of trials specified in the function call (see above).
 \code{drop.participant} is a logical vector indicating whether the participant's responses have been dropped due to excessive fast responses (if fastprt.drop is enabled).
 \code{fastprt.count} is the number of participants dropped for excessive fast responding (if fastprt.drop is enabled).
 \code{fastprt.rate} is the proportion of participants dropped for excessive fast responding (if fastprt.drop is enabled).
-\code{error.penalty} is a logical value stating whether an error penalty is enabled. 
+\code{error.penalty} is a logical value stating whether an error penalty is enabled.
 \code{error.num.prt} is a vector of the number of erroneous trials per participant (after data cleaning is complete).
 \code{error.rate.prt} is a vector of the proportion of erroneous trials per participant (after data cleaning is complete).
-\code{error.rate} is the proportion of the entire set of clean trials which are erroneous trials. 
+\code{error.rate} is the proportion of the entire set of clean trials which are erroneous trials.
+\code{error.rate.prac1} is the proportion of the prac1 block set of clean trials which are erroneous trials.
+\code{error.rate.crit1} is the proportion of the crit1 block set of clean trials which are erroneous trials.
+\code{error.rate.prac2} is the proportion of the prac2 block set of clean trials which are erroneous trials.
+\code{error.rate.crit2} is the proportion of the crit2 block set of clean trials which are erroneous trials.
 \code{clean.latencies.prac1} is a matrix of the clean latencies in the first practice block.
 \code{clean.latencies.crit1} is a matrix of the clean latencies in the first critical block.
 \code{clean.latencies.prac2} is a matrix of the clean latencies in the second practice block.
@@ -85,9 +89,9 @@ Returns a list containing several important elements.
 \code{clean.stim.number.crit1} is a matrix of the clean stimuli ID numbers in the first critical block.
 \code{clean.stim.number.prac2} is a matrix of the clean stimuli ID numbers in the second practice block.
 \code{clean.stim.number.crit2} is a matrix of the clean stimuli ID numbers in the second critical block.
-\code{clean.correct.prac1} is a matrix stating whether each trial was correct (logical) in the first practice block. 
-\code{clean.correct.crit1} is a matrix stating whether each trial was correct (logical) in the first critical block. 
-\code{clean.correct.prac2} is a matrix stating whether each trial was correct (logical) in the second practice block. 
+\code{clean.correct.prac1} is a matrix stating whether each trial was correct (logical) in the first practice block.
+\code{clean.correct.crit1} is a matrix stating whether each trial was correct (logical) in the first critical block.
+\code{clean.correct.prac2} is a matrix stating whether each trial was correct (logical) in the second practice block.
 \code{clean.correct.crit2} is a matrix stating whether each trial was correct (logical) in the second critical block.
 \code{clean.means.prac1} is a vector of clean block mean of latencies in the first practice block, one per participant.
 \code{clean.means.crit1} is a vector of clean block mean of latencies in the first critical block, one per participant.
@@ -105,17 +109,17 @@ Prior to running, please see \code{combineIATfourblocks()}. This function proces
 \examples{
 \dontrun{
 
-### CLEAN THE IAT USING THE BUILT IN ERROR PENALTY FOR FORCED-ERROR CORRECTION ### 
-clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit) 
+### CLEAN THE IAT USING THE BUILT IN ERROR PENALTY FOR FORCED-ERROR CORRECTION ###
+clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit)
 
-### CLEAN THE IAT USING THE D600 PROCEDURE ### 
-clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, error.penalty=TRUE, error.penalty.ms=600) 
+### CLEAN THE IAT USING THE D600 PROCEDURE ###
+clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, error.penalty=TRUE, error.penalty.ms=600)
 
 ### CLEAN THE IAT USING THE D2SD PROCEDURE###
-clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, error.penalty=TRUE, error.penalty.ms = "2SD") 
+clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, error.penalty=TRUE, error.penalty.ms = "2SD")
 
 ### CLEAN THE IAT USING THE D2SD PROCEDURE WITH TRIALS UNDER 400 MS DROPPED ###
-clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, fastprt.drop=FALSE, fasttrial.drop=TRUE, fasttrial.ms=400, error.penalty=TRUE, error.penalty.ms = "2SD") 
+clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, fastprt.drop=FALSE, fasttrial.drop=TRUE, fasttrial.ms=400, error.penalty=TRUE, error.penalty.ms = "2SD")
 
 ### EXAMINE CLEAN IAT SCORES
 clean$D

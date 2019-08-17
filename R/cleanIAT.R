@@ -55,6 +55,10 @@ requireNamespace("stringr")
 #' \code{error.num.prt} is a vector of the number of erroneous trials per participant (after data cleaning is complete).
 #' \code{error.rate.prt} is a vector of the proportion of erroneous trials per participant (after data cleaning is complete).
 #' \code{error.rate} is the proportion of the entire set of clean trials which are erroneous trials.
+#' \code{error.rate.prac1} is the proportion of the prac1 block set of clean trials which are erroneous trials.
+#' \code{error.rate.crit1} is the proportion of the crit1 block set of clean trials which are erroneous trials.
+#' \code{error.rate.prac2} is the proportion of the prac2 block set of clean trials which are erroneous trials.
+#' \code{error.rate.crit2} is the proportion of the crit2 block set of clean trials which are erroneous trials.
 #' \code{clean.latencies.prac1} is a matrix of the clean latencies in the first practice block.
 #' \code{clean.latencies.crit1} is a matrix of the clean latencies in the first critical block.
 #' \code{clean.latencies.prac2} is a matrix of the clean latencies in the second practice block.
