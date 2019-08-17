@@ -16,6 +16,8 @@ cleanIAT(prac1, crit1, prac2, crit2, timeout.drop = TRUE,
 
 \item{prac2}{A vector of the other kind of practice responses (e.g., incompatible practice), one per participant.}
 
+\item{crit2}{A vector of that same kind of critical responses (e.g., incompatible critical), one per participant.}
+
 \item{timeout.drop}{(Required, set \code{TRUE} by default). Tells the procedure to drop trials over a certain duration; recommended by Greenwald et al. (2003).}
 
 \item{timeout.ms}{(Required if \code{timeout.drop=TRUE}; set to 10000 by default). Following the Greenwald et al. (2003), individual trials over 10000 ms are dropped (scored as missing). Ignored if \code{timeout.drop=FALSE}.}
@@ -33,8 +35,6 @@ cleanIAT(prac1, crit1, prac2, crit2, timeout.drop = TRUE,
 \item{error.penalty}{(Required, set \code{FALSE} by default). Logical value stating whether an error penalty is added. This should be disabled if forced error correction was used in the IAT and enabled otherwise (Greenwald et al., 2003).}
 
 \item{error.penalty.ms}{(Required if \code{error.penalty=TRUE}; set to \code{error.penalty.ms=600} by default). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. Can be manually set to any desired value. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}. Ignored if \code{error.penalty=FALSE}.}
-
-\item{cric2}{A vector of that same kind of critical responses (e.g., incompatible critical), one per participant.}
 }
 \value{
 Returns a list containing several important elements.

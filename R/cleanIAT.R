@@ -5,7 +5,7 @@ requireNamespace("stringr")
 #' @param prac1 A vector of one kind of practice responses (e.g., compatible practice), one per participant.
 #' @param crit1 A vector of that same kind of critical responses (e.g., compatible critical), one per participant.
 #' @param prac2 A vector of the other kind of practice responses (e.g., incompatible practice), one per participant.
-#' @param cric2 A vector of that same kind of critical responses (e.g., incompatible critical), one per participant.
+#' @param crit2 A vector of that same kind of critical responses (e.g., incompatible critical), one per participant.
 #' @param timeout.drop (Required, set \code{TRUE} by default). Tells the procedure to drop trials over a certain duration; recommended by Greenwald et al. (2003).
 #' @param timeout.ms (Required if \code{timeout.drop=TRUE}; set to 10000 by default). Following the Greenwald et al. (2003), individual trials over 10000 ms are dropped (scored as missing). Ignored if \code{timeout.drop=FALSE}.
 #' @param fastprt.drop (Required, set \code{TRUE} by default). If enabled, follows Greenwald et al. (2003) in which participants who have more than 10 percent of responses (\code{fastprt.percent = .10}) faster than 300 ms (\code{fastprt.ms=300}) are dropped entirely.
