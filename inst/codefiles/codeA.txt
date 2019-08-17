@@ -1,12 +1,12 @@
 Qualtrics.SurveyEngine.addOnload(function() {
-	
+
 	//DECLARE INITIAL VARIABLES
 	var currentStimulus;
-	var end; 
+	var end;
 	var image_srcs;
-	var images; 
+	var images;
 	var loadedImages;
-	var input; 
+	var input;
 	var message;
 	var stimuli;
 	var note;
@@ -20,16 +20,16 @@ Qualtrics.SurveyEngine.addOnload(function() {
 	var cats;
 	var tgtnum = [];
 	var catnum = [];
-	
+
 	//DEFINE addlines. THIS WILL BE PUT IN FRONT OF WORD STIMULI TO DROP THEM DOWN TO BETTER ALIGN WITH IMAGE CENTERS.
- 	var addlines="<br><br><br>";	
-	
+ 	var addlines="<br><br><br>";
+
 	// THE FOLLOWING ARE ONLY USED IF FORCED ERROR CORRECTION IS ENABLED
 	var fix = 0;
 	var error;
-	
+
 	// CLEAN qID VARIABLE OF CHARACTERS AND SAVE AS NUMERIC FOR LATER USE
-	var qID =this.questionId; 
+	var qID =this.questionId;
 	qID = qID.replace("QID", '');
 	qID = parseInt(qID);
 
@@ -41,55 +41,55 @@ Qualtrics.SurveyEngine.addOnload(function() {
 	if (document.getElementById('NextButton')) document.getElementById('NextButton').style.display="none"; //OLD API ...MAY NOT WORK NOW
         if (document.getElementById('PrevButton')) document.getElementById('PrevButton').style.display="none"; //OLD API ...MAY NOT WORK NOW
 	this.hideNextButton();
-	
+
 
 	//DECLARE FUNCTIONS
-	
+
 	//SHUFFLER - RANDOMIZES CONTENTS OF AN ARRAY USING A WELL VALIDATED METHOD
 	function shuffle(array) {
 			var currentIndex = array.length, temporaryValue, randomIndex ;
-			
+
 			// While there remain elements to shuffle...
 			while (0 !== currentIndex) {
-			
+
 				// Pick a remaining element...
 				randomIndex = Math.floor(Math.random() * currentIndex);
 				currentIndex -= 1;
-			
+
 				// And swap it with the current element.
 				temporaryValue = array[currentIndex];
 				array[currentIndex] = array[randomIndex];
 				array[randomIndex] = temporaryValue;
 			}
-			
+
 			return array;
 		};
-	
-	
+
+
 	// FUNCTION 1 - IMAGE LOADER
-	/* This function is the first command in the IAT. It is invoked by code at the bottom of this script 
+	/* This function is the first command in the IAT. It is invoked by code at the bottom of this script
 	and puts all image stimuli in an array called images. If the image_srcs object has no URLs in it, this skips ahead
 	to the next portion of the IAT without loading any images. If errors are encountered, the IAT block is skipped. */
 	function loadImages (image_srcs) {
 		var src, _i, _len;
-		
+
 		//If no images specified, skip this step
 		if(	image_srcs.length == 0) {return imagesLoaded();}
-		
+
 		images = [];
 		loadedImages = 0;
-				
+
 		for (_i = 0, _len = image_srcs.length; _i < _len; _i++) {
 			src = image_srcs[_i];
 			images.push(new Image);
 
 			images[images.length - 1].src = src;
-			
+
 			images[images.length - 1].onerror = function() {
 				alert("Your web browser encountered an issue running this portion of the study. You will be skipped ahead. You may have to click through this message several times.");
 				if (document.getElementById('NextButton')) document.getElementById('NextButton').click();
 			};
-			
+
 			images[images.length - 1].onload = function() {
 				loadedImages++;
 				if (loadedImages = images.length) return imagesLoaded();
@@ -98,17 +98,17 @@ Qualtrics.SurveyEngine.addOnload(function() {
 		}
 		return images;
 	};
-		
-	
+
+
 	// FUNCTION 2 - IMAGES LOADED
-	/* Runs when all image loader is finished, starts the keypress listener. 
+	/* Runs when all image loader is finished, starts the keypress listener.
 	For a forced-error-correction IAT, the last line should return keyCheckForcedError instead of keyCheck*/
 	function imagesLoaded() {
 		document.getElementById('loading').style.display = 'none';
 		document.getElementById('instructions').style.display = 'block';
 		return document.addEventListener('keyup', keyCheck, false);
 	};
-	
+
 
 	// FUNCTION 3 - START FUNCTION
 	/* Runs when the spacebar is pressed after the keypress listener has begun. Does initial houskeeping (grabs HTML content
@@ -121,16 +121,16 @@ Qualtrics.SurveyEngine.addOnload(function() {
 		input = document.getElementById("QR~QID" + qID);
 
 		//MAKE INSTRUCTIONS EMPTY
-		instructions.innerHTML = ""; 
+		instructions.innerHTML = "";
 
 		//ADD NOTE BELOW WINDOW
 		note = document.getElementById("note");
 		note.innerHTML = "";
-		
+
 		return nextQuestion();
 	};
-	
-	
+
+
 	// FUNCTION 4 - LAUNCHES QUESTION
 	/* This function runs on start() and after a new trial begins. If we have not depleted the stimuli object, it grabs (and removes)
 	the last trial from the stimuli object and calls it currentStimulus, then proceeds to use it for an IAT trial. A start time is
@@ -140,13 +140,13 @@ Qualtrics.SurveyEngine.addOnload(function() {
 		if (stimuli.length !==0) {
 
 			currentStimulus = stimuli.pop();
-				
+
 			// SET MESSAGE TO EMPTY
 			message.innerHTML = "";
-				
+
 			// DECLARE START OF CURRENT STIMULUS
 			currentStimulus.start = new Date().getTime();
-				
+
 			// FOR IMAGES, USE APPEND CHILD TO DISPLAY. IF NOT, ADD STIMULUS VALUE TO MESSAGE.
 			if (typeof currentStimulus.stimulus === 'object') {
  				return message.appendChild(currentStimulus.stimulus);
@@ -157,31 +157,31 @@ Qualtrics.SurveyEngine.addOnload(function() {
 		} else {
 
 			//WHEN STIMULI HAS NO TRIALS REMAINING, APPEND END, DISABLE KEY LISTENER, AND CLICK NEXT BUTTON
-			/* IMPORTANT: In Qualtrics, the keypress listener stays active from one page to the next and 
+			/* IMPORTANT: In Qualtrics, the keypress listener stays active from one page to the next and
 			must therefore be disabled before continuing. */
 			input.value += "END";
-			document.removeEventListener('keyup', keyCheck, false); 
+			document.removeEventListener('keyup', keyCheck, false);
 	 		if (document.getElementById('NextButton')) document.getElementById('NextButton').click();
 		}
 	};
-	 
-	
+
+
 	// FUNCTION 5 - KEYPRESS LISTENER FOR STANDARD ERROR MODE
 	/* This function grabs whatever key was pressed and saves it as keyCode. Depending on what was pressed, it will
-	start the IAT, write data, display next trials, etc. Note that errors are handled by swapping the message out 
+	start the IAT, write data, display next trials, etc. Note that errors are handled by swapping the message out
 	for a red X (the error message below the stimulus is NOT used). Note also that an alternative version of this
 	function is defined below but only ONE will be called in a given IAT.*/
 	 function keyCheck(e) {
 		var keyCode;
-			
-		/* depending on how this was triggered, grab keycode and save as keyCode. May need upgrading as web 
-		standards improve for keypress handling. */ 
+
+		/* depending on how this was triggered, grab keycode and save as keyCode. May need upgrading as web
+		standards improve for keypress handling. */
 		if (window.event) {
 			keyCode = event.keyCode;
 		} else {
 			keyCode = e.keyCode;
 		}
-			
+
 		// IF NO CURRENT STIMULUS (ONLY HAPPENS PRIOR TO START OF IAT), SPACEBAR CAN START IAT
 		if (!currentStimulus) {
 			if (keyCode === 32) {
@@ -189,24 +189,24 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			}
 			return;
 		}
-	
+
 		// NEXT, END FUNCTION IF NOT E OR I KEYS. IF CONTINUING AFTER THIS, MUST BE E OR I KEYPRESS.
 		if (!(keyCode === 69 || keyCode === 73)) return;
-			
+
 		// ADD END PROPRETY TO CURRENTSTIM
 		currentStimulus.end = new Date().getTime();
-			
+
 		// CALCULATE DIFFERENCE AND SAVE
 		currentStimulus.reactionTime = currentStimulus.end - currentStimulus.start;
- 
+
 		//IF THE KEYCODE MATCHES THE CORRECT PART OF CURRENT STIMULUS, WRITE TO DATA AND DO OTHER STEPS
 		//TRADITIONAL ERROR MODE
-		if (keyCode === currentStimulus.correct) {				
-			input.value += currentStimulus.index + "C" + currentStimulus.reactionTime + ",";	
+		if (keyCode === currentStimulus.correct) {
+			input.value += currentStimulus.index + "C" + currentStimulus.reactionTime + ",";
 			message.innerHTML = "<br><br><br>+";
 			currentStimulus = null;
 			return setTimeout(function() {return nextQuestion(); }, 250);
-	
+
 		} else {
 			input.value += currentStimulus.index + "X" + currentStimulus.reactionTime + ",";
 			message.innerHTML = "<b style='color:red;font-size:80px'><br><br>X</b>";
@@ -215,25 +215,25 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			return setTimeout(function() {return nextQuestion();}, 300);
 		}
 	};
-	
-	
+
+
 	// FUNCTION 5 - KEYPRESS LISTENER FOR FORCED ERROR CORRECTION MODE
-	/* This is an alternate form of same function, but it (1) only writes data when a correct response is entered (2) 
-	on errors, displays a red X that remains until the correct response is entered, and (3) scores as an error if the 
-	initial responses was incorrect (Greenwald et al., 2003). This should be scored without an error penalty as 
+	/* This is an alternate form of same function, but it (1) only writes data when a correct response is entered (2)
+	on errors, displays a red X that remains until the correct response is entered, and (3) scores as an error if the
+	initial responses was incorrect (Greenwald et al., 2003). This should be scored without an error penalty as
 	correcting the response naturally builds in an error.  */
-	
+
 	function keyCheckForcedError(e) {
 		var keyCode;
-			
-		/* depending on how this was triggered, grab keycode and save as keyCode. May need upgrading as web 
-		standards improve for keypress handling. */ 
+
+		/* depending on how this was triggered, grab keycode and save as keyCode. May need upgrading as web
+		standards improve for keypress handling. */
 		if (window.event) {
 			keyCode = event.keyCode;
 		} else {
 			keyCode = e.keyCode;
 		}
-			
+
 		// IF NO CURRENT STIMULUS (ONLY HAPPENS PRIOR TO START OF IAT), SPACEBAR CAN START IAT
 		if (!currentStimulus) {
 			if (keyCode === 32) {
@@ -241,22 +241,22 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			}
 			return;
 		}
-	
+
 		// NEXT, END FUNCTION IF NOT E OR I KEYS. IF CONTINUING AFTER THIS, MUST BE E OR I KEYPRESS.
 		if (!(keyCode === 69 || keyCode === 73)) return;
-			
+
 		// note - do NOT grab timing here as it may be an error response
- 
+
 		//IF THE KEYCODE MATCHES THE CORRECT PART OF CURRENT STIMULUS, WRITE TO DATA AND DO OTHER STEPS
 		//FORCED ERROR CORRECTION MODE.
-		if (keyCode === currentStimulus.correct) {				
+		if (keyCode === currentStimulus.correct) {
 
 			// Score the timing and save it
 			currentStimulus.end = new Date().getTime();
 			currentStimulus.reactionTime = currentStimulus.end - currentStimulus.start;
 
 			if (fix==0){
-				input.value += currentStimulus.index + "C" + currentStimulus.reactionTime + ",";	
+				input.value += currentStimulus.index + "C" + currentStimulus.reactionTime + ",";
 			}
 
 			if (fix==1){
@@ -268,7 +268,7 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			currentStimulus = null;
 			error.innerHTML = "";
 			return setTimeout(function() {return nextQuestion(); }, 250);
-	
+
 		} else {
 			error.innerHTML = "X";
 			fix=1;
@@ -276,16 +276,20 @@ Qualtrics.SurveyEngine.addOnload(function() {
 		}
 	};
 
-	
+
 	//FUNCTION 6 - TAKES CONTENTS FROM A STIMULI POOL AND PLACES INTO PORTION OF AN OBJECT
 	/* This function takes items from a given stimuli pool and places it randomly into portions of a destination object (positions
-	between start and end). This is used, for example, to take portions of posstim and put it into a portion of the final 
+	between start and end). This is used, for example, to take portions of posstim and put it into a portion of the final
 	stimuli object, or to move contents into intermediate objects that can then be placed (in alternating order) into a
 	final stimuli object. */
-	
+
 	function stimBuilder(array, destination, start, end){
 		var i = start;
 		while(i<end){
+			shuffle(array);
+			shuffle(array);
+			shuffle(array);
+			shuffle(array);
 			shuffle(array);
 			for(var j=0; j<array.length; j++){
 				destination[i].stimulus= array[j].stimulus;
@@ -296,23 +300,23 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			}
 		}
 	}
-	
-	
 
-	
+
+
+
 	//FUNCTION 7 - FOR COMBINED BLOCKS WITH ALTERNATING FORMAT ONLY
-	/* For combined blocks with an alternating form, this function is used to transfer stimuli from 
+	/* For combined blocks with an alternating form, this function is used to transfer stimuli from
 	intermediary pools (cats and tgts) into the final stimuli object in an alternating format */
 	function altStimuil(){
-		
+
 		//CREATE INDICES OF ALTERNATING NUMBERS TO USE FOR TGT AND CAT TRIALS
 		var j = 0;
-		for(var i = 1; i < stimuli.length; i += 2) { 
+		for(var i = 1; i < stimuli.length; i += 2) {
 			tgtnum[j] = i; // starts at 1
 			catnum[j] = (i-1); // starts at 0
 			j++; // represents position in tgt/cat number array
 		}
-	
+
 		// FOR ALL TARGETS, MOVE CONTENTS FROM TARGET INTO STIMULI USING TGTNUM TO INDEX TRIALS
 		for (var i = 0; i < tgts.length; i++){
 			var alternating = tgtnum[i];
@@ -320,7 +324,7 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			stimuli[alternating].correct = tgts[i].correct;
 			stimuli[alternating].index = tgts[i].index;
 		}
-		
+
 		// FOR ALL CATEGORIES, MOVE CONTENTS FROM TARGET INTO STIMULI USING CATNUM TO INDEX TRIALS
 		for (var i = 0; i < cats.length; i++){
 			var alternating = catnum[i];
@@ -330,9 +334,9 @@ Qualtrics.SurveyEngine.addOnload(function() {
 		}
 	}
 
-	
 
-	//  IAT CONTENTS 
-	
+
+	//  IAT CONTENTS
+
 	//IMAGE URLS
 	/* Consists of all pos, neg, A, and B images (in that order). */
