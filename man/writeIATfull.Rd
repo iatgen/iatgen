@@ -7,9 +7,9 @@
 writeIATfull(IATname = "IAT", posname, negname, Aname, Bname, n = c(20,
   20, 20, 40, 40, 20, 40), catType, catCol = "green", poswords, negwords,
   posimgs, negimgs, tgtType, tgtCol = "black", Awords, Bwords, Aimgs,
-  Bimgs, qsf = FALSE, pause = 250, errorpause = 300,
-  correct.error = TRUE, note = FALSE, norepeat = FALSE,
-  startqid = 1)
+  Bimgs, swap = "category", qsf = FALSE, pause = 250,
+  errorpause = 300, correct.error = TRUE, note = FALSE,
+  norepeat = FALSE, startqid = 1)
 }
 \arguments{
 \item{IATname}{(Required, set by default). A short string of text that serves to name the IAT. By default, set as 'IAT'. Do not add spaces or special characters.}

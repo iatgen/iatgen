@@ -2,7 +2,8 @@
 requireNamespace("stringr")
 requireNamespace("jsonlite")
 
-writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, catType, nPos, nNeg, poswords, negwords, tgtType, nA, nB, Awords, Bwords, tgtCol="black", catCol="green", norepeat=FALSE, write.me, out){
+writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, catType, nPos, nNeg, poswords, negwords, tgtType, nA, nB, Awords, Bwords,
+                         tgtCol="black", catCol="green", norepeat=FALSE, write.me, out){
 
   ## Misspecification errors:
   if ( n %% 2 != 0 ) {stop("The number of trials per block must be even in all IAT blocks in Iatgen. This allows an equal distribution of left-hand and right-hand stimuli.")}
@@ -329,7 +330,9 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
 
   bpath  <- system.file("codefiles", "codeB.txt", package="iatgen")
   codeB <- as.matrix(readLines(bpath, warn=F))
-  codestim <- writeIATstim(type=type, combined.type=combined.type, n=n, catType=catType, catCol=catCol, nPos=nPos, nNeg=nNeg, poswords=poswords, negwords=negwords, posside=posside, tgtType=tgtType, tgtCol=tgtCol, nA=nA, nB=nB, Awords=Awords, Bwords=Bwords, Aside=Aside, norepeat=norepeat, write.me=FALSE)
+  codestim <- writeIATstim(type=type, combined.type=combined.type, n=n, catType=catType, catCol=catCol, nPos=nPos, nNeg=nNeg,
+                           poswords=poswords, negwords=negwords, posside=posside, tgtType=tgtType,
+                           tgtCol=tgtCol, nA=nA, nB=nB, Awords=Awords, Bwords=Bwords, Aside=Aside, norepeat=norepeat, write.me=FALSE)
   cpath  <- system.file("codefiles", "codeC.txt", package="iatgen")
   codeC <- as.matrix(readLines(cpath, warn=F))
   temp <- rbind(codeA, codeimage, codeB, codestim, codeC)
@@ -387,9 +390,8 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
 
 writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1, posname, negname, Aname, Bname, posstart, Astart, IATname="IAT", n=c(20, 20, 20, 40, 40, 20, 40),
                            catType, catCol="green", poswords, negwords, nPos, nNeg, posimgs, negimgs, tgtType, tgtCol="black", nA, nB, Awords, Bwords, Aimgs, Bimgs,
-                           easy.img=F, pause=250, errorpause=300, correct.error=F, note=F, norepeat=FALSE, imgs
-                           ) {
-
+                           easy.img=F, pause=250, errorpause=300, correct.error=F, note=F, norepeat=FALSE, swap="category", imgs
+) {
 
   # add error message if tgtType and catType are not both either "images" or "words
 
@@ -428,10 +430,27 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
     }
   }
 
-  possides <- cbind(matrix(c("NA", "right", "right", "right", "left", "left", "left")),
-                    matrix(c("NA", "left", "left", "left", "right", "right", "right")))
+  #create matrices that show what goes where
+  if(swap=="category"){
+    possides <- cbind(matrix(c("none", "right", "right", "right", "left", "left", "left")),
+                      matrix(c("none", "left", "left", "left", "right", "right", "right")))
+    colnames(possides) <- c("right","left") # name columns for the STARTING valence position
 
-  colnames(possides) <- c("right","left") # name columns for the STARTING valence position
+    Asides <- cbind(matrix(c("right", "none", "right", "right", "none", "right", "right")),
+                    matrix(c("left", "none", "left", "left", "none", "left", "left")))
+    colnames(Asides) <- c("right","left") # name columns for the STARTING valence position
+  }
+
+  if(swap=="target"){
+    possides <- cbind(matrix(c("none", "right", "right", "right", "none", "right", "right")),
+                      matrix(c("none", "left", "left", "left", "none", "left", "left")))
+    colnames(possides) <- c("right","left") # name columns for the STARTING valence position
+
+    Asides <- cbind(matrix(c("right", "none", "right", "right", "left", "left", "left")),
+                    matrix(c("left", "none", "left", "left", "right", "right", "right")))
+    colnames(Asides) <- c("right","left") # name columns for the STARTING valence position
+  }
+
 
   if (Astart == "right" && posstart == "right") { suffix <- "rp" } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
   if (Astart == "left" && posstart == "right") { suffix <- "ln" } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
@@ -447,6 +466,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
     dir.create(file.path(mainDir, subDir))
   }
 
+  # move files to current folder. Note that tgtswap variants have the target changing sides instead of the category. Copy everything, then later delete what's unused
   file.copy(system.file("codefiles", "html_1.txt", package="iatgen"), file.path(mainDir, subDir))
   file.copy(system.file("codefiles", "html_2.txt", package="iatgen"), file.path(mainDir, subDir))
   file.copy(system.file("codefiles", "html_3.txt", package="iatgen"), file.path(mainDir, subDir))
@@ -454,10 +474,29 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
   file.copy(system.file("codefiles", "html_5.txt", package="iatgen"), file.path(mainDir, subDir))
   file.copy(system.file("codefiles", "html_6.txt", package="iatgen"), file.path(mainDir, subDir))
   file.copy(system.file("codefiles", "html_7.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_5_tgtswap.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_6_tgtswap.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_7_tgtswap.txt", package="iatgen"), file.path(mainDir, subDir))
   file.copy(system.file("codefiles", "codeA.txt", package="iatgen"), file.path(mainDir, subDir))
   file.copy(system.file("codefiles", "codeB.txt", package="iatgen"), file.path(mainDir, subDir))
   file.copy(system.file("codefiles", "codeC.txt", package="iatgen"), file.path(mainDir, subDir))
   setwd(file.path(mainDir, subDir))
+
+  #we only want html_1.txt-html_7.txt. If we have the tgtswap versions (swap="target), delete the non-swap versions and rename.
+  if(swap=="target"){
+    file.remove("html_5.txt")
+    file.remove("html_6.txt")
+    file.remove("html_7.txt")
+    file.rename(from="html_5_tgtswap.txt", to="html_5.txt")
+    file.rename(from="html_6_tgtswap.txt", to="html_6.txt")
+    file.rename(from="html_7_tgtswap.txt", to="html_7.txt")
+  }
+
+  if(swap=="category"){
+    file.remove("html_5_tgtswap.txt")
+    file.remove("html_6_tgtswap.txt")
+    file.remove("html_7_tgtswap.txt")
+  }
 
 
   writeIATjs(type = "target",
@@ -467,8 +506,8 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              tgtCol = tgtCol,
              catType = catType,
              catCol = catCol,
-             Aside = Astart,
-             posside="none",
+             Aside = Asides[1,Astart],
+             posside = possides[1,posstart],
              nA = nA,
              nB = nA,
              Awords = Awords,
@@ -493,7 +532,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              catType = catType,
              catCol = catCol,
              posside = possides[2,posstart],
-             Aside="none",
+             Aside = Asides[2,Astart],
              poswords = poswords,
              negwords = negwords,
              nPos = nPos,
@@ -518,7 +557,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              catType = catType,
              catCol = catCol,
              posside=possides[3,posstart],
-             Aside = Astart,
+             Aside = Asides[3,Astart],
              poswords = poswords,
              negwords = negwords,
              nPos = nPos,
@@ -543,7 +582,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              catType = catType,
              catCol = catCol,
              posside=possides[4,posstart],
-             Aside = Astart,
+             Aside = Asides[4,Astart],
              poswords = poswords,
              negwords = negwords,
              nPos = nPos,
@@ -560,7 +599,8 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              norepeat=norepeat,
              out = paste("Q",qids[4], " JavaScript_4.txt",sep=""))
 
-  writeIATjs(type = "category",
+  #whatever swaps here--garget or category--is what block 5 type should be. Populates stimuli builder
+  writeIATjs(type = swap,
              combined.type=combined.type,
              n = n[5],
              tgtType = tgtType,
@@ -568,7 +608,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              catType = catType,
              catCol = catCol,
              posside = possides[5,posstart],
-             Aside = "none",
+             Aside = Asides[5,Astart],
              poswords = poswords,
              negwords = negwords,
              nPos = nPos,
@@ -593,7 +633,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              catType = catType,
              catCol = catCol,
              posside=possides[6,posstart],
-             Aside = Astart,
+             Aside = Asides[6,Astart],
              poswords = poswords,
              negwords = negwords,
              nPos = nPos,
@@ -618,7 +658,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              catType = catType,
              catCol = catCol,
              posside=possides[7,posstart],
-             Aside = Astart,
+             Aside = Asides[7,Astart],
              poswords = poswords,
              negwords = negwords,
              nPos = nPos,
@@ -707,7 +747,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb")
       writeLines(as.matrix(bltemp), con,sep="\n")
       close(con)
-      }
+    }
   }
 
   ## A starts left, good
@@ -730,7 +770,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb")
       writeLines(as.matrix(bltemp), con,sep="\n")
       close(con)
-      }
+    }
   }
 
   file.remove("codeA.txt")
@@ -745,10 +785,6 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
   file.remove("html_7.txt")
   setwd(mainDir) #revert WD back to original
 }
-
-
-
-
 
 
 
@@ -777,6 +813,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #' @param Bwords (Required if \code{tgtType="words"}). Should be a vector of stimuli, e.g. \code{Bwords=c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat")}. Ignored if \code{tgtType="images"}.
 #' @param Aimgs (Required if \code{tgtType="images"}). Should be a vector of image URLs, e.g. \code{Aimgs=c("www.website.com/Orchid.jpg", "www.website.com/Tulip.jpg")}. Users should have legal rights to use images and should host them personally (or via Qualtrics). For more on image sizing and how to host images, see tutorial at www.iatgen.wordpress.com. Ignored if \code{tgtType="words"}.
 #' @param Bimgs (Required if \code{tgtType="images"}). Should be a vector of image URLs, e.g. \code{Bimgs=c("www.website.com/Wasp.jpg", "www.website.com/flea.jpg")}. Users should have legal rights to use images and should host them personally (or via Qualtrics). For more on image sizing and how to host images, see tutorial at www.iatgen.wordpress.com. Ignored if \code{tgtType="words"}.
+#' @param swap (Required, set by default). Should be a scalar of either "category" or "target." Determines what swaps sides at Block 5. If \code{swap="target"}, then the target (e.g., insects/flowers) swap sides. If \code{sawp="category"} then the category (e.g., pleasant/unpleasant) swapws sides. Both see use in the literature, although target swapping may be more common. Category swapping is more common in consumer IATs.
 #' @param pause (Required, set by default). Numeric value sets the delay between trials (displaying the fixation cross) in milliseconds. By default, set to 250 (Greenwald et al., 1998) but can be set to any value.
 #' @param errorpause (Required if \code{correct.error=TRUE}). This sets the amount of time in milliseconds to display the red X in case of an error. By default, set to 300 ms (Greenwald et al., 1998) but can be set to any value. Ignored if \code{correct.error=T}.
 #' @param correct.error (Required, set by default). Logical value, set to \code{TRUE} by default. When \code{correct.error=TRUE}, creates a variant where participants must correct errors in order to proceed from one trial to the next (see Greenwald et al., 2003). When \code{correct.error=FALSE}, the IAT follows the original Greenwald et al. (1998) procedure in which an error message flashes on the screen between trials. Note that forced error correction is the default in most modern IAT software.
@@ -1018,6 +1055,7 @@ writeIATfull <- function(IATname="IAT",
                          Bwords,
                          Aimgs,
                          Bimgs,
+                         swap="category",
                          qsf=FALSE,
                          pause=250,
                          errorpause=300,
@@ -1045,6 +1083,10 @@ writeIATfull <- function(IATname="IAT",
   if (length(n) != 7){
     stop("n argument is not correctly specified. You must provide the number of trials for all seven blocks.")
   }
+
+  if (swap!="target" & swap!="category") {
+    stop("the 'swap' argument is inccorectly specified. It must say either 'target' or 'category'")
+    }
 
   ## BY DEFAULT, IMPLEMENTS THE EASY IMAGE METHOD. nA, nB, nPos, and nNeg not specified by user in this version. Pulls that information from image URL vectors directly.
   if(tgtType == "images" & catType == "words") {
@@ -1095,24 +1137,28 @@ writeIATfull <- function(IATname="IAT",
                    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
                    catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
                    tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
+                   swap=swap,
                    pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
 
     writeIATblocks(startqid=(startqid+7), posstart="left", Astart="right", IATname=IATname, foldernum=2, n=n,
                    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
                    catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
                    tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
+                   swap=swap,
                    pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
 
     writeIATblocks(startqid=(startqid+14), posstart="left", Astart="left", IATname=IATname, foldernum=3, n=n,
                    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
                    catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
                    tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
+                   swap=swap,
                    pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
 
     writeIATblocks(startqid=(startqid+21), posstart="right", Astart="left", IATname=IATname, foldernum=4, n=n,
                    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
                    catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
                    tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
+                   swap=swap,
                    pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
 
 

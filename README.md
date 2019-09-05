@@ -1,4 +1,4 @@
-iatgen (1.2.6)
+iatgen (1.2.7)
 ==============
 
 iatgen (pronounced “I A T gen”) is an R package and Shiny App that
@@ -7,7 +7,7 @@ Association Tests; Greenwald et al., 1998) following a procedure
 developed by Carpenter et al. (2018; preprint available at
 <a href="https://psyarxiv.com/hgy3z/" class="uri">https://psyarxiv.com/hgy3z/</a>).
 
-Specifically, Carpenter et al. developed procedures for
+Specifically, Carpenter et al. developed procedures for
 “survey-software” IATs. These are IATs constructed out of modified
 survey elements that have been edited by adding custom JavaScript and
 HTML code. The R “iatgen” package was developed as a tool for
