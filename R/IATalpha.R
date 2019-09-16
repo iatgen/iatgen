@@ -12,10 +12,10 @@ IATalpha <- function(data){
     uniqv[which.max(tabulate(match(v, uniqv)))]
   }
 
-  prac1.cols <- getmode(rowSums(!is.na(prac1)))
-  prac2.cols <- getmode(rowSums(!is.na(prac2)))
-  crit1.cols <- getmode(rowSums(!is.na(crit1)))
-  crit2.cols <- getmode(rowSums(!is.na(crit2)))
+  prac1.cols <- getmode(rowSums(!is.na(prac1[!data$skipped & !data$drop.participant,])))
+  prac2.cols <- getmode(rowSums(!is.na(prac2[!data$skipped & !data$drop.participant,])))
+  crit1.cols <- getmode(rowSums(!is.na(crit1[!data$skipped & !data$drop.participant,])))
+  crit2.cols <- getmode(rowSums(!is.na(crit2[!data$skipped & !data$drop.participant,])))
 
   prac1 <- prac1[,1:prac1.cols]
   prac2 <- prac2[,1:prac2.cols]
