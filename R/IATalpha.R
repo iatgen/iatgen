@@ -27,9 +27,9 @@ IATalpha <- function(data){
 
   df <- cbind(prac, crit, make.row.names = FALSE)
 
-  alpha.prac <- psych::alpha(prac)$total[1]
-  alpha.crit <- psych::alpha(crit)$total[1]
-  alpha.total <- psych::alpha(df)$total[1]
+  alpha.prac <- suppressMessages(suppressWarnings(psych::alpha(prac)$total[1]))
+  alpha.crit <- suppressMessages(suppressWarnings(psych::alpha(crit)$total[1]))
+  alpha.total <- suppressMessages(suppressWarnings(psych::alpha(df)$total[1]))
 
   return(list(alpha.prac=alpha.prac, alpha.crit=alpha.crit, alpha.total=alpha.total))
 }

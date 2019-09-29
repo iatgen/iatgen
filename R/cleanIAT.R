@@ -1175,7 +1175,7 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     clean.means.crit2=clean.means.crit2,
     diff.prac=diff.prac,
     diff.crit=diff.crit,
-    inclulsive.sd.prac=inclusive.sd.prac,
+    inclusive.sd.prac=inclusive.sd.prac,
     inclusive.sd.crit=inclusive.sd.crit,
     D=D
   ))
