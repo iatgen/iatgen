@@ -7,7 +7,7 @@
 writeIATfull(IATname = "IAT", posname, negname, Aname, Bname, n = c(20,
   20, 20, 40, 40, 20, 40), catType, catCol = "green", poswords, negwords,
   posimgs, negimgs, tgtType, tgtCol = "black", Awords, Bwords, Aimgs,
-  Bimgs, swap = "category", qsf = FALSE, pause = 250,
+  Bimgs, swap = "target", qsf = FALSE, pause = 250,
   errorpause = 300, correct.error = TRUE, note = FALSE,
   norepeat = FALSE, startqid = 1)
 }
@@ -47,6 +47,8 @@ writeIATfull(IATname = "IAT", posname, negname, Aname, Bname, n = c(20,
 \item{Aimgs}{(Required if \code{tgtType="images"}). Should be a vector of image URLs, e.g. \code{Aimgs=c("www.website.com/Orchid.jpg", "www.website.com/Tulip.jpg")}. Users should have legal rights to use images and should host them personally (or via Qualtrics). For more on image sizing and how to host images, see tutorial at www.iatgen.wordpress.com. Ignored if \code{tgtType="words"}.}
 
 \item{Bimgs}{(Required if \code{tgtType="images"}). Should be a vector of image URLs, e.g. \code{Bimgs=c("www.website.com/Wasp.jpg", "www.website.com/flea.jpg")}. Users should have legal rights to use images and should host them personally (or via Qualtrics). For more on image sizing and how to host images, see tutorial at www.iatgen.wordpress.com. Ignored if \code{tgtType="words"}.}
+
+\item{swap}{(Required, set by default). Should be a scalar of either "category" or "target." Determines what swaps sides at Block 5. If \code{swap="target"}, then the target (e.g., insects/flowers) swap sides. If \code{sawp="category"} then the category (e.g., pleasant/unpleasant) swapws sides. Both see use in the literature, although target swapping may be more common. Category swapping is more common in consumer IATs.}
 
 \item{qsf}{(Required, set by default). Logical value, set to \code{FALSE} by default. If \code{qsf=TRUE}, creates a functional Qualtrics Survey File (*.qsf) for the user to import directly into Qualtrics. If set to \code{qsf=FALSE}, the user must copy paste JavaScript and HTML files into a template. The QSF feature is not compatible with multi-IAT designs. See tutorial on www.iatgen.wordpress.com for multi-IAT designs and usage of manual mode.}
 
