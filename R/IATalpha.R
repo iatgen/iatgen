@@ -1,3 +1,17 @@
+########## STEP SIX: RELIABILITY ANALYSIS
+#' Data analysis function: Cronbach's Alpha
+#' @description  An alternative way of assessing the internal consistency of the IAT is to use Cronbach's Alpha. This method, used by Schnabel, Asendorpf, & Greenwald (2008) creates pairs of reaction times from compatible/incompatible blocks, calculates their difference scores, and enters those into a Cronbach's alpha analysis.
+#' @param data an object created by \code{cleanIAT()} representing a cleaned IAT.
+#' @return Returns a list with alphas based on the practice trials, the critical trials, and the entire IAT.
+#' @references Schnabel, K., Asendorpf, J. B., & Greenwald, A. G. (2008). Using Implicit Association Tests for the Assessment of Implicit Personality Self-Concept. In The SAGE Handbook of Personality Theory and Assessment: Volume 2—Personality Measurement and Testing (pp. 508–528). SAGE Publications Ltd. https://doi.org/10.4135/9781849200479.n24
+#' @examples \dontrun{
+#' ### RELIABILITY ANALYSIS - ESTIMATE ONLY ###
+#' IATalpha(clean)$alpha.total
+#'
+#' ### RELIABILITY ANALYSIS - ENTIRE RELIABILITY OUTPUT ###
+#' IATalpha(clean)
+#' }
+
 IATalpha <- function(data){
   require(psych)
   prac1 <- data$clean.latencies.prac1

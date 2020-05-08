@@ -4,12 +4,34 @@
 \alias{writeIATfull}
 \title{Builds a fully functional IAT with counterbalanced permutations}
 \usage{
-writeIATfull(IATname = "IAT", posname, negname, Aname, Bname, n = c(20,
-  20, 20, 40, 40, 20, 40), catType, catCol = "green", poswords, negwords,
-  posimgs, negimgs, tgtType, tgtCol = "black", Awords, Bwords, Aimgs,
-  Bimgs, swap = "target", qsf = FALSE, pause = 250,
-  errorpause = 300, correct.error = TRUE, note = FALSE,
-  norepeat = FALSE, startqid = 1)
+writeIATfull(
+  IATname = "IAT",
+  posname,
+  negname,
+  Aname,
+  Bname,
+  n = c(20, 20, 20, 40, 40, 20, 40),
+  catType,
+  catCol = "green",
+  poswords,
+  negwords,
+  posimgs,
+  negimgs,
+  tgtType,
+  tgtCol = "black",
+  Awords,
+  Bwords,
+  Aimgs,
+  Bimgs,
+  swap = "target",
+  qsf = FALSE,
+  pause = 250,
+  errorpause = 300,
+  correct.error = TRUE,
+  note = FALSE,
+  norepeat = FALSE,
+  startqid = 1
+)
 }
 \arguments{
 \item{IATname}{(Required, set by default). A short string of text that serves to name the IAT. By default, set as 'IAT'. Do not add spaces or special characters.}
@@ -60,7 +82,7 @@ writeIATfull(IATname = "IAT", posname, negname, Aname, Bname, n = c(20,
 
 \item{note}{(Required, set by default). Logical value, set to \code{FALSE} by default. When \code{note=TRUE}, displays a persistent note at the bottom of the window reminding participants which keys to press and how to handle errors (if \code{correct.error=TRUE}). This is recommended for non-laboratory use, where participants are unable to ask for assistance.}
 
-\item{norepeat}{(Required, set by default). Logical value, set to \code{FALSE} by default. This controls the order in which stimuli are displayed. In the IAT, we always sample stimuli randomly without replacement from pools, replenishing the pools after they are depleted. However, iatgen then randomizes (within each block) the order in which those stimuli are displayed (e.g., Gawronski, 2002). Setting this to \code{TRUE} displays stimuli in the order sampled, meaning that there are no repeats seen *by the participant* until all stimuli from that stimuli set have been seen.}
+\item{norepeat}{(Required, set by default). Logical value, set to \code{FALSE} by default. This controls the order in which stimuli are displayed. In the IAT, we always sample stimuli randomly without replacement from pools, replenishing the pools after they are depleted. In other words, any given stimulus will not appear twice in the IAT until all other stimuli from that pool are depleted. This keeps the distribution of stimuli even from participant to participant. However, iatgen then randomizes (within each block) the order in which those stimuli are displayed (e.g., Gawronski, 2002). Setting this to \code{TRUE} displays stimuli in the order sampled, meaning that there are no repeats seen *by the participant* until all stimuli from that stimuli set have been seen. This only changes the display order within a block.}
 
 \item{startqid}{(Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).}
 }
@@ -98,7 +120,7 @@ writeIATfull(IATname="flowins",
            catCol="green"
 )
 
- ### Same IAT but with the persistent task directions disabled (\\code{note=FALSE}), forced error correction disabled (\\code{correct.error=FALSE}) and a 300 ms pause for the error message (\\code{errorpause=300}).
+ ### Same IAT but with the persistent task directions disabled (\code{note=FALSE}), forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause for the error message (\code{errorpause=300}).
 
 writeIATfull(IATname="flowins",
             posname="Pleasant",

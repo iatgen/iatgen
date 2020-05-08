@@ -4,10 +4,22 @@
 \alias{cleanIAT}
 \title{Data analysis function: Processes and cleans raw IAT data}
 \usage{
-cleanIAT(prac1, crit1, prac2, crit2, timeout.drop = TRUE,
-  timeout.ms = 10000, fasttrial.drop = FALSE, fasttrial.ms = 400,
-  fastprt.drop = TRUE, fastprt.percent = 0.1, fastprt.ms = 300,
-  error.penalty = FALSE, error.penalty.ms = 600, inclusive.sd = TRUE)
+cleanIAT(
+  prac1,
+  crit1,
+  prac2,
+  crit2,
+  timeout.drop = TRUE,
+  timeout.ms = 10000,
+  fasttrial.drop = FALSE,
+  fasttrial.ms = 400,
+  fastprt.drop = TRUE,
+  fastprt.percent = 0.1,
+  fastprt.ms = 300,
+  error.penalty = FALSE,
+  error.penalty.ms = 600,
+  inclusive.sd = TRUE
+)
 }
 \arguments{
 \item{prac1}{A vector of one kind of practice responses (e.g., compatible practice), one per participant.}
