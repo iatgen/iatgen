@@ -10,7 +10,7 @@ IATalpha(data)
 \item{data}{an object created by \code{cleanIAT()} representing a cleaned IAT.}
 }
 \value{
-Returns a list with alphas based on the practice trials, the critical trials, and the entire IAT.
+Returns a list with alphas based on the practice trials, the critical trials, and the entire IAT. Also retuns a matrix `diffscores` of the differences in latency for all matched trials (pooled practice and critical into one matrix)
 }
 \description{
 An alternative way of assessing the internal consistency of the IAT is to use Cronbach's Alpha. This method, used by Schnabel, Asendorpf, & Greenwald (2008) creates pairs of reaction times from compatible/incompatible blocks, calculates their difference scores, and enters those into a Cronbach's alpha analysis.

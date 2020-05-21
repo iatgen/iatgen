@@ -2,7 +2,7 @@
 #' Data analysis function: Cronbach's Alpha
 #' @description  An alternative way of assessing the internal consistency of the IAT is to use Cronbach's Alpha. This method, used by Schnabel, Asendorpf, & Greenwald (2008) creates pairs of reaction times from compatible/incompatible blocks, calculates their difference scores, and enters those into a Cronbach's alpha analysis.
 #' @param data an object created by \code{cleanIAT()} representing a cleaned IAT.
-#' @return Returns a list with alphas based on the practice trials, the critical trials, and the entire IAT.
+#' @return Returns a list with alphas based on the practice trials, the critical trials, and the entire IAT. Also retuns a matrix `diffscores` of the differences in latency for all matched trials (pooled practice and critical into one matrix)
 #' @references Schnabel, K., Asendorpf, J. B., & Greenwald, A. G. (2008). Using Implicit Association Tests for the Assessment of Implicit Personality Self-Concept. In The SAGE Handbook of Personality Theory and Assessment: Volume 2—Personality Measurement and Testing (pp. 508–528). SAGE Publications Ltd. https://doi.org/10.4135/9781849200479.n24
 #' @examples \dontrun{
 #' ### RELIABILITY ANALYSIS - ESTIMATE ONLY ###
@@ -39,11 +39,12 @@ IATalpha <- function(data){
   prac <- prac1-prac2
   crit <- crit1-crit2
 
-  df <- cbind(prac, crit, make.row.names = FALSE)
+  df <- cbind(prac, crit)
+  colnames(df) <- paste0("trial", 1:ncol(df))
 
   alpha.prac <- suppressMessages(suppressWarnings(psych::alpha(prac)$total[1]))
   alpha.crit <- suppressMessages(suppressWarnings(psych::alpha(crit)$total[1]))
   alpha.total <- suppressMessages(suppressWarnings(psych::alpha(df)$total[1]))
 
-  return(list(alpha.prac=alpha.prac, alpha.crit=alpha.crit, alpha.total=alpha.total))
+  return(list(alpha.prac=alpha.prac, alpha.crit=alpha.crit, alpha.total=alpha.total, diffscores=df))
 }
