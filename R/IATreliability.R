@@ -44,7 +44,7 @@ IATreliability <- function(data, inclusive.sd=TRUE){
     b2.crit <- rbind(b2.crit, temp)
   }
   
-
+  
   
   
   ## BLOCK 1
@@ -93,19 +93,20 @@ IATreliability <- function(data, inclusive.sd=TRUE){
   
   
   diff.prac.odd <- odd.prac.means2 - odd.prac.means1 
-  inclusive.sd.prac.odd <- sd(cbind(as.matrix(odd.prac.latencies1), as.matrix(odd.prac.latencies2)), na.rm=T)
+  inclusive.sd.prac.odd <- apply(cbind(as.matrix(odd.prac.latencies1), as.matrix(odd.prac.latencies2)), 1, sd, na.rm=TRUE)
+  
   D1.prac <- diff.prac.odd / inclusive.sd.prac.odd
   
   diff.crit.odd <- odd.crit.means2 - odd.crit.means1 
-  inclusive.sd.crit.odd <- sd(cbind(as.matrix(odd.crit.latencies1), as.matrix(odd.crit.latencies2)), na.rm=T)
+  inclusive.sd.crit.odd <- apply(cbind(as.matrix(odd.crit.latencies1), as.matrix(odd.crit.latencies2)), 1, sd, na.rm=T)
   D1.crit <- diff.crit.odd / inclusive.sd.crit.odd
   
   diff.prac.even <- even.prac.means2 - even.prac.means1 
-  inclusive.sd.prac.even <- sd(cbind(as.matrix(even.prac.latencies1), as.matrix(even.prac.latencies2)), na.rm=T)
+  inclusive.sd.prac.even <- apply(cbind(as.matrix(even.prac.latencies1), as.matrix(even.prac.latencies2)), 1, sd, na.rm=T)
   D2.prac <- diff.prac.even / inclusive.sd.prac.even
   
   diff.crit.even <- even.crit.means2 - even.crit.means1 
-  inclusive.sd.crit.even <- sd(cbind(as.matrix(even.crit.latencies1), as.matrix(even.crit.latencies2)), na.rm=T)
+  inclusive.sd.crit.even <- apply(cbind(as.matrix(even.crit.latencies1), as.matrix(even.crit.latencies2)), 1, sd, na.rm=T)
   D2.crit <- diff.crit.even / inclusive.sd.crit.even
   
   
@@ -116,5 +117,3 @@ IATreliability <- function(data, inclusive.sd=TRUE){
   reliability <- (2*splithalfcorr) / (1 + splithalfcorr)
   return(list(reliability=reliability, splithalfcorr=splithalfcorr, D.odd = D1, D.even = D2, D.prac.odd=D1.prac, D.crit.odd=D1.crit, D.prac.even=D2.prac, D.crit.even=D2.crit))
 }
-
-
