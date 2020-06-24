@@ -113,6 +113,9 @@ Returns a list containing several important elements.
 \code{diff.crit} is a vector (one per person) of the difference between mean latencies compatible and incompatible (critical) blocks.
 \code{inclusive.sd.prac} is a vector (one per person) of the inclusive SD for the practice trials, per Greenwald et al. (2003).
 \code{inclusive.sd.crit} is a vector (one per person) of the inclusive SD for the critical trials, per Greenwald et al. (2003).
+\code{grand.sd} is a vector (one per person) of the inclusive SD for all combined trials. This is not presently used but may be desired for algorithm development.
+\code{D.prac} is a vector (one per person) of the D scores (i.e., IAT scores) for just the practice trials.
+\code{D.crit} is a vector (one per person) of the D scores (i.e., IAT scores) for just the critical trials.
 \code{D} is a vector (one per person) of the final D scores (i.e., IAT scores).
 }
 \description{

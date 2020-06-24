@@ -79,6 +79,9 @@ requireNamespace("stringr")
 #' \code{diff.crit} is a vector (one per person) of the difference between mean latencies compatible and incompatible (critical) blocks.
 #' \code{inclusive.sd.prac} is a vector (one per person) of the inclusive SD for the practice trials, per Greenwald et al. (2003).
 #' \code{inclusive.sd.crit} is a vector (one per person) of the inclusive SD for the critical trials, per Greenwald et al. (2003).
+#' \code{grand.sd} is a vector (one per person) of the inclusive SD for all combined trials. This is not presently used but may be desired for algorithm development.
+#' \code{D.prac} is a vector (one per person) of the D scores (i.e., IAT scores) for just the practice trials.
+#' \code{D.crit} is a vector (one per person) of the D scores (i.e., IAT scores) for just the critical trials.
 #' \code{D} is a vector (one per person) of the final D scores (i.e., IAT scores).
 #' @references Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
 #' @references Greenwald, A. G., Nosek, B. A., & Banaji, M. R. (2003). Understanding and using the Implicit Association Test: I. An improved scoring algorithm. \emph{Journal of Personality and Social Psychology, 85}, 197–216. https://doi.org/10.1037/0022-3514.85.2.197
@@ -926,28 +929,13 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
   clean.means.crit2 <- rowMeans(clean.latencies.crit2, na.rm=TRUE)
   clean.means.crit2[is.nan(clean.means.crit2)] <- NA
 
-  ## generate inclusive SD for D score
-  inclusive.sd.prac <- numeric()
-  inclusive.trials <- cbind(clean.latencies.prac1, clean.latencies.prac2)
-  inclusive.num <- num.clean.trials.prac1 + num.clean.trials.prac2
-  for(i in 1:nrow(inclusive.trials)){
-    row <- inclusive.trials[i,]
-    avg <- sum(row, na.rm=TRUE) / (inclusive.num[i])
-    inclusive.sd.prac[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (inclusive.num[i]-1))
-  }
-
-  inclusive.sd.crit <- numeric()
-  inclusive.trials <- cbind(clean.latencies.crit1, clean.latencies.crit2)
-  inclusive.num <- num.clean.trials.crit1 + num.clean.trials.crit2
-  for(i in 1:nrow(inclusive.trials)){
-    row <- inclusive.trials[i,]
-    avg <- sum(row, na.rm=TRUE) / (inclusive.num[i])
-    inclusive.sd.crit[i] <- sqrt(sum((row - avg)^2, na.rm=TRUE) / (inclusive.num[i]-1))
-  }
+  ## generate inclusive SD for D score; use apply for rowSDs. Get a grand SD for psychometrics testing
+  inclusive.sd.prac <-  apply(cbind(clean.latencies.prac1, clean.latencies.prac2), 1, sd, na.rm=T)
+  inclusive.sd.crit <-  apply(cbind(clean.latencies.crit1, clean.latencies.crit2), 1, sd, na.rm=T)
+  grand.sd <- apply(cbind(clean.latencies.prac1, clean.latencies.prac2, clean.latencies.crit1, clean.latencies.crit2), 1, sd, na.rm=T)
 
   ## final total for calculations
   num.clean.trials <- num.clean.trials.prac1 + num.clean.trials.crit1 + num.clean.trials.prac2 + num.clean.trials.crit2
-
 
   # save error rate on non-eliminated trials
   error.rate <- cbind(clean.correct.prac1, clean.correct.crit1, clean.correct.prac2, clean.correct.crit2)
@@ -1177,6 +1165,9 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop=TRUE, timeout.ms=1
     diff.crit=diff.crit,
     inclusive.sd.prac=inclusive.sd.prac,
     inclusive.sd.crit=inclusive.sd.crit,
+    grand.sd=grand.sd,
+    D.prac=D.prac,
+    D.crit=D.crit,
     D=D
   ))
 }
