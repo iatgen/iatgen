@@ -1,7 +1,7 @@
 #' Data analysis function: Splits an IAT into Four Parcels
 #' @description Used for latent-variable modeling, this is run on an IAT object, the output from \code{cleanIAT()}. It outputs a list of four D-scores, each representing one 1/4 of the IAT. All four combined blocks are split into four parcels; corresponding portions of practice and critical blocks are then combined into two sets of trials (compatible, incompatible). These are then divided by the person-level SD of all trials across all combined blocks. The resulting four D-scores reflect four parcels of the IAT, with all combined blocks reflected in each parcel.
 #' @param input A cleaned IAT, the output from \code{cleanIAT()}.
-#' @return Returns a list of D-scores, reflecting 1/4 of the IAT each.
+#' @return Returns a dataframe of D-scores, reflecting 1/4 of the IAT each.
 #' @seealso See www.iatgen.wordpress.com for tutorials and files.
 #' @references Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
 #' @references Buttrick, N., Axt, J., Ebersole, C. R., & Huband, J. (2020). Re-assessing the incremental predictive validity of Implicit Association Tests. Journal of Experimental Social Psychology, 88, 103941. https://doi.org/10.1016/j.jesp.2019.103941
@@ -112,7 +112,7 @@ parcelIAT <- function(input){
   D.3 <- (clean.means.3.1-clean.means.3.2) / inclusive.sd.x
   D.4 <- (clean.means.4.1-clean.means.4.2) / inclusive.sd.x
 
-  return(list(D.1=D.1,
+  return(data.frame(D.1=D.1,
               D.2=D.2,
               D.3=D.3,
               D.4=D.4))
