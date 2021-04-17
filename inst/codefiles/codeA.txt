@@ -83,8 +83,6 @@ Qualtrics.SurveyEngine.addOnload(function() {
 			src = image_srcs[_i];
 			images.push(new Image);
 
-			images[images.length - 1].src = src;
-
 			images[images.length - 1].onerror = function() {
 				alert("Your web browser encountered an issue running this portion of the study. You will be skipped ahead. You may have to click through this message several times.");
 				if (document.getElementById('NextButton')) document.getElementById('NextButton').click();
@@ -92,9 +90,10 @@ Qualtrics.SurveyEngine.addOnload(function() {
 
 			images[images.length - 1].onload = function() {
 				loadedImages++;
-				if (loadedImages = images.length) return imagesLoaded();
+				if (loadedImages == images.length) return imagesLoaded();
 			};
 
+			images[images.length - 1].src = src;
 		}
 		return images;
 	};
