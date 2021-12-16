@@ -1,5 +1,19 @@
 #' Data analysis function: Cleans the IAT without Practice Blocks
 #' @description A variant of \code{cleanIAT()}. Inputs and outputs are identical, except that this function accepts only two blocks. This can be used when practice blocks are omitted from the IAT.
+#' @param crit1 A vector of that same kind of critical responses (e.g., compatible critical), one per participant.
+#' @param crit2 A vector of that same kind of critical responses (e.g., incompatible critical), one per participant.
+#' @param timeout.drop (Required, set \code{TRUE} by default). Tells the procedure to drop trials over a certain duration; recommended by Greenwald et al. (2003).
+#' @param timeout.ms (Required if \code{timeout.drop=TRUE}; set to 10000 by default). Following the Greenwald et al. (2003), individual trials over 10000 ms are dropped (scored as missing). Ignored if \code{timeout.drop=FALSE}.
+#' @param fastprt.drop (Required, set \code{TRUE} by default). If enabled, follows Greenwald et al. (2003) in which participants who have more than 10 percent of responses (\code{fastprt.percent = .10}) faster than 300 ms (\code{fastprt.ms=300}) are dropped entirely.
+#' @param fastprt.percent (Required if \code{fastprt.drop=TRUE}; set to .10 by default). Set the proportion threshold for \code{fastprt.drop}, above. Ignored if \code{fastprt.drop=FALSE}.
+#' @param fastprt.ms (Required if \code{fastprt.drop=TRUE}; set to 300 ms by default). Sets the time threshold for for \code{fastprt.drop}, above. Ignored if \code{fastprt.drop=FALSE}.
+#' @param fasttrial.drop (Required, set \code{FALSE} by default). Tells the procedure to drop trials under a certain duration. Not recommended but was validated by Greenwald et al. (2003) as an alternative to dropping fast participants.
+#' @param fasttrial.ms (Required if \code{fasttrial.drop=TRUE}; set to 400 ms by default). The threshold for \code{fastprt.drop}, above. Ignored if \code{fastprt.drop=FALSE}.
+#' @param error.penalty (Required, set \code{FALSE} by default). Logical value stating whether an error penalty is added. This should be disabled if forced error correction was used in the IAT and enabled otherwise (Greenwald et al., 2003).
+#' @param error.penalty.ms (Required if \code{error.penalty=TRUE}; set to \code{error.penalty.ms=600} by default). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. Can be manually set to any desired value. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}. Ignored if \code{error.penalty=FALSE}.
+#' @param inclusive.sd Unused parameter.
+#' @importFrom stats median sd
+#' @return Returns a list containing several important elements.
 #' @seealso See the help for \code{cleanIAT()}.
 #' @examples \dontrun{
 #' ### Collapse  IAT critical blocks  down ####

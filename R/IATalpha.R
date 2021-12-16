@@ -13,7 +13,7 @@
 #' }
 
 IATalpha <- function(data){
-  require(psych)
+  # require(psych)
   prac1 <- data$clean.latencies.prac1
   prac2 <- data$clean.latencies.prac2
   crit1 <- data$clean.latencies.crit1

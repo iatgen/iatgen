@@ -1,6 +1,6 @@
 ############## WRITE IAT STIMULI POOLS AND CODE ##############
-requireNamespace("stringr")
-requireNamespace("jsonlite")
+# requireNamespace("stringr")
+# requireNamespace("jsonlite")
 
 writeSCIATstim <- function(type, n, posside, Aside, catType, nPos, poswords, tgtType, nA, nB, Awords, Bwords, tgtCol="black", catCol="green",write.me, out){
 
@@ -717,7 +717,7 @@ writeSCIATfull <- function(IATname="IAT",
     qsfTemplate="SCTemplate_-_For_Shiny_V11.qsf"
 
     # library(jsonlite)
-    require(jsonlite)
+    # require(jsonlite)
     q <- jsonlite::fromJSON(qsfTemplate)
 
     q$SurveyName <- iatname
@@ -755,36 +755,7 @@ writeSCIATfull <- function(IATname="IAT",
         q$SurveyElements$Payload[i][[1]]$QuestionText <- filecontent[[qnumberhtml]]
         q$SurveyElements$Payload[i][[1]]$QuestionJS <- filecontent[[qnumberjs]]
       } else {
-        if (exists("q$SurveyElements$Payload[i][[1]]$QuestionText") &&
-            length(q$SurveyElements$Payload[i][[1]]$QuestionText)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$QuestionText
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$QuestionText <- qtext
-        }
-        if (exists("q$SurveyElements$Payload[i][[1]]$QuestionJS") &&
-            length(q$SurveyElements$Payload[i][[1]]$QuestionJS)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$QuestionJS
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$QuestionJS <- qtext
-        }
-        if (exists("q$SurveyElements$Payload[i][[1]]$QuestionDescription") &&
-            length(q$SurveyElements$Payload[i][[1]]$QuestionDescription)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$QuestionDescription
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$QuestionDescription <- qtext
-        }
-        if (exists("q$SurveyElements$Payload[i][[1]]$Choices[1][[1]]$Display") &&
-            length(q$SurveyElements$Payload[i][[1]]$Choices[1][[1]]$Display)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$Choices[1][[1]]$Display
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$Choices[1][[1]]$Display <- qtext
-        }
-        if (exists("q$SurveyElements$Payload[i][[1]]$Choices[7][[1]]$Display") &&
-            length(q$SurveyElements$Payload[i][[1]]$Choices[7][[1]]$Display)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$Choices[7][[1]]$Display
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$Choices[7][[1]]$Display <- qtext
-        }
+        stop("Unable to parse the template")
       }
     }
 

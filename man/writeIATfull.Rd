@@ -95,8 +95,12 @@ This is the primary function for building IATs. It has two modes. In automatic m
 \examples{
 \dontrun{
 
-### A words-only IAT with recommended settings. IAT examines insects vs. flowers and is named "flowins". Recommended settings builds a QSF file automatically with forced error correction and a note reminding participants of the instructions.
-## Note: the following are specified below for example purposes but are specified by default automatically and can be omitted: coloring of stimuli, number of trials per block, pause between trials
+### A words-only IAT with recommended settings. IAT examines insects vs. flowers
+    and is named "flowins". Recommended settings builds a QSF file automatically
+    with forced error correction and a note reminding participants of the instructions.
+## Note: the following are specified below for example purposes but are specified
+    by default automatically and can be omitted: coloring of stimuli,
+    number of trials per block, pause between trials.
 
 writeIATfull(IATname="flowins",
            posname="Pleasant",
@@ -120,7 +124,9 @@ writeIATfull(IATname="flowins",
            catCol="green"
 )
 
- ### Same IAT but with the persistent task directions disabled (\code{note=FALSE}), forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause for the error message (\code{errorpause=300}).
+ ### Same IAT but with the persistent task directions disabled (\code{note=FALSE}),
+     forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause
+     for the error message (\code{errorpause=300}).
 
 writeIATfull(IATname="flowins",
             posname="Pleasant",
@@ -145,7 +151,8 @@ writeIATfull(IATname="flowins",
             catCol="green"
 )
 
-### Same IAT as prior example but with 10 trials for all non-critical blocks and 12 trials for all critical blocks.
+### Same IAT as prior example but with 10 trials for all non-critical blocks
+    and 12 trials for all critical blocks.
 
 writeIATfull(IATname="flowins",
             posname="Pleasant",
@@ -170,7 +177,8 @@ writeIATfull(IATname="flowins",
             catCol="green"
 )
 
-### An images-only IAT with recommended settings. Note that image URL vectors are specified first to simplify the code.
+### An images-only IAT with recommended settings. Note that image URL vectors
+    are specified first to simplify the code.
 goodjpg <- c("www.website.com/gentle.jpg",
              "www.website.com/enjoy.jpg",
              "www.website.com/Heaven.jpg",
@@ -279,7 +287,8 @@ writeIATfull(IATname="flowins",
             catCol="green"
 )
 
-### EXAMPLE IAT USING 'norepeat=TRUE" TO SUPPRESS REPEAT STIMULI UNTIL ALL STIMULI FROM THAT CATEGORY HAVE BEEN SEEN
+### EXAMPLE IAT USING 'norepeat=TRUE" TO SUPPRESS REPEAT STIMULI UNTIL ALL STIMULI
+    FROM THAT CATEGORY HAVE BEEN SEEN
 
 #'writeIATfull(IATname="flowins",
             posname="Pleasant",

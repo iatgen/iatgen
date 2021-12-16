@@ -8,6 +8,8 @@ IATreliability(data, inclusive.sd = TRUE)
 }
 \arguments{
 \item{data}{An object created by \code{cleanIAT()} representing a cleaned IAT.}
+
+\item{inclusive.sd}{Unused parameter.}
 }
 \value{
 Returns reliability estimate and split-half correlation. In addition, D scores for odd and even trials can be viewed, as can the component practice and critical D scores.
