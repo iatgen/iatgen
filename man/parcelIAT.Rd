@@ -10,7 +10,7 @@ parcelIAT(input)
 \item{input}{A cleaned IAT, the output from \code{cleanIAT()}.}
 }
 \value{
-Returns a list of D-scores, reflecting 1/4 of the IAT each.
+Returns a dataframe of D-scores, reflecting 1/4 of the IAT each.
 }
 \description{
 Used for latent-variable modeling, this is run on an IAT object, the output from \code{cleanIAT()}. It outputs a list of four D-scores, each representing one 1/4 of the IAT. All four combined blocks are split into four parcels; corresponding portions of practice and critical blocks are then combined into two sets of trials (compatible, incompatible). These are then divided by the person-level SD of all trials across all combined blocks. The resulting four D-scores reflect four parcels of the IAT, with all combined blocks reflected in each parcel.

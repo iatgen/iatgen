@@ -1,6 +1,6 @@
 ############## WRITE IAT STIMULI POOLS AND CODE ##############
-requireNamespace("stringr")
-requireNamespace("jsonlite")
+# requireNamespace("stringr")
+# requireNamespace("jsonlite")
 
 writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, catType, nPos, nNeg, poswords, negwords, tgtType, nA, nB, Awords, Bwords,
                          tgtCol="black", catCol="green", norepeat=FALSE, write.me, out){
@@ -820,6 +820,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #' @param note (Required, set by default). Logical value, set to \code{FALSE} by default. When \code{note=TRUE}, displays a persistent note at the bottom of the window reminding participants which keys to press and how to handle errors (if \code{correct.error=TRUE}). This is recommended for non-laboratory use, where participants are unable to ask for assistance.
 #' @param norepeat (Required, set by default). Logical value, set to \code{FALSE} by default. This controls the order in which stimuli are displayed. In the IAT, we always sample stimuli randomly without replacement from pools, replenishing the pools after they are depleted. In other words, any given stimulus will not appear twice in the IAT until all other stimuli from that pool are depleted. This keeps the distribution of stimuli even from participant to participant. However, iatgen then randomizes (within each block) the order in which those stimuli are displayed (e.g., Gawronski, 2002). Setting this to \code{TRUE} displays stimuli in the order sampled, meaning that there are no repeats seen *by the participant* until all stimuli from that stimuli set have been seen. This only changes the display order within a block.
 #' @param startqid (Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).
+#' @importFrom jsonlite toJSON minify
 #' @return Nothing is returned. However, a QSF file (if \code{qsf=T}) or folders (if \code{qsf=F}) are made in the working directory containing both HTML and JavaScript files that are to be pasted into Qualtrics.
 #' @seealso See www.iatgen.wordpress.com for tutorials and files.
 #' @references Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
@@ -827,8 +828,12 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #' @references Nosek, B. A., Greenwald, A. G., & Banaji, M. R. (2005). Understanding and using the implicit association test: II. Method variables and construct validity. \emph{Personality and Social Psychology Bulletin, 31}, 166–180. https://doi.org/10.1177/0146167204271418
 #' @examples \dontrun{
 #'
-#' ### A words-only IAT with recommended settings. IAT examines insects vs. flowers and is named "flowins". Recommended settings builds a QSF file automatically with forced error correction and a note reminding participants of the instructions.
-#' ## Note: the following are specified below for example purposes but are specified by default automatically and can be omitted: coloring of stimuli, number of trials per block, pause between trials
+#' ### A words-only IAT with recommended settings. IAT examines insects vs. flowers
+#'     and is named "flowins". Recommended settings builds a QSF file automatically
+#'     with forced error correction and a note reminding participants of the instructions.
+#' ## Note: the following are specified below for example purposes but are specified
+#'     by default automatically and can be omitted: coloring of stimuli,
+#'     number of trials per block, pause between trials.
 #'
 #' writeIATfull(IATname="flowins",
 #'            posname="Pleasant",
@@ -852,7 +857,9 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #'            catCol="green"
 #' )
 #'
-#'  ### Same IAT but with the persistent task directions disabled (\code{note=FALSE}), forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause for the error message (\code{errorpause=300}).
+#'  ### Same IAT but with the persistent task directions disabled (\code{note=FALSE}),
+#'      forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause
+#'      for the error message (\code{errorpause=300}).
 #'
 #'writeIATfull(IATname="flowins",
 #'             posname="Pleasant",
@@ -877,7 +884,8 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #'             catCol="green"
 #')
 #'
-#' ### Same IAT as prior example but with 10 trials for all non-critical blocks and 12 trials for all critical blocks.
+#' ### Same IAT as prior example but with 10 trials for all non-critical blocks
+#'     and 12 trials for all critical blocks.
 #'
 #'writeIATfull(IATname="flowins",
 #'             posname="Pleasant",
@@ -902,7 +910,8 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #'             catCol="green"
 #')
 #'
-#' ### An images-only IAT with recommended settings. Note that image URL vectors are specified first to simplify the code.
+#' ### An images-only IAT with recommended settings. Note that image URL vectors
+#'     are specified first to simplify the code.
 #' goodjpg <- c("www.website.com/gentle.jpg",
 #'              "www.website.com/enjoy.jpg",
 #'              "www.website.com/Heaven.jpg",
@@ -1011,7 +1020,8 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #'             catCol="green"
 #')
 #'
-#' ### EXAMPLE IAT USING 'norepeat=TRUE" TO SUPPRESS REPEAT STIMULI UNTIL ALL STIMULI FROM THAT CATEGORY HAVE BEEN SEEN
+#' ### EXAMPLE IAT USING 'norepeat=TRUE" TO SUPPRESS REPEAT STIMULI UNTIL ALL STIMULI
+#'     FROM THAT CATEGORY HAVE BEEN SEEN
 #'
 #'#'writeIATfull(IATname="flowins",
 #'             posname="Pleasant",
@@ -1182,7 +1192,7 @@ writeIATfull <- function(IATname="IAT",
     qsfTemplate="FullTemplate_-_For_Shiny_V11.qsf"
 
     # library(jsonlite)
-    require(jsonlite)
+    # require(jsonlite)
     q <- jsonlite::fromJSON(qsfTemplate)
 
     q$SurveyName <- iatname
@@ -1220,36 +1230,8 @@ writeIATfull <- function(IATname="IAT",
         q$SurveyElements$Payload[i][[1]]$QuestionText <- filecontent[[qnumberhtml]]
         q$SurveyElements$Payload[i][[1]]$QuestionJS <- filecontent[[qnumberjs]]
       } else {
-        if (exists("q$SurveyElements$Payload[i][[1]]$QuestionText") &&
-            length(q$SurveyElements$Payload[i][[1]]$QuestionText)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$QuestionText
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$QuestionText <- qtext
-        }
-        if (exists("q$SurveyElements$Payload[i][[1]]$QuestionJS") &&
-            length(q$SurveyElements$Payload[i][[1]]$QuestionJS)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$QuestionJS
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$QuestionJS <- qtext
-        }
-        if (exists("q$SurveyElements$Payload[i][[1]]$QuestionDescription") &&
-            length(q$SurveyElements$Payload[i][[1]]$QuestionDescription)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$QuestionDescription
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$QuestionDescription <- qtext
-        }
-        if (exists("q$SurveyElements$Payload[i][[1]]$Choices[1][[1]]$Display") &&
-            length(q$SurveyElements$Payload[i][[1]]$Choices[1][[1]]$Display)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$Choices[1][[1]]$Display
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$Choices[1][[1]]$Display <- qtext
-        }
-        if (exists("q$SurveyElements$Payload[i][[1]]$Choices[7][[1]]$Display") &&
-            length(q$SurveyElements$Payload[i][[1]]$Choices[7][[1]]$Display)>0) {
-          qtext <- q$SurveyElements$Payload[i][[1]]$Choices[7][[1]]$Display
-          qtext <- qsf_iat_rename("Insects", input$aName, "flowers", input$bName, qtext)
-          q$SurveyElements$Payload[i][[1]]$Choices[7][[1]]$Display <- qtext
-        }
+        # if not list or "Q[0-9]+ [RL][NP][0-9]"
+        # ignore
       }
     }
 
