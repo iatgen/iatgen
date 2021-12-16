@@ -707,14 +707,14 @@ writeSCIATfull <- function(IATname="IAT",
     iatname <- IATname
 
     #copy the template file to the wd
-    file.copy(system.file("codefiles", "SCTemplate_-_For_Shiny_V10.qsf", package="iatgen"), file.path(getwd()))
+    file.copy(system.file("codefiles", "SCTemplate_-_For_Shiny_V11.qsf", package="iatgen"), file.path(getwd()))
 
     filename = function() {
       paste('iat-', iatname, '.qsf', sep='')
     }
 
 
-    qsfTemplate="SCTemplate_-_For_Shiny_V10.qsf"
+    qsfTemplate="SCTemplate_-_For_Shiny_V11.qsf"
 
     # library(jsonlite)
     require(jsonlite)
@@ -808,7 +808,7 @@ writeSCIATfull <- function(IATname="IAT",
     write(qjson, filename())
 
     #remove template
-    file.remove("SCTemplate_-_For_Shiny_V10.qsf")
+    file.remove("SCTemplate_-_For_Shiny_V11.qsf")
 
     #remove HTML and JavaScript folders if QSF
     unlink(files[1], recursive = T)
