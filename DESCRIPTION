@@ -1,15 +1,13 @@
 Package: iatgen
 Type: Package
 Title: IATs for Qualtrics
-Version: 1.4.1
-Author: Tom Carpenter
-Maintainer: Tom Carpenter <tcarpenter@spu.edu>
-Description: Package generates and analyzes IATs for use in Qualtrics.
-License: CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/legalcode)
+Version: 1.5.0
+Authors@R: c(person("Tom","Carpenter", role = c("aut"), email = "tcarpenter@spu.edu"),
+	     person("Michal","Kouril", role = c("aut", "cre"), email = "michal.kouril@cchmc.org"))
+Description: Generate and analyze IATs (Implicit Association Tests) for use in Qualtrics
+    <https://iatgen.wordpress.com/>.
+License: CC BY-NC 4.0
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.1.1
-Imports:
-    stringr,
-    jsonlite,
-    psych
+Imports: jsonlite, psych, stringr, testthat
+NeedsCompilation: no

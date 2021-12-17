@@ -7,6 +7,7 @@ requireNamespace("stringr")
 #' @param name3 A vector of responses representing a critical block (either compatible or incompatible) of trials for another of the four IAT permutations. 
 #' @param name4 A vector of responses representing a critical block (either compatible or incompatible) of trials for another of the four IAT permutations. 
 #' @return Returns a single vector of responses that contains all four permutations collapsed into one vector. 
+#' @export
 #' @seealso See www.iatgen.wordpress.com for tutorials and files.
 #' @references Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
 #' @references Greenwald, A. G., Nosek, B. A., & Banaji, M. R. (2003). Understanding and using the Implicit Association Test: I. An improved scoring algorithm. \emph{Journal of Personality and Social Psychology, 85}, 197–216. https://doi.org/10.1037/0022-3514.85.2.197
@@ -53,6 +54,7 @@ combineIATfourblocks <- function(name1, name2, name3, name4){
 #' @param name1 A vector of responses representing a critical block (either compatible or incompatible) of trials for one of the IAT permutations. 
 #' @param name2 A vector of responses representing a critical block (either compatible or incompatible) of trials for the other IAT permutation. 
 #' @return Returns a single vector of responses that contains all four permutations collapsed into one variable. 
+#' @export
 #' @examples \dontrun{
 #' ### Example with only Target A on the right and Target B on the left  ####
 #' dat$compatible <- combineIATtwoblocks(dat$Q4.RP4, dat$Q14.RN7)

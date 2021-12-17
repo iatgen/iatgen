@@ -15,6 +15,9 @@ requireNamespace("stringr")
 #' @param fasttrial.ms (Required if \code{fasttrial.drop=TRUE}; set to 400 ms by default). The threshold for \code{fastprt.drop}, above. Ignored if \code{fastprt.drop=FALSE}.
 #' @param error.penalty (Required, set \code{FALSE} by default). Logical value stating whether an error penalty is added. This should be disabled if forced error correction was used in the IAT and enabled otherwise (Greenwald et al., 2003).
 #' @param error.penalty.ms (Required if \code{error.penalty=TRUE}; set to \code{error.penalty.ms=600} by default). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. Can be manually set to any desired value. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}. Ignored if \code{error.penalty=FALSE}.
+#' @param inclusive.sd Unused parameter.
+#' @importFrom stats median sd
+#' @export
 #' @return Returns a list containing several important elements.
 #' \code{skipped} is a vector indicating whether the participant completed the IAT or skipped it. They are dropped from analysis if the IAT was skipped.
 #' \code{raw.latencies.prac1} is a matrix of the raw latencies in the first practice block prior to any data cleaning.
@@ -90,16 +93,24 @@ requireNamespace("stringr")
 #' @examples \dontrun{
 #'
 #' ### CLEAN THE IAT USING THE BUILT IN ERROR PENALTY FOR FORCED-ERROR CORRECTION ###
-#' clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit)
+#' clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit,
+#'                   dat$incompatible.prac, dat$incompatible.crit)
 #'
 #' ### CLEAN THE IAT USING THE D600 PROCEDURE ###
-#' clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, error.penalty=TRUE, error.penalty.ms=600)
+#' clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit,
+#'                   dat$incompatible.prac, dat$incompatible.crit,
+#'	                 error.penalty=TRUE, error.penalty.ms=600)
 #'
 #' ### CLEAN THE IAT USING THE D2SD PROCEDURE###
-#' clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, error.penalty=TRUE, error.penalty.ms = "2SD")
+#' clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit,
+#'                   dat$incompatible.prac, dat$incompatible.crit,
+#'                  error.penalty=TRUE, error.penalty.ms = "2SD")
 #'
 #' ### CLEAN THE IAT USING THE D2SD PROCEDURE WITH TRIALS UNDER 400 MS DROPPED ###
-#' clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit, dat$incompatible.prac, dat$incompatible.crit, fastprt.drop=FALSE, fasttrial.drop=TRUE, fasttrial.ms=400, error.penalty=TRUE, error.penalty.ms = "2SD")
+#' clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit,
+#'                   dat$incompatible.prac, dat$incompatible.crit,
+#'                   fastprt.drop=FALSE, fasttrial.drop=TRUE, fasttrial.ms=400,
+#'                   error.penalty=TRUE, error.penalty.ms = "2SD")
 #'
 #' ### EXAMINE CLEAN IAT SCORES
 #' clean$D
