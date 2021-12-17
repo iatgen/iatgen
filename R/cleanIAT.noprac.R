@@ -14,6 +14,7 @@
 #' @param inclusive.sd Unused parameter.
 #' @importFrom stats median sd
 #' @return Returns a list containing several important elements.
+#' @export
 #' @seealso See the help for \code{cleanIAT()}.
 #' @examples \dontrun{
 #' ### Collapse  IAT critical blocks  down ####

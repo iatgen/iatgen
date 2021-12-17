@@ -17,6 +17,7 @@ requireNamespace("stringr")
 #' @param error.penalty.ms (Required if \code{error.penalty=TRUE}; set to \code{error.penalty.ms=600} by default). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. Can be manually set to any desired value. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}. Ignored if \code{error.penalty=FALSE}.
 #' @param inclusive.sd Unused parameter.
 #' @importFrom stats median sd
+#' @export
 #' @return Returns a list containing several important elements.
 #' \code{skipped} is a vector indicating whether the participant completed the IAT or skipped it. They are dropped from analysis if the IAT was skipped.
 #' \code{raw.latencies.prac1} is a matrix of the raw latencies in the first practice block prior to any data cleaning.

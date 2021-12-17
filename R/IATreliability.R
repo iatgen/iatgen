@@ -7,6 +7,7 @@
 #' @param inclusive.sd  Unused parameter.
 #' @importFrom stats sd cor
 #' @return Returns reliability estimate and split-half correlation. In addition, D scores for odd and even trials can be viewed, as can the component practice and critical D scores.
+#' @export
 #' @references De Houwer, J., & De Bruycker, E. (2007). The Implicit Association Test outperforms the extrinsic affective Simon task as an implicit measure of inter-individual differences in attitudes. \emph{British Journal of Social Psychology, 46}, 401–421. https://doi.org/10.1348/014466606X130346
 #' @examples \dontrun{
 #' ### RELIABILITY ANALYSIS - ESTIMATE ONLY ###
