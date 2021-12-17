@@ -86,7 +86,7 @@ with `?writeIATfull()`.
 
 Users who do not wish to use the R package can use our Shiny web app,
 which has the same features, at
-<a href="https://applibs.shinyapps.io/iatui2/" class="uri">https://applibs.shinyapps.io/iatui2/</a>.
+<a href="http://iatgen.org" class="uri">http://iatgen.org</a>.
 
 Building an IAT
 ---------------
