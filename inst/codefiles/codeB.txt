@@ -1,8 +1,9 @@
 
 
 	// THIS IS WHAT STARTS THE IAT
-	/* This line of code triggers the IAT by running the first function. Note that the code skips image loading if image_srcs 
-	is empty. Note that this must come before stimuli in order that images[] references are defined.  */
+	/* These lines of code triggers the IAT by running the first function. Note that the code skips image loading if image_srcs
+	is empty and skips audio loading if audio_srcs is empty. Note that this must come before stimuli in order that images[] references are defined.  */
 	images = loadImages(image_srcs);
+	audio_files = loadAudioFiles(audio_srcs);
 
 	// STIMULI POOLS

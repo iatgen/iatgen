@@ -30,7 +30,13 @@ writeIATfull(
   correct.error = TRUE,
   note = FALSE,
   norepeat = FALSE,
-  startqid = 1
+  startqid = 1,
+  catAudio = FALSE,
+  tgtAudio = FALSE,
+  posaudio,
+  negaudio,
+  Aaudio,
+  Baudio
 )
 }
 \arguments{
@@ -85,12 +91,24 @@ writeIATfull(
 \item{norepeat}{(Required, set by default). Logical value, set to \code{FALSE} by default. This controls the order in which stimuli are displayed. In the IAT, we always sample stimuli randomly without replacement from pools, replenishing the pools after they are depleted. In other words, any given stimulus will not appear twice in the IAT until all other stimuli from that pool are depleted. This keeps the distribution of stimuli even from participant to participant. However, iatgen then randomizes (within each block) the order in which those stimuli are displayed (e.g., Gawronski, 2002). Setting this to \code{TRUE} displays stimuli in the order sampled, meaning that there are no repeats seen *by the participant* until all stimuli from that stimuli set have been seen. This only changes the display order within a block.}
 
 \item{startqid}{(Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).}
+
+\item{catAudio}{(Required, set by default). Logical value, set to \code{FALSE} by default. Determines whether audio is played alongside category stimuli. If set to \code{TRUE}, user must specify two additional arguments: \code{posaudio} and \code{negaudio}.}
+
+\item{tgtAudio}{(Required, set by default). Logical value, set to \code{FALSE} by default. Determines whether audio is played alongside target stimuli. If set to \code{TRUE}, user must specify two additional arguments: \code{Aaudio} and \code{Baudio}.}
+
+\item{posaudio}{(Required if \code{catAudio=TRUE}). Should be a vector of audio URLs, e.g. \code{posAudio=c("www.website.com/gentle.mp3", "www.website.com/enjoy.mp3")}. Users should have legal rights to use audio and should host them personally (or via Qualtrics). Ignored if \code{catAudio=FALSE}.}
+
+\item{negaudio}{(Required if \code{catAudio=TRUE}). Should be a vector of audio URLs, e.g. \code{posAudio=c("www.website.com/poison.mp3", "www.website.com/evil.mp3")}. Users should have legal rights to use audio and should host them personally (or via Qualtrics). Ignored if \code{catAudio=FALSE}.}
+
+\item{Aaudio}{(Required if \code{tgtAudio=TRUE}). Should be a vector of audio URLs, e.g. \code{posAudio=c("www.website.com/Orchid.mp3", "www.website.com/Tulip.mp3")}. Users should have legal rights to use audio and should host them personally (or via Qualtrics). Ignored if \code{tgtAudio=FALSE}.}
+
+\item{Baudio}{(Required if \code{tgtAudio=TRUE}). Should be a vector of audio URLs, e.g. \code{posAudio=c("www.website.com/Wasp.mp3", "www.website.com/flea.mp3")}. Users should have legal rights to use audio and should host them personally (or via Qualtrics). Ignored if \code{tgtAudio=FALSE}.}
 }
 \value{
 Nothing is returned. However, a QSF file (if \code{qsf=T}) or folders (if \code{qsf=F}) are made in the working directory containing both HTML and JavaScript files that are to be pasted into Qualtrics.
 }
 \description{
-This is the primary function for building IATs. It has two modes. In automatic mode (set \code{qsf=TRUE}), the function creates a fully functional *.qsf file (Qualtrics survey file) in the user’s working directory, ready to import into Qualtrics. In manual mode (the default option, \code{qsf=FALSE}), it creates four numbered folders which contain HTML and JavaScript code which can be pasted into a template (see tutorial for manual mode at www.iatgen.wordpress.com). In both modes, the user specifies features of the IAT. The user must specify a name for the IAT (\code{IATname}) and the four labels for the targets and categories (\code{posname}, \code{negname}, \code{Aname}, and \code{Bname}). The user must also always specify the type of stimuli for both targets (\code{tgtType="words"} or \code{tgtType="images"}) and categories (\code{catType="words"} or \code{catType="images"}). The user must also specify the stimuli sets for each of the four terms (when images: \code{Aimgs}, \code{Bimgs}, \code{posimgs}, and \code{negimgs}; when words: \code{Awords}, \code{Bwords}, \code{poswords}, and \code{negwords}). Word stimuli are specified by vectors of words (e.g., \code{poswords=c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend")}, whereas images are specified by vectors of image URLs: (e.g., \code{posimgs=c("www.website.com/gentle.jpg", "www.website.com/enjoy.jpg", "www.website.com/Heaven.jpg"}). We recommend users host their own images to avoid issues for participants (see tutorial on www.iatgen.wordpress.com). Beyond the above, there are a number of additional settings. By default, the IAT creates a 250-ms pause between trials (Greenwald et al., 1998), but this can be changed using the pause argument (e.g., \code{pause=500}). By default, the function also produces the original Greenwald et al. (1998) variant in which an error message (a red X) flashes for a pause before automatically starting the next trial (default = 300 ms, can be changed by setting \code{errorpause} to a number other than 300 [e.g., \code{errorpause = 400}]). We recommend using a popular variant of the IAT in which the user must correct errors before proceeding to the next trial, which is accomplished by setting \code{correct.error=TRUE}. Users can also edit the color of the targets using the optional \code{tgtCol} argument (e.g., \code{tgtCol="black"}) which is set to black by default. Users can change the color of attributes using the \code{catCol} argument (e.g., \code{catCol="green"}), and can be set to any CSS color (see www.w3schools.com/colors/colors_names.asp for a list of all compatible colors). The user can set the number of trials by specifying the n argument.   Users can enable a note reminding participants about the keypress directions during the IAT by setting \code{note=TRUE}, which is used on some popular IAT websites (e.g., www.projectimplicit.org) and may be useful in online settings where participants cannot directly approach an experimenter with questions.
+This is the primary function for building IATs. It has two modes. In automatic mode (set \code{qsf=TRUE}), the function creates a fully functional *.qsf file (Qualtrics survey file) in the user’s working directory, ready to import into Qualtrics. In manual mode (the default option, \code{qsf=FALSE}), it creates four numbered folders which contain HTML and JavaScript code which can be pasted into a template (see tutorial for manual mode at www.iatgen.wordpress.com). In both modes, the user specifies features of the IAT. The user must specify a name for the IAT (\code{IATname}) and the four labels for the targets and categories (\code{posname}, \code{negname}, \code{Aname}, and \code{Bname}). The user must also always specify the type of stimuli for both targets (\code{tgtType="words"} or \code{tgtType="images"}) and categories (\code{catType="words"} or \code{catType="images"}). The user must also specify the stimuli sets for each of the four terms (when images: \code{Aimgs}, \code{Bimgs}, \code{posimgs}, and \code{negimgs}; when words: \code{Awords}, \code{Bwords}, \code{poswords}, and \code{negwords}). Word stimuli are specified by vectors of words (e.g., \code{poswords=c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend")}, whereas images are specified by vectors of image URLs: (e.g., \code{posimgs=c("www.website.com/gentle.jpg", "www.website.com/enjoy.jpg", "www.website.com/Heaven.jpg"}). We recommend users host their own images to avoid issues for participants (see tutorial on www.iatgen.wordpress.com). Users may optionally specify that audio is to be played alongside the words or images with \code{catAudio} and \code{tgtAudio}. Users must then specify \code{posaudio}/\code{negaudio} and/or \code{Aaudio}/\code{Baudio} (as appropriate). We recommend users also host their own audio to avoid issues for participants. Beyond the above, there are a number of additional settings. By default, the IAT creates a 250-ms pause between trials (Greenwald et al., 1998), but this can be changed using the pause argument (e.g., \code{pause=500}). By default, the function also produces the original Greenwald et al. (1998) variant in which an error message (a red X) flashes for a pause before automatically starting the next trial (default = 300 ms, can be changed by setting \code{errorpause} to a number other than 300 [e.g., \code{errorpause = 400}]). We recommend using a popular variant of the IAT in which the user must correct errors before proceeding to the next trial, which is accomplished by setting \code{correct.error=TRUE}. Users can also edit the color of the targets using the optional \code{tgtCol} argument (e.g., \code{tgtCol="black"}) which is set to black by default. Users can change the color of attributes using the \code{catCol} argument (e.g., \code{catCol="green"}), and can be set to any CSS color (see www.w3schools.com/colors/colors_names.asp for a list of all compatible colors). The user can set the number of trials by specifying the n argument.   Users can enable a note reminding participants about the keypress directions during the IAT by setting \code{note=TRUE}, which is used on some popular IAT websites (e.g., www.projectimplicit.org) and may be useful in online settings where participants cannot directly approach an experimenter with questions.
 }
 \examples{
 \dontrun{
@@ -312,6 +330,57 @@ writeIATfull(IATname="flowins",
             tgtCol="black",
             catCol="green",
             norepeat=TRUE
+)
+
+### Example IAT with audio stimuli played along text
+pleasant_audio <- c("https://example.com/gentle.mp3",
+                    "https://example.com/enjoy.mp3",
+                    "https://example.com/heaven.mp3",
+                    "https://example.com/cheer.mp3")
+
+unpleasant_audio <- c("https://example.com/gentle.mp3",
+                      "https://example.com/evil.mp3",
+                      "https://example.com/vomit.mp3",
+                      "https://example.com/ugly.mp3")
+
+flowers_audio <- c("https://example.com/orchid.mp3",
+                   "https://example.com/tulip.mp3",
+                   "https://example.com/rose.mp3",
+                   "https://example.com/daisy.mp3")
+
+insects_audio <- c("https://example.com/wasp.mp3",
+                   "https://example.com/flea.mp3",
+                   "https://example.com/moth.mp3",
+                   "https://example.com/bedbug.mp3")
+
+writeIATfull(IATname="words-with-audio",
+             posname="Pleasant",
+             negname="Unpleasant",
+             Aname="Flowers",
+             Bname="Insects",
+             catType="words",
+             poswords = c("Gentle", "Enjoy", "Heaven", "Cheer"),
+             negwords = c("Poison", "Evil", "Vomit", "Ugly"),
+             tgtType="words",
+             Awords = c("Orchid", "Tulip", "Rose", "Daisy"),
+             Bwords = c("Wasp", "Flea", "Moth", "Bedbug"),
+             catAudio = TRUE,
+             posaudio = pleasant_audio,
+             negaudio = unpleasant_audio,
+             tgtAudio = TRUE,
+             Aaudio = flowers_audio,
+             Baudio = insects_audio,
+
+             #advanced options with recommended IAT settings
+             n=c(20, 20, 20, 40, 40, 20, 40),
+             qsf=TRUE,
+             note=TRUE,
+             correct.error=TRUE,
+             pause=250,
+             errorpause=300, #not used if correct.error=TRUE
+             tgtCol="black",
+             catCol="green",
+             norepeat=FALSE
 )
 }
 }

@@ -275,6 +275,63 @@ advance and referencing them in the function call:
                  catCol="green"
     )
 
+#### IATs with Audio Stimuli
+Targets, categories, or both can have audio play alongside images and words. Audio can be in <a href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Audio_codecs" class="uri">any commonly supported format</a> and hosted via the user's Qualtrics account. While images are typically uploaded to one's Qualtrics Graphics Library, audio files should be uploaded to the Files Library.
+
+Then, `tgtAudio` and/or `catAudio` are set to "TRUE" (as appropriate), and `Aaudio`/`Baudio` and/or `posaudio`/`negaudio` are specified (as appropriate). Audio stimuli vectors are vectors of audio URLs. For stability reasons and on the basis of our own testing, we strongly recommend users of images only host audio files on their own Qualtrics accounts. Users should try to avoid gaps in the beginning of audio files to make sure they play as soon as the next question is loaded. Users should also make sure that no browser settings or plugins are blocking audio from automatically playing.
+
+Because URLs are long, we recommend specifying vectors of audio URLs in advance and referencing them in the function call:
+
+    pleasantaudio <- c("https://example.com/gentle.mp3",
+                       "https://example.com/enjoy.mp3",
+                       "https://example.com/heaven.mp3",
+                       "https://example.com/cheer.mp3")
+
+    unpleasantaudio <- c("https://example.com/poison.mp3",
+                         "https://example.com/evil.mp3",
+                         "https://example.com/vomit.mp3",
+                         "https://example.com/ugly.mp3")
+
+    floweraudio <- c("https://example.com/orchid.mp3",
+                     "https://example.com/tulip.mp3",
+                     "https://example.com/rose.mp3",
+                     "https://example.com/daisy.mp3")
+
+    insectaudio <- c("https://example.com/wasp.mp3",
+                     "https://example.com/flea.mp3",
+                     "https://example.com/moth.mp3",
+                     "https://example.com/bedbug.mp3")
+
+    writeIATfull(IATname="words-with-audio",
+             posname="Pleasant",
+             negname="Unpleasant",
+             Aname="Flowers",
+             Bname="Insects",
+             catType="words",
+             poswords = c("Gentle", "Enjoy", "Heaven", "Cheer"),
+             negwords = c("Poison", "Evil", "Vomit", "Ugly"),
+             tgtType="words",
+             Awords = c("Orchid", "Tulip", "Rose", "Daisy"),
+             Bwords = c("Wasp", "Flea", "Moth", "Bedbug"),
+             catAudio = TRUE,
+             posaudio = pleasantaudio,
+             negaudio = unpleasantaudio,
+             tgtAudio = TRUE,
+             Aaudio = floweraudio,
+             Baudio = insectaudio,
+
+             #advanced options with recommended IAT settings
+             n=c(20, 20, 20, 40, 40, 20, 40),
+             qsf=TRUE,
+             note=TRUE,
+             correct.error=TRUE,
+             pause=250,
+             errorpause=300, #not used if correct.error=TRUE
+             tgtCol="black",
+             catCol="green",
+             norepeat=FALSE
+    )
+
 #### The Qualtrics Survey
 
 Detailed information about this Qualtrics survey is beyond the scope of
@@ -833,8 +890,11 @@ Authors
 The iatgen package was built and maintained by Tom Carpenter
 (<a href="mailto:tcarpenter@spu.edu" class="email">tcarpenter@spu.edu</a>),
 Michal Kouril, Ruth Pogacar, and Chris Pullig. An early prototype of the
-HTML and JavaScript were built by Aleksandr Chakroff. Questions
-regarding iatgen should be directed to Tom Carpenter.
+HTML and JavaScript were built by Aleksandr Chakroff. Support for IATs with
+audio stimuli was contributed by the [Research Software Programming](https://lsa.umich.edu/technology-services/services/research-tools/research-programming-apps.html)
+team and the [Social Minds Lab](https://sites.lsa.umich.edu/warneken/)
+at the University of Michigan College of Literature, Science, and the Arts.
+Questions regarding iatgen should be directed to Tom Carpenter.
 
 Acknowledgments
 ---------------

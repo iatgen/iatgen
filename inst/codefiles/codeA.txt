@@ -4,16 +4,24 @@ Qualtrics.SurveyEngine.addOnload(function() {
 	var currentStimulus;
 	var end;
 	var image_srcs;
-	var images;
-	var loadedImages;
+	var images = [];
+	var audio_srcs;
+	var audio_files = [];
+	var loadedImages = 0;
+	var loadedAudioFiles = 0;
 	var input;
 	var message;
-	var stimuli;
+	var stimuli = [];
+	var audio_stimuli = [];
 	var note;
 	var posstim;
 	var negstim;
 	var Astim;
 	var Bstim;
+	var posstimaudio;
+	var negstimaudio;
+	var Astimaudio;
+	var Bstimaudio;
 
 	//USED FOR ALTERNATING TRIAL FORMAT ONLY
 	var tgts;
@@ -71,42 +79,75 @@ Qualtrics.SurveyEngine.addOnload(function() {
 	and puts all image stimuli in an array called images. If the image_srcs object has no URLs in it, this skips ahead
 	to the next portion of the IAT without loading any images. If errors are encountered, the IAT block is skipped. */
 	function loadImages (image_srcs) {
-		var src, _i, _len;
+    var src, _i, _len;
 
-		//If no images specified, skip this step
-		if(	image_srcs.length == 0) {return imagesLoaded();}
+    //If no images specified, skip this step
+    if(	image_srcs.length == 0) {
+      imagesLoaded();
+      return images;
+    }
 
-		images = [];
-		loadedImages = 0;
+    for (_i = 0, _len = image_srcs.length; _i < _len; _i++) {
+      src = image_srcs[_i];
+      images.push(new Image);
 
-		for (_i = 0, _len = image_srcs.length; _i < _len; _i++) {
-			src = image_srcs[_i];
-			images.push(new Image);
+      images[images.length - 1].onerror = function() {
+        alert("Your web browser encountered an issue running this portion of the study. You will be skipped ahead. You may have to click through this message several times.");
+        if (document.getElementById('NextButton')) document.getElementById('NextButton').click();
+      };
 
-			images[images.length - 1].onerror = function() {
-				alert("Your web browser encountered an issue running this portion of the study. You will be skipped ahead. You may have to click through this message several times.");
-				if (document.getElementById('NextButton')) document.getElementById('NextButton').click();
-			};
+      images[images.length - 1].onload = function() {
+        loadedImages++;
+        if (loadedImages == images.length) return imagesLoaded();
+      };
 
-			images[images.length - 1].onload = function() {
-				loadedImages++;
-				if (loadedImages == images.length) return imagesLoaded();
-			};
+      images[images.length - 1].src = src;
+    }
+    return images;
+  };
 
-			images[images.length - 1].src = src;
-		}
-		return images;
-	};
+    // FUNCTION 1.5 - AUDIO LOADER
+    /* This function ... loads the audio files into audio_files. */
+    function loadAudioFiles () {
+      var sc, _i, _len;
+
+      //If no audio files specified, skip this step
+      if ( audio_srcs.length === 0) {
+        imagesLoaded();
+        return audio_files;
+      }
+
+      for (_i = 0, _len = audio_srcs.length; _i < _len; _i++) {
+        src = audio_srcs[_i];
+        audio_files.push(new Audio);
+
+        audio_files[audio_files.length - 1].src = src;
+
+        audio_files[audio_files.length - 1].onerror = function() {
+          alert("Your web browser encountered an issue running this portion of the study. You will be skipped ahead. You may have to click through this message several times.");
+          if (document.getElementById('NextButton')) document.getElementById('NextButton').click();
+        };
+
+        audio_files[audio_files.length - 1].oncanplaythrough = function() {
+          loadedAudioFiles++;
+          if (loadedAudioFiles === audio_files.length) return imagesLoaded();
+        };
+
+      }
+      return audio_files;
+    }
 
 
-	// FUNCTION 2 - IMAGES LOADED
-	/* Runs when all image loader is finished, starts the keypress listener.
-	For a forced-error-correction IAT, the last line should return keyCheckForcedError instead of keyCheck*/
-	function imagesLoaded() {
-		document.getElementById('loading').style.display = 'none';
-		document.getElementById('instructions').style.display = 'block';
-		return document.addEventListener('keyup', keyCheck, false);
-	};
+    // FUNCTION 2 - IMAGES LOADED
+    /* Runs when all image loader is finished, starts the keypress listener.
+    For a forced-error-correction IAT, the last line should return keyCheckForcedError instead of keyCheck*/
+    function imagesLoaded() {
+      if (loadedAudioFiles === audio_files.length && loadedImages === images.length) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('instructions').style.display = 'block';
+        return document.addEventListener('keyup', keyCheck, false);
+      }
+    };
 
 
 	// FUNCTION 3 - START FUNCTION
@@ -136,6 +177,13 @@ Qualtrics.SurveyEngine.addOnload(function() {
 	identified and the stimulus is shown (different methods for images or words). If the stimuli object is depleted, appends END
 	to data and advances to the next IAT block. */
 	  function nextQuestion() {
+  	  if (typeof currentAudioStimulus !== 'undefined') {
+        if (currentAudioStimulus.stimulus != "") {
+          currentAudioStimulus.stimulus.pause();
+          currentAudioStimulus.stimulus.currentTime = 0;
+        }
+      }
+
 		if (stimuli.length !==0) {
 
 			currentStimulus = stimuli.pop();
@@ -145,6 +193,14 @@ Qualtrics.SurveyEngine.addOnload(function() {
 
 			// DECLARE START OF CURRENT STIMULUS
 			currentStimulus.start = new Date().getTime();
+
+			// If there is audio, play the next file
+      if (audio_stimuli.length !==0) {
+          currentAudioStimulus = audio_stimuli.pop();
+          if (currentAudioStimulus.stimulus != "") {
+              currentAudioStimulus.stimulus.play()
+          }
+      }
 
 			// FOR IMAGES, USE APPEND CHILD TO DISPLAY. IF NOT, ADD STIMULUS VALUE TO MESSAGE.
 			if (typeof currentStimulus.stimulus === 'object') {
@@ -301,6 +357,18 @@ Qualtrics.SurveyEngine.addOnload(function() {
 	}
 
 
+  //FUNCTION 6.5 - POPULATE AUDIO_STIMULI ARRAY IN THE CORRECT ORDER
+    function matchAudioStimuli(array, stimuli, audio_stimuli) {
+        let current_index;
+        let found_element;
+        for (let i=0; i<stimuli.length; i++) {
+            current_index = stimuli[i].index;
+            found_element = array.find(element => element.index === stimuli[i].index);
+            if (found_element !== undefined) {
+                audio_stimuli[i] = found_element;
+            }
+        }
+    }
 
 
 	//FUNCTION 7 - FOR COMBINED BLOCKS WITH ALTERNATING FORMAT ONLY

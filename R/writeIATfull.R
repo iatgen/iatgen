@@ -3,7 +3,7 @@
 # requireNamespace("jsonlite")
 
 writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, catType, nPos, nNeg, poswords, negwords, tgtType, nA, nB, Awords, Bwords,
-                         tgtCol="black", catCol="green", norepeat=FALSE, write.me, out){
+                         tgtCol="black", catCol="green", norepeat=FALSE, write.me, out, tgtAudio, catAudio){
 
   ## Misspecification errors:
   if ( n %% 2 != 0 ) {stop("The number of trials per block must be even in all IAT blocks in Iatgen. This allows an equal distribution of left-hand and right-hand stimuli.")}
@@ -21,6 +21,10 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   startneg <- "\tnegstim = ["
   startA <- "\tAstim = ["
   startB <- "\tBstim = ["
+  startposaudio <- "\tposstimaudio = ["
+  startnegaudio <- "\tnegstimaudio = ["
+  startAaudio <- "\tAstimaudio = ["
+  startBaudio <- "\tBstimaudio = ["
   mid <- "\t\t{stimulus: INSERTSTIM, correct:INSERTCOR, index: INSERTINDEX},"
   end <- "\t];"
 
@@ -40,6 +44,19 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   if (tgtType == "images" && catType =="words"){
     nums.A <- c( 0 : (nA - 1))
     nums.B <- c( nA : (nA + nB - 1) )
+  }
+
+  if (tgtAudio & catAudio) {
+    nums.posaudio <- c(0:(nPos-1))
+    nums.negaudio <- c(nPos:(nPos+nNeg-1))
+    nums.Aaudio <- c( (nPos + nNeg) : (nPos + nNeg + nA - 1))
+    nums.Baudio <- c( (nPos + nNeg + nA) : (nPos + nNeg + nA + nB - 1) )
+  } else if (catAudio) {
+    nums.posaudio <- c(0:(nPos-1))
+    nums.negaudio <- c(nPos:(nPos+nNeg-1))
+  } else if (tgtAudio) {
+    nums.Aaudio <- c( 0 : (nA - 1))
+    nums.Baudio <- c( nA : (nA + nB - 1) )
   }
 
   ### BUILD POSITIVE STIMULI POOL
@@ -68,6 +85,26 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
     finpos[i] <- gsub("INSERTINDEX", i-1, finpos[i])
   }
 
+  # build pos audio
+  if (catAudio) {
+    bodyaudio <- character()
+    for (i in 1:length.pos) {bodyaudio <- rbind(bodyaudio, mid)} # add more sections to bodyaudio
+    bodyaudio[length(bodyaudio)] <-  gsub("}," , "}",  bodyaudio[length(bodyaudio)]) #remove last comma
+    bodyaudio <- rbind(startposaudio, bodyaudio, end)
+    finposaudio <- bodyaudio
+    stim.posaudio <- paste('audio_files[', nums.posaudio, ']', sep="")
+
+    for (i in 2:(length.pos+1)){  #loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
+      finposaudio[i] <- gsub("INSERTSTIM", stim.posaudio[(i-1)], finposaudio[i])
+      if (posside == "right") {finposaudio[i] <- gsub("INSERTCOR", 73, finposaudio[i])}
+      if (posside == "left") {finposaudio[i] <- gsub("INSERTCOR", 69, finposaudio[i])}
+      if (posside == "none") {finposaudio[i] <- gsub("INSERTCOR", "\"NA\"", finposaudio[i])}
+      finposaudio[i] <- gsub("INSERTINDEX", i-1, finposaudio[i])
+    }
+  } else {
+    finposaudio <- "\tposstimaudio = []"
+  }
+
   ### BUILD NEGATIVE STIMULI POOL
   # build negbody
   if (catType=="words"){length.neg <- length(negwords)}
@@ -92,6 +129,26 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
     if (posside == "right") {finneg[i] <- gsub("INSERTCOR", 69, finneg[i])}
     if (posside == "none")  {finneg[i] <- gsub("INSERTCOR", "\"NA\"", finneg[i])}
     finneg[i] <- gsub("INSERTINDEX", i + length.pos - 1, finneg[i])
+  }
+
+  # build neg audio
+  if (catAudio) {
+    bodyaudio <- character()
+    for (i in 1:length.neg) {bodyaudio <- rbind(bodyaudio, mid)} # add more sections to bodyaudio
+    bodyaudio[length(bodyaudio)] <-  gsub("}," , "}",  bodyaudio[length(bodyaudio)]) #remove last comma
+    bodyaudio <- rbind(startnegaudio, bodyaudio, end)
+    finnegaudio <- bodyaudio
+    stim.negaudio <- paste('audio_files[', nums.negaudio, ']', sep="")
+
+    for (i in 2:(length.neg+1)){  #loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
+      finnegaudio[i] <- gsub("INSERTSTIM", stim.negaudio[(i-1)], finnegaudio[i])
+      if (posside == "right") {finnegaudio[i] <- gsub("INSERTCOR", 73, finnegaudio[i])}
+      if (posside == "left") {finnegaudio[i] <- gsub("INSERTCOR", 69, finnegaudio[i])}
+      if (posside == "none") {finnegaudio[i] <- gsub("INSERTCOR", "\"NA\"", finnegaudio[i])}
+      finnegaudio[i] <- gsub("INSERTINDEX", i + length.pos - 1, finnegaudio[i])
+    }
+  } else {
+    finnegaudio <- "\tnegstimaudio = []"
   }
 
   ### BUILD A STIMULI POOL
@@ -120,6 +177,26 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
     finA[i] <- gsub("INSERTINDEX", (i+length.pos+length.neg-1), finA[i])
   }
 
+  # build A audio
+  if (tgtAudio) {
+    bodyaudio <- character()
+    for (i in 1:length.A) {bodyaudio <- rbind(bodyaudio, mid)} # add more sections to bodyaudio
+    bodyaudio[length(bodyaudio)] <-  gsub("}," , "}",  bodyaudio[length(bodyaudio)]) #remove last comma
+    bodyaudio <- rbind(startAaudio, bodyaudio, end)
+    finAaudio <- bodyaudio
+    stim.Aaudio <- paste('audio_files[', nums.Aaudio, ']', sep="")
+
+    for (i in 2:(length.A+1)){  #loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
+      finAaudio[i] <- gsub("INSERTSTIM", stim.Aaudio[(i-1)], finAaudio[i])
+      if (Aside == "right") {finAaudio[i] <- gsub("INSERTCOR", 73, finAaudio[i])}
+      if (Aside == "left") {finAaudio[i] <- gsub("INSERTCOR", 69, finAaudio[i])}
+      if (Aside == "none") {finAaudio[i] <- gsub("INSERTCOR", "\"NA\"", finAaudio[i])}
+      finAaudio[i] <- gsub("INSERTINDEX", (i + length.pos + length.neg - 1), finAaudio[i])
+    }
+  } else {
+    finAaudio <- "\tAstimaudio = []"
+  }
+
   ### BUILD B STIMULI POOL
   # build Bbody
   if (tgtType=="words"){length.B <- length(Bwords)}
@@ -144,6 +221,26 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
     if (Aside == "right") {finB[i] <- gsub("INSERTCOR", 69, finB[i])}
     if (Aside == "none") {finB[i] <- gsub("INSERTCOR", "\"NA\"", finB[i])}
     finB[i] <- gsub("INSERTINDEX", (i + length.pos + length.neg + length.A - 1), finB[i])
+  }
+
+  # build B audio
+  if (tgtAudio) {
+    bodyaudio <- character()
+    for (i in 1:length.B) {bodyaudio <- rbind(bodyaudio, mid)} # add more sections to bodyaudio
+    bodyaudio[length(bodyaudio)] <-  gsub("}," , "}",  bodyaudio[length(bodyaudio)]) #remove last comma
+    bodyaudio <- rbind(startBaudio, bodyaudio, end)
+    finBaudio <- bodyaudio
+    stim.Baudio <- paste('audio_files[', nums.Baudio, ']', sep="")
+
+    for (i in 2:(length.B+1)){  #loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
+      finBaudio[i] <- gsub("INSERTSTIM", stim.Baudio[(i-1)], finBaudio[i])
+      if (Aside == "right") {finBaudio[i] <- gsub("INSERTCOR", 73, finBaudio[i])}
+      if (Aside == "left") {finBaudio[i] <- gsub("INSERTCOR", 69, finBaudio[i])}
+      if (Aside == "none") {finBaudio[i] <- gsub("INSERTCOR", "\"NA\"", finBaudio[i])}
+      finBaudio[i] <- gsub("INSERTINDEX", (i + length.pos + length.neg + length.A - 1), finBaudio[i])
+    }
+  } else {
+    finBaudio <- "\tBstimaudio = []"
   }
 
 
@@ -203,10 +300,10 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
       }
   }
 
-
   ### BUILD STIMULI CONTAINER
 
   startstim <- "\tstimuli = ["
+  startaudiostim <- "\taudio_stimuli = ["
   midstim <- "\t\t{stimulus: \"\", correct: \"\", index: \"\"},"
   laststim <- "\t\t{stimulus: \"\", correct: \"\", index: \"\"}"
   endstim <- "\t];"
@@ -216,12 +313,18 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   body <- rbind(startstim, body)
   body[length(body)] <- laststim #replace last row with row w/o ending comma
   stimheader <- "\t//EMPTY SET OF TRIALS - LOADS FROM POOLS ABOVE"
-  finstim <- rbind(stimheader, body, endstim)
+
+  bodyaudio <- character()
+  for (i in 1:n) {bodyaudio <- rbind(bodyaudio, midstim)} # add more sections to bodyaudio
+  bodyaudio <- rbind(startaudiostim, bodyaudio)
+  bodyaudio[length(bodyaudio)] <- laststim #replace last row with row w/o ending comma
+
+  finstim <- rbind(stimheader, body, endstim, bodyaudio, endstim)
 
   ### COMPILE TRIALS CODE
-  trials <- rbind(finpos, "", finneg, "", finA, "", finB, "", altsection, "" , finstim)
-
-
+  trials <- rbind(finpos, "", finneg, "", finA, "", finB, "",
+                  finposaudio, "", finnegaudio, "", finAaudio, "", finBaudio, "",
+                  altsection, "" , finstim)
 
   ### JAVASCRIPT CODE THAT ADDS CONTENT TO STIMULI
 
@@ -238,6 +341,24 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
       "\tshuffle(stimuli);",
       "\tshuffle(stimuli);"
     )
+    if (tgtAudio & catAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(Astimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(Bstimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(posstimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(negstimaudio, stimuli, audio_stimuli);"
+      )
+    } else if (tgtAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(Astimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(Bstimaudio, stimuli, audio_stimuli);"
+      )
+    } else if (catAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(posstimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(negstimaudio, stimuli, audio_stimuli);"
+      )
+    }
   }
 
 
@@ -247,6 +368,24 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
       "\taltStimuil();",
       "\tstimuli.reverse();"
     )
+    if (tgtAudio & catAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(Astimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(Bstimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(posstimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(negstimaudio, stimuli, audio_stimuli);"
+      )
+    } else if (tgtAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(Astimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(Bstimaudio, stimuli, audio_stimuli);"
+      )
+    } else if (catAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(posstimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(negstimaudio, stimuli, audio_stimuli);"
+      )
+    }
   }
 
 
@@ -261,6 +400,12 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
       "\tshuffle(stimuli);",
       "\tshuffle(stimuli);"
     )
+    if (tgtAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(Astimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(Bstimaudio, stimuli, audio_stimuli);"
+      )
+    }
   }
 
   if (type=="target" & norepeat==TRUE){
@@ -269,6 +414,12 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
       "\tstimBuilder(tgtcombo, stimuli, 0, stimuli.length);",
       "\tstimuli.reverse();"
     )
+    if (tgtAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(Astimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(Bstimaudio, stimuli, audio_stimuli);"
+      )
+    }
   }
 
 
@@ -283,6 +434,12 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
       "\tshuffle(stimuli);",
       "\tshuffle(stimuli);"
     )
+    if (catAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(posstimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(negstimaudio, stimuli, audio_stimuli);"
+      )
+    }
    }
 
   if (type=="category" & norepeat==TRUE){
@@ -291,6 +448,12 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
       "\tstimBuilder(catcombo, stimuli, 0, stimuli.length);",
       "\tstimuli.reverse();"
     )
+    if (catAudio) {
+      call <- rbind(call,
+        "\tmatchAudioStimuli(posstimaudio, stimuli, audio_stimuli);",
+        "\tmatchAudioStimuli(negstimaudio, stimuli, audio_stimuli);"
+      )
+    }
   }
 
   fin <- rbind(trials, "", "", "\t//BUILD TRIALS", "", call)
@@ -310,11 +473,10 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
 writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, catType, catCol="green", nPos, nNeg,
                        poswords, negwords, tgtType, tgtCol="black", nA, nB, Awords, Bwords,
                        pause=250, errorpause=300, correct.error=F, note=F, norepeat=FALSE,
-                       imgs, out) {
+                       imgs, tgtAudio, catAudio, posaudio, negaudio, Aaudio, Baudio, audio, out ) {
 
   apath  <- system.file("codefiles", "codeA.txt", package="iatgen")
   codeA <- as.matrix(readLines(apath, warn=F))
-
 
   ## if IAT uses images, build an image_srcs array
   if (tgtType == "images" || catType == "images"){
@@ -328,14 +490,27 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
     codeimage <- "\timage_srcs = [];"
   }
 
+  # if IAT uses images, build an audio_srcs array
+  if (tgtAudio || catAudio) {
+    codeaudio <- "\taudio_srcs = ["
+    for (i in 1:length(audio)) {
+      codeaudio <- rbind(codeaudio, paste('\t\t\"',audio[i],'\",', sep=""))
+    }
+    codeaudio[length(codeaudio)] <- gsub(",$", "", codeaudio[length(codeaudio)]) # remove comma from last line
+    codeaudio <- rbind(codeaudio,"\t];")
+  } else {
+    codeaudio <- "\taudio_srcs = [];"
+  }
+
   bpath  <- system.file("codefiles", "codeB.txt", package="iatgen")
   codeB <- as.matrix(readLines(bpath, warn=F))
   codestim <- writeIATstim(type=type, combined.type=combined.type, n=n, catType=catType, catCol=catCol, nPos=nPos, nNeg=nNeg,
                            poswords=poswords, negwords=negwords, posside=posside, tgtType=tgtType,
-                           tgtCol=tgtCol, nA=nA, nB=nB, Awords=Awords, Bwords=Bwords, Aside=Aside, norepeat=norepeat, write.me=FALSE)
+                           tgtCol=tgtCol, nA=nA, nB=nB, Awords=Awords, Bwords=Bwords, Aside=Aside, norepeat=norepeat, write.me=FALSE,
+                           tgtAudio = tgtAudio, catAudio = catAudio)
   cpath  <- system.file("codefiles", "codeC.txt", package="iatgen")
   codeC <- as.matrix(readLines(cpath, warn=F))
-  temp <- rbind(codeA, codeimage, codeB, codestim, codeC)
+  temp <- rbind(codeA, codeimage, codeaudio, codeB, codestim, codeC)
 
   #for forced error correction, change the keycheck function call and remover
   if(correct.error==T){
@@ -390,7 +565,8 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
 
 writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1, posname, negname, Aname, Bname, posstart, Astart, IATname="IAT", n=c(20, 20, 20, 40, 40, 20, 40),
                            catType, catCol="green", poswords, negwords, nPos, nNeg, posimgs, negimgs, tgtType, tgtCol="black", nA, nB, Awords, Bwords, Aimgs, Bimgs,
-                           easy.img=F, pause=250, errorpause=300, correct.error=F, note=F, norepeat=FALSE, swap="category", imgs
+                           easy.img=F, pause=250, errorpause=300, correct.error=F, note=F, norepeat=FALSE, swap="category", imgs,
+                           tgtAudio, catAudio, posaudio, negaudio, Aaudio, Baudio, audio
 ) {
 
   # add error message if tgtType and catType are not both either "images" or "words
@@ -428,6 +604,16 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
     if (tgtType == "images" || catType == "images"){
       if (sum(c(nPos, nNeg, nA, nB), na.rm=T) != length(imgs)){warning("The number of image URLs provided did not match the number of images listed.")}
     }
+  }
+
+  # specify word counts so audio can match appropriately
+  if (catType == "words") {
+    nPos <- length(poswords)
+    nNeg <- length(negwords)
+  }
+  if (tgtType == "words") {
+    nA <- length(Awords)
+    nB <- length(Bwords)
   }
 
   #create matrices that show what goes where
@@ -517,6 +703,13 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              nPos = nPos,
              nNeg = nNeg,
              imgs=imgs,
+             tgtAudio = tgtAudio,
+             catAudio = catAudio,
+             posaudio = posaudio,
+             negaudio = negaudio,
+             Aaudio = Aaudio,
+             Baudio = Baudio,
+             audio = audio,
              pause=pause,
              note=note,
              errorpause=errorpause,
@@ -542,6 +735,13 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              nA = nA,
              nB = nB,
              imgs=imgs,
+             tgtAudio = tgtAudio,
+             catAudio = catAudio,
+             posaudio = posaudio,
+             negaudio = negaudio,
+             Aaudio = Aaudio,
+             Baudio = Baudio,
+             audio = audio,
              pause=pause,
              note=note,
              errorpause=errorpause,
@@ -567,6 +767,13 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              Awords = Awords,
              Bwords = Bwords,
              imgs=imgs,
+             tgtAudio = tgtAudio,
+             catAudio = catAudio,
+             posaudio = posaudio,
+             negaudio = negaudio,
+             Aaudio = Aaudio,
+             Baudio = Baudio,
+             audio = audio,
              pause=pause,
              note=note,
              errorpause=errorpause,
@@ -592,6 +799,13 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              Awords = Awords,
              Bwords = Bwords,
              imgs=imgs,
+             tgtAudio = tgtAudio,
+             catAudio = catAudio,
+             posaudio = posaudio,
+             negaudio = negaudio,
+             Aaudio = Aaudio,
+             Baudio = Baudio,
+             audio = audio,
              pause=pause,
              note=note,
              errorpause=errorpause,
@@ -618,6 +832,13 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              nA = nA,
              nB = nB,
              imgs=imgs,
+             tgtAudio = tgtAudio,
+             catAudio = catAudio,
+             posaudio = posaudio,
+             negaudio = negaudio,
+             Aaudio = Aaudio,
+             Baudio = Baudio,
+             audio = audio,
              pause=pause,
              note=note,
              errorpause=errorpause,
@@ -643,6 +864,13 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              Awords = Awords,
              Bwords = Bwords,
              imgs=imgs,
+             tgtAudio = tgtAudio,
+             catAudio = catAudio,
+             posaudio = posaudio,
+             negaudio = negaudio,
+             Aaudio = Aaudio,
+             Baudio = Baudio,
+             audio = audio,
              pause=pause,
              note=note,
              errorpause=errorpause,
@@ -668,6 +896,13 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
              Awords = Awords,
              Bwords = Bwords,
              imgs=imgs,
+             tgtAudio = tgtAudio,
+             catAudio = catAudio,
+             posaudio = posaudio,
+             negaudio = negaudio,
+             Aaudio = Aaudio,
+             Baudio = Baudio,
+             audio = audio,
              pause=pause,
              note=note,
              errorpause=errorpause,
@@ -679,6 +914,8 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
   blocknames <- c("html_1.txt", "html_2.txt", "html_3.txt", "html_4.txt", "html_5.txt", "html_6.txt", "html_7.txt")
 
   ## NOTE: HTML files are hard-coded with the defaults (green for targets, black for categories). Thus, these just need to be swapped out for tgtCol and catCol regardless of configuration.
+
+  # TODO: I think we may need to also update this part for audio. Maybe?
 
   ## Keep the A starts right, good format from the source files
   if (suffix == "rp"){
@@ -792,7 +1029,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 ############## WRITE FULL IAT FOR USE IN RESEARCH ##############
 #' Builds a fully functional IAT with counterbalanced permutations
 #'
-#' This is the primary function for building IATs. It has two modes. In automatic mode (set \code{qsf=TRUE}), the function creates a fully functional *.qsf file (Qualtrics survey file) in the user’s working directory, ready to import into Qualtrics. In manual mode (the default option, \code{qsf=FALSE}), it creates four numbered folders which contain HTML and JavaScript code which can be pasted into a template (see tutorial for manual mode at www.iatgen.wordpress.com). In both modes, the user specifies features of the IAT. The user must specify a name for the IAT (\code{IATname}) and the four labels for the targets and categories (\code{posname}, \code{negname}, \code{Aname}, and \code{Bname}). The user must also always specify the type of stimuli for both targets (\code{tgtType="words"} or \code{tgtType="images"}) and categories (\code{catType="words"} or \code{catType="images"}). The user must also specify the stimuli sets for each of the four terms (when images: \code{Aimgs}, \code{Bimgs}, \code{posimgs}, and \code{negimgs}; when words: \code{Awords}, \code{Bwords}, \code{poswords}, and \code{negwords}). Word stimuli are specified by vectors of words (e.g., \code{poswords=c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend")}, whereas images are specified by vectors of image URLs: (e.g., \code{posimgs=c("www.website.com/gentle.jpg", "www.website.com/enjoy.jpg", "www.website.com/Heaven.jpg"}). We recommend users host their own images to avoid issues for participants (see tutorial on www.iatgen.wordpress.com). Beyond the above, there are a number of additional settings. By default, the IAT creates a 250-ms pause between trials (Greenwald et al., 1998), but this can be changed using the pause argument (e.g., \code{pause=500}). By default, the function also produces the original Greenwald et al. (1998) variant in which an error message (a red X) flashes for a pause before automatically starting the next trial (default = 300 ms, can be changed by setting \code{errorpause} to a number other than 300 [e.g., \code{errorpause = 400}]). We recommend using a popular variant of the IAT in which the user must correct errors before proceeding to the next trial, which is accomplished by setting \code{correct.error=TRUE}. Users can also edit the color of the targets using the optional \code{tgtCol} argument (e.g., \code{tgtCol="black"}) which is set to black by default. Users can change the color of attributes using the \code{catCol} argument (e.g., \code{catCol="green"}), and can be set to any CSS color (see www.w3schools.com/colors/colors_names.asp for a list of all compatible colors). The user can set the number of trials by specifying the n argument.   Users can enable a note reminding participants about the keypress directions during the IAT by setting \code{note=TRUE}, which is used on some popular IAT websites (e.g., www.projectimplicit.org) and may be useful in online settings where participants cannot directly approach an experimenter with questions.
+#' This is the primary function for building IATs. It has two modes. In automatic mode (set \code{qsf=TRUE}), the function creates a fully functional *.qsf file (Qualtrics survey file) in the user’s working directory, ready to import into Qualtrics. In manual mode (the default option, \code{qsf=FALSE}), it creates four numbered folders which contain HTML and JavaScript code which can be pasted into a template (see tutorial for manual mode at www.iatgen.wordpress.com). In both modes, the user specifies features of the IAT. The user must specify a name for the IAT (\code{IATname}) and the four labels for the targets and categories (\code{posname}, \code{negname}, \code{Aname}, and \code{Bname}). The user must also always specify the type of stimuli for both targets (\code{tgtType="words"} or \code{tgtType="images"}) and categories (\code{catType="words"} or \code{catType="images"}). The user must also specify the stimuli sets for each of the four terms (when images: \code{Aimgs}, \code{Bimgs}, \code{posimgs}, and \code{negimgs}; when words: \code{Awords}, \code{Bwords}, \code{poswords}, and \code{negwords}). Word stimuli are specified by vectors of words (e.g., \code{poswords=c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend")}, whereas images are specified by vectors of image URLs: (e.g., \code{posimgs=c("www.website.com/gentle.jpg", "www.website.com/enjoy.jpg", "www.website.com/Heaven.jpg"}). We recommend users host their own images to avoid issues for participants (see tutorial on www.iatgen.wordpress.com). Users may optionally specify that audio is to be played alongside the words or images with \code{catAudio} and \code{tgtAudio}. Users must then specify \code{posaudio}/\code{negaudio} and/or \code{Aaudio}/\code{Baudio} (as appropriate). We recommend users also host their own audio to avoid issues for participants. Beyond the above, there are a number of additional settings. By default, the IAT creates a 250-ms pause between trials (Greenwald et al., 1998), but this can be changed using the pause argument (e.g., \code{pause=500}). By default, the function also produces the original Greenwald et al. (1998) variant in which an error message (a red X) flashes for a pause before automatically starting the next trial (default = 300 ms, can be changed by setting \code{errorpause} to a number other than 300 [e.g., \code{errorpause = 400}]). We recommend using a popular variant of the IAT in which the user must correct errors before proceeding to the next trial, which is accomplished by setting \code{correct.error=TRUE}. Users can also edit the color of the targets using the optional \code{tgtCol} argument (e.g., \code{tgtCol="black"}) which is set to black by default. Users can change the color of attributes using the \code{catCol} argument (e.g., \code{catCol="green"}), and can be set to any CSS color (see www.w3schools.com/colors/colors_names.asp for a list of all compatible colors). The user can set the number of trials by specifying the n argument.   Users can enable a note reminding participants about the keypress directions during the IAT by setting \code{note=TRUE}, which is used on some popular IAT websites (e.g., www.projectimplicit.org) and may be useful in online settings where participants cannot directly approach an experimenter with questions.
 #'
 #' @param qsf (Required, set by default). Logical value, set to \code{FALSE} by default. If \code{qsf=TRUE}, creates a functional Qualtrics Survey File (*.qsf) for the user to import directly into Qualtrics. If set to \code{qsf=FALSE}, the user must copy paste JavaScript and HTML files into a template. The QSF feature is not compatible with multi-IAT designs. See tutorial on www.iatgen.wordpress.com for multi-IAT designs and usage of manual mode.
 #' @param IATname (Required, set by default). A short string of text that serves to name the IAT. By default, set as 'IAT'. Do not add spaces or special characters.
@@ -820,6 +1057,13 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #' @param note (Required, set by default). Logical value, set to \code{FALSE} by default. When \code{note=TRUE}, displays a persistent note at the bottom of the window reminding participants which keys to press and how to handle errors (if \code{correct.error=TRUE}). This is recommended for non-laboratory use, where participants are unable to ask for assistance.
 #' @param norepeat (Required, set by default). Logical value, set to \code{FALSE} by default. This controls the order in which stimuli are displayed. In the IAT, we always sample stimuli randomly without replacement from pools, replenishing the pools after they are depleted. In other words, any given stimulus will not appear twice in the IAT until all other stimuli from that pool are depleted. This keeps the distribution of stimuli even from participant to participant. However, iatgen then randomizes (within each block) the order in which those stimuli are displayed (e.g., Gawronski, 2002). Setting this to \code{TRUE} displays stimuli in the order sampled, meaning that there are no repeats seen *by the participant* until all stimuli from that stimuli set have been seen. This only changes the display order within a block.
 #' @param startqid (Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).
+#' @param catAudio (Required, set by default). Logical value, set to \code{FALSE} by default. Determines whether audio is played alongside category stimuli. If set to \code{TRUE}, user must specify two additional arguments: \code{posaudio} and \code{negaudio}.
+#' @param posaudio (Required if \code{catAudio=TRUE}). Should be a vector of audio URLs, e.g. \code{posAudio=c("www.website.com/gentle.mp3", "www.website.com/enjoy.mp3")}. Users should have legal rights to use audio and should host them personally (or via Qualtrics). Ignored if \code{catAudio=FALSE}.
+#' @param negaudio (Required if \code{catAudio=TRUE}). Should be a vector of audio URLs, e.g. \code{posAudio=c("www.website.com/poison.mp3", "www.website.com/evil.mp3")}. Users should have legal rights to use audio and should host them personally (or via Qualtrics). Ignored if \code{catAudio=FALSE}.
+#' @param tgtAudio (Required, set by default). Logical value, set to \code{FALSE} by default. Determines whether audio is played alongside target stimuli. If set to \code{TRUE}, user must specify two additional arguments: \code{Aaudio} and \code{Baudio}.
+#' @param Aaudio (Required if \code{tgtAudio=TRUE}). Should be a vector of audio URLs, e.g. \code{posAudio=c("www.website.com/Orchid.mp3", "www.website.com/Tulip.mp3")}. Users should have legal rights to use audio and should host them personally (or via Qualtrics). Ignored if \code{tgtAudio=FALSE}.
+#' @param Baudio (Required if \code{tgtAudio=TRUE}). Should be a vector of audio URLs, e.g. \code{posAudio=c("www.website.com/Wasp.mp3", "www.website.com/flea.mp3")}. Users should have legal rights to use audio and should host them personally (or via Qualtrics). Ignored if \code{tgtAudio=FALSE}.
+#'
 #' @importFrom jsonlite toJSON minify
 #' @return Nothing is returned. However, a QSF file (if \code{qsf=T}) or folders (if \code{qsf=F}) are made in the working directory containing both HTML and JavaScript files that are to be pasted into Qualtrics.
 #' @export
@@ -1047,6 +1291,57 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #'             catCol="green",
 #'             norepeat=TRUE
 #')
+#'
+#' ### Example IAT with audio stimuli played along text
+#' pleasant_audio <- c("https://example.com/gentle.mp3",
+#'                     "https://example.com/enjoy.mp3",
+#'                     "https://example.com/heaven.mp3",
+#'                     "https://example.com/cheer.mp3")
+#'
+#' unpleasant_audio <- c("https://example.com/gentle.mp3",
+#'                       "https://example.com/evil.mp3",
+#'                       "https://example.com/vomit.mp3",
+#'                       "https://example.com/ugly.mp3")
+#'
+#' flowers_audio <- c("https://example.com/orchid.mp3",
+#'                    "https://example.com/tulip.mp3",
+#'                    "https://example.com/rose.mp3",
+#'                    "https://example.com/daisy.mp3")
+#'
+#' insects_audio <- c("https://example.com/wasp.mp3",
+#'                    "https://example.com/flea.mp3",
+#'                    "https://example.com/moth.mp3",
+#'                    "https://example.com/bedbug.mp3")
+#'
+#' writeIATfull(IATname="words-with-audio",
+#'              posname="Pleasant",
+#'              negname="Unpleasant",
+#'              Aname="Flowers",
+#'              Bname="Insects",
+#'              catType="words",
+#'              poswords = c("Gentle", "Enjoy", "Heaven", "Cheer"),
+#'              negwords = c("Poison", "Evil", "Vomit", "Ugly"),
+#'              tgtType="words",
+#'              Awords = c("Orchid", "Tulip", "Rose", "Daisy"),
+#'              Bwords = c("Wasp", "Flea", "Moth", "Bedbug"),
+#'              catAudio = TRUE,
+#'              posaudio = pleasant_audio,
+#'              negaudio = unpleasant_audio,
+#'              tgtAudio = TRUE,
+#'              Aaudio = flowers_audio,
+#'              Baudio = insects_audio,
+#'
+#'              #advanced options with recommended IAT settings
+#'              n=c(20, 20, 20, 40, 40, 20, 40),
+#'              qsf=TRUE,
+#'              note=TRUE,
+#'              correct.error=TRUE,
+#'              pause=250,
+#'              errorpause=300, #not used if correct.error=TRUE
+#'              tgtCol="black",
+#'              catCol="green",
+#'              norepeat=FALSE
+#')
 #' }
 writeIATfull <- function(IATname="IAT",
                          posname,
@@ -1073,7 +1368,13 @@ writeIATfull <- function(IATname="IAT",
                          correct.error=TRUE,
                          note=FALSE,
                          norepeat=FALSE,
-                         startqid = 1
+                         startqid = 1,
+                         catAudio=FALSE,
+                         tgtAudio=FALSE,
+                         posaudio,
+                         negaudio,
+                         Aaudio,
+                         Baudio
 ) {
 
   ##IF FORCED ERROR CORRECTION, MAKE ERRORPAUSE THE SAME AS THE REGULAR PAUSE
@@ -1097,7 +1398,15 @@ writeIATfull <- function(IATname="IAT",
 
   if (swap!="target" & swap!="category") {
     stop("the 'swap' argument is inccorectly specified. It must say either 'target' or 'category'")
-    }
+  }
+
+  if (!is.logical(tgtAudio)) {
+    stop("tgtAudio argument is not correctly specified")
+  }
+
+  if (!is.logical(catAudio)) {
+    stop("catAudio argument is not correctly specified")
+  }
 
   ## BY DEFAULT, IMPLEMENTS THE EASY IMAGE METHOD. nA, nB, nPos, and nNeg not specified by user in this version. Pulls that information from image URL vectors directly.
   if(tgtType == "images" & catType == "words") {
@@ -1135,6 +1444,40 @@ writeIATfull <- function(IATname="IAT",
     nB <- 0
   }
 
+  # set up audio and check that length is appropriate
+  audio_stimuli_length = 0
+  if(tgtAudio & catAudio) { # audio for target and category stimuli
+    audio <- c(posaudio, negaudio, Aaudio, Baudio)
+    if (tgtType == "images" & catType == "images") {
+      audio_stimuli_length <- nA + nB + nPos + nNeg
+    } else if (tgtType == "images" & catType == "words") {
+      audio_stimuli_length <- nA + nB + length(poswords) + length(negwords)
+    } else if (tgtType == "words" & catType == "images") {
+      audio_stimuli_length <- length(Awords) + length(Bwords) + nPos + nNeg
+    } else if (tgtType == "words" & catType == "words") {
+      audio_stimuli_length <- length(Awords) + length(Bwords) + length(poswords) + length(negwords)
+    }
+  } else if (tgtAudio) { # audio for target stimuli only
+    audio <- c(Aaudio, Baudio)
+    if (tgtType == "images") {
+      audio_stimuli_length <- nA + nB
+    } else if (tgtType == "words") {
+      audio_stimuli_length <- length(Awords) + length(Bwords)
+    }
+  } else if (catAudio) { # audio for category stimuli only
+    audio <- c(posaudio, negaudio)
+    if (catType == "images") {
+      audio_stimuli_length <- nPos + nNeg
+    } else if (catType == "words") {
+      audio_stimuli_length <- length(poswords) + length(negwords)
+    }
+  }
+  if (tgtAudio | catAudio) {
+    if (audio_stimuli_length != length(audio)) {
+      stop("number of audio stimuli do not match number of respective target and category stimuli")
+    }
+  }
+
   #Enforce this to prevent errors
   # May not be needed in v10 and up; keep for backwards compatibility
   if(qsf==T){
@@ -1149,28 +1492,32 @@ writeIATfull <- function(IATname="IAT",
                    catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
                    tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
                    swap=swap,
-                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
+                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs,
+                   tgtAudio = tgtAudio, catAudio = catAudio, posaudio = posaudio, negaudio = negaudio, Aaudio = Aaudio, Baudio = Baudio, audio = audio)
 
     writeIATblocks(startqid=(startqid+7), posstart="left", Astart="right", IATname=IATname, foldernum=2, n=n,
                    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
                    catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
                    tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
                    swap=swap,
-                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
+                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs,
+                   tgtAudio = tgtAudio, catAudio = catAudio, posaudio = posaudio, negaudio = negaudio, Aaudio = Aaudio, Baudio = Baudio, audio = audio)
 
     writeIATblocks(startqid=(startqid+14), posstart="left", Astart="left", IATname=IATname, foldernum=3, n=n,
                    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
                    catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
                    tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
                    swap=swap,
-                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
+                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs,
+                   tgtAudio = tgtAudio, catAudio = catAudio, posaudio = posaudio, negaudio = negaudio, Aaudio = Aaudio, Baudio = Baudio, audio = audio)
 
     writeIATblocks(startqid=(startqid+21), posstart="right", Astart="left", IATname=IATname, foldernum=4, n=n,
                    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
                    catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
                    tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
                    swap=swap,
-                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
+                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs,
+                   tgtAudio = tgtAudio, catAudio = catAudio, posaudio = posaudio, negaudio = negaudio, Aaudio = Aaudio, Baudio = Baudio, audio = audio)
 
 
 
