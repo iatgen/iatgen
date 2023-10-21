@@ -1,11 +1,10 @@
-context("analyze csv output")
+context("alpha")
 
-test_that("Function to import and analyze csv", {
+test_that("IATalpha", {
   filename <- "iat_small.csv"
   allContent <- readLines(filename, encoding = "UTF-8")
   allContent <- allContent[-2]
   dat <- read.csv(textConnection(allContent), header = TRUE, stringsAsFactors = FALSE)
-
 
   suppressWarnings(
     dat$compatible.crit <- combineIATfourblocks(dat$Q4.RP4, dat$Q18.LP4, dat$Q14.RN7, dat$Q28.LN7)
@@ -25,5 +24,7 @@ test_that("Function to import and analyze csv", {
     dat$incompatible.prac, dat$incompatible.crit
   )
 
-  expect_equal(as.numeric(round(clean$D, 6)), c(0.536744, -0.520029))
+  parcel <- parcelIAT(clean)
+  expect_equal(as.numeric(round(parcel[1,], 4)), c(-1.0826, -0.2992, -0.4367, -0.1931))
 })
+

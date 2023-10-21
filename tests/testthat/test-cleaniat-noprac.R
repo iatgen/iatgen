@@ -20,10 +20,8 @@ test_that("Function to import and analyze csv", {
     dat$incompatible.prac <- combineIATfourblocks(dat$Q6.RP6, dat$Q20.LP6, dat$Q10.RN3, dat$Q24.LN3)
   )
 
-  clean <- cleanIAT(
-    dat$compatible.prac, dat$compatible.crit,
-    dat$incompatible.prac, dat$incompatible.crit
-  )
+  clean <- cleanIAT.noprac(dat$compatible.crit, dat$incompatible.crit)
 
-  expect_equal(as.numeric(round(clean$D, 6)), c(0.536744, -0.520029))
+  expect_equal(as.numeric(round(clean$D, 6)), c(0.210920, -0.249192))
 })
+

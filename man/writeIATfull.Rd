@@ -96,222 +96,245 @@ This is the primary function for building IATs. It has two modes. In automatic m
 \dontrun{
 
 ### A words-only IAT with recommended settings. IAT examines insects vs. flowers
-    and is named "flowins". Recommended settings builds a QSF file automatically
-    with forced error correction and a note reminding participants of the instructions.
-## Note: the following are specified below for example purposes but are specified
-    by default automatically and can be omitted: coloring of stimuli,
-    number of trials per block, pause between trials.
+#   and is named "flowins". Recommended settings builds a QSF file automatically
+#   with forced error correction and a note reminding participants of the instructions.
+### Note: the following are specified below for example purposes but are specified
+#   by default automatically and can be omitted: coloring of stimuli,
+#   number of trials per block, pause between trials.
 
-writeIATfull(IATname="flowins",
-           posname="Pleasant",
-           negname="Unpleasant",
-           Aname="Flowers",
-           Bname="Insects",
-           catType="words",
-           poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-           negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-           tgtType="words",
-           Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-           Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+writeIATfull(
+  IATname = "flowins",
+  posname = "Pleasant",
+  negname = "Unpleasant",
+  Aname = "Flowers",
+  Bname = "Insects",
+  catType = "words",
+  poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+  negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+  tgtType = "words",
+  Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+  Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 
-           #advanced options with recommended IAT settings
-           n=c(20, 20, 20, 40, 40, 20, 40),
-           qsf=T,
-           note=T,
-           correct.error=T,
-           pause=250,
-           tgtCol="black",
-           catCol="green"
+  # advanced options with recommended IAT settings
+  n = c(20, 20, 20, 40, 40, 20, 40),
+  qsf = T,
+  note = T,
+  correct.error = T,
+  pause = 250,
+  tgtCol = "black",
+  catCol = "green"
 )
 
- ### Same IAT but with the persistent task directions disabled (\code{note=FALSE}),
-     forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause
-     for the error message (\code{errorpause=300}).
+### Same IAT but with the persistent task directions disabled (\code{note=FALSE}),
+#   forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause
+#   for the error message (\code{errorpause=300}).
 
-writeIATfull(IATname="flowins",
-            posname="Pleasant",
-            negname="Unpleasant",
-            Aname="Flowers",
-            Bname="Insects",
-            catType="words",
-            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-            tgtType="words",
-            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+writeIATfull(
+  IATname = "flowins",
+  posname = "Pleasant",
+  negname = "Unpleasant",
+  Aname = "Flowers",
+  Bname = "Insects",
+  catType = "words",
+  poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+  negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+  tgtType = "words",
+  Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+  Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 
-            #advanced options
-            n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T,
-            note=F,
-            correct.error=F,
-            pause=250,
-            errorpause=300,
-            tgtCol="black",
-            catCol="green"
+  # advanced options
+  n = c(20, 20, 20, 40, 40, 20, 40),
+  qsf = T,
+  note = F,
+  correct.error = F,
+  pause = 250,
+  errorpause = 300,
+  tgtCol = "black",
+  catCol = "green"
 )
 
 ### Same IAT as prior example but with 10 trials for all non-critical blocks
-    and 12 trials for all critical blocks.
+#   and 12 trials for all critical blocks.
 
-writeIATfull(IATname="flowins",
-            posname="Pleasant",
-            negname="Unpleasant",
-            Aname="Flowers",
-            Bname="Insects",
-            catType="words",
-            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-            tgtType="words",
-            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+writeIATfull(
+  IATname = "flowins",
+  posname = "Pleasant",
+  negname = "Unpleasant",
+  Aname = "Flowers",
+  Bname = "Insects",
+  catType = "words",
+  poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+  negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+  tgtType = "words",
+  Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+  Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 
-            #advanced options
-            n=c(10, 10, 10, 12, 10, 10, 12),
-            qsf=T,
-            note=F,
-            correct.error=F,
-            pause=250,
-            errorpause=300,
-            tgtCol="black",
-            catCol="green"
+  # advanced options
+  n = c(10, 10, 10, 12, 10, 10, 12),
+  qsf = T,
+  note = F,
+  correct.error = F,
+  pause = 250,
+  errorpause = 300,
+  tgtCol = "black",
+  catCol = "green"
 )
 
 ### An images-only IAT with recommended settings. Note that image URL vectors
-    are specified first to simplify the code.
-goodjpg <- c("www.website.com/gentle.jpg",
-             "www.website.com/enjoy.jpg",
-             "www.website.com/Heaven.jpg",
-             "www.website.com/Cheer.jpg")
+#   are specified first to simplify the code.
+goodjpg <- c(
+  "www.website.com/gentle.jpg",
+  "www.website.com/enjoy.jpg",
+  "www.website.com/Heaven.jpg",
+  "www.website.com/Cheer.jpg"
+)
 
-badjpg <- c("www.website.com/Poison.jpg",
-            "www.website.com/Evil.jpg.",
-            "www.website.com/Vomit.jpg",
-            "www.website.com/Ugly.jpg")
+badjpg <- c(
+  "www.website.com/Poison.jpg",
+  "www.website.com/Evil.jpg.",
+  "www.website.com/Vomit.jpg",
+  "www.website.com/Ugly.jpg"
+)
 
-Ajpg <- c("www.website.com/Orchid.jpg",
-          "www.website.com/Tulip.jpg",
-          "www.website.com/Rose.jpg",
-          "www.website.com/Daisy.jpg")
+Ajpg <- c(
+  "www.website.com/Orchid.jpg",
+  "www.website.com/Tulip.jpg",
+  "www.website.com/Rose.jpg",
+  "www.website.com/Daisy.jpg"
+)
 
-Bjpg <- c("www.website.com/Wasp.jpg",
-          "www.website.com/Flea.jpg",
-          "www.website.com/Moth.jpg",
-          "www.website.com/Bedbug.jpg")
+Bjpg <- c(
+  "www.website.com/Wasp.jpg",
+  "www.website.com/Flea.jpg",
+  "www.website.com/Moth.jpg",
+  "www.website.com/Bedbug.jpg"
+)
 
-writeIATfull(IATname="flowins",
-            posname="Pleasant",
-            negname="Unpleasant",
-            Aname="Flowers",
-            Bname="Insects",
-            catType="images",
-            posimgs = goodjpg,
-            negimgs = badjpg,
-            tgtType="images",
-            Aimgs = Ajpg,
-            Bimgs = Bjpg,
+writeIATfull(
+  IATname = "flowins",
+  posname = "Pleasant",
+  negname = "Unpleasant",
+  Aname = "Flowers",
+  Bname = "Insects",
+  catType = "images",
+  posimgs = goodjpg,
+  negimgs = badjpg,
+  tgtType = "images",
+  Aimgs = Ajpg,
+  Bimgs = Bjpg,
 
-            #advanced options with recommended IAT settings
-            n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T,
-            note=T,
-            correct.error=T,
-            pause=250,
-            tgtCol="black",
-            catCol="green"
+  # advanced options with recommended IAT settings
+  n = c(20, 20, 20, 40, 40, 20, 40),
+  qsf = T,
+  note = T,
+  correct.error = T,
+  pause = 250,
+  tgtCol = "black",
+  catCol = "green"
 )
 
 ### Example IAT with images for categories and words for targets, with recommended settings.
-goodjpg <- c("www.website.com/gentle.jpg",
-             "www.website.com/enjoy.jpg",
-             "www.website.com/Heaven.jpg",
-             "www.website.com/Cheer.jpg")
+goodjpg <- c(
+  "www.website.com/gentle.jpg",
+  "www.website.com/enjoy.jpg",
+  "www.website.com/Heaven.jpg",
+  "www.website.com/Cheer.jpg"
+)
 
-badjpg <- c("www.website.com/Poison.jpg",
-            "www.website.com/Evil.jpg.",
-            "www.website.com/Vomit.jpg",
-            "www.website.com/Ugly.jpg")
+badjpg <- c(
+  "www.website.com/Poison.jpg",
+  "www.website.com/Evil.jpg.",
+  "www.website.com/Vomit.jpg",
+  "www.website.com/Ugly.jpg"
+)
 
-writeIATfull(IATname="flowins",
-            posname="Pleasant",
-            negname="Unpleasant",
-            Aname="Flowers",
-            Bname="Insects",
-            catType="images",
-            posimgs = goodjpg,
-            negimgs = badjpg,
-            tgtType="words",
-            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+writeIATfull(
+  IATname = "flowins",
+  posname = "Pleasant",
+  negname = "Unpleasant",
+  Aname = "Flowers",
+  Bname = "Insects",
+  catType = "images",
+  posimgs = goodjpg,
+  negimgs = badjpg,
+  tgtType = "words",
+  Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+  Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 
-            #advanced options with recommended IAT settings
-            n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T,
-            note=T,
-            correct.error=T,
-            pause=250,
-            tgtCol="black",
-            catCol="green"
+  # advanced options with recommended IAT settings
+  n = c(20, 20, 20, 40, 40, 20, 40),
+  qsf = T,
+  note = T,
+  correct.error = T,
+  pause = 250,
+  tgtCol = "black",
+  catCol = "green"
 )
 
 ### Example IAT with images for targets and words for categories, with recommended settings.
-Ajpg <- c("www.website.com/Orchid.jpg",
-          "www.website.com/Tulip.jpg",
-          "www.website.com/Rose.jpg",
-          "www.website.com/Daisy.jpg")
+Ajpg <- c(
+  "www.website.com/Orchid.jpg",
+  "www.website.com/Tulip.jpg",
+  "www.website.com/Rose.jpg",
+  "www.website.com/Daisy.jpg"
+)
 
-Bjpg <- c("www.website.com/Wasp.jpg",
-          "www.website.com/Flea.jpg",
-          "www.website.com/Moth.jpg",
-          "www.website.com/Bedbug.jpg")
+Bjpg <- c(
+  "www.website.com/Wasp.jpg",
+  "www.website.com/Flea.jpg",
+  "www.website.com/Moth.jpg",
+  "www.website.com/Bedbug.jpg"
+)
 
-writeIATfull(IATname="flowins",
-            posname="Pleasant",
-            negname="Unpleasant",
-            Aname="Flowers",
-            Bname="Insects",
-            catType="words",
-            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-            tgtType="images",
-            Aimgs = Ajpg,
-            Bimgs = Bjpg,
+writeIATfull(
+  IATname = "flowins",
+  posname = "Pleasant",
+  negname = "Unpleasant",
+  Aname = "Flowers",
+  Bname = "Insects",
+  catType = "words",
+  poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+  negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+  tgtType = "images",
+  Aimgs = Ajpg,
+  Bimgs = Bjpg,
 
-            #advanced options with recommended IAT settings
-            n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T,
-            note=T,
-            correct.error=T,
-            pause=250,
-            tgtCol="black",
-            catCol="green"
+  # advanced options with recommended IAT settings
+  n = c(20, 20, 20, 40, 40, 20, 40),
+  qsf = T,
+  note = T,
+  correct.error = T,
+  pause = 250,
+  tgtCol = "black",
+  catCol = "green"
 )
 
 ### EXAMPLE IAT USING 'norepeat=TRUE" TO SUPPRESS REPEAT STIMULI UNTIL ALL STIMULI
-    FROM THAT CATEGORY HAVE BEEN SEEN
+#   FROM THAT CATEGORY HAVE BEEN SEEN
 
-#'writeIATfull(IATname="flowins",
-            posname="Pleasant",
-            negname="Unpleasant",
-            Aname="Flowers",
-            Bname="Insects",
-            catType="words",
-            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-            tgtType="words",
-            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+writeIATfull(
+  IATname = "flowins",
+  posname = "Pleasant",
+  negname = "Unpleasant",
+  Aname = "Flowers",
+  Bname = "Insects",
+  catType = "words",
+  poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+  negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+  tgtType = "words",
+  Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+  Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 
-            #advanced options
-            n=c(20, 20, 20, 40, 40, 20, 40),
-            qsf=T,
-            note=F,
-            correct.error=F,
-            pause=250,
-            errorpause=300,
-            tgtCol="black",
-            catCol="green",
-            norepeat=TRUE
+  # advanced options
+  n = c(20, 20, 20, 40, 40, 20, 40),
+  qsf = T,
+  note = F,
+  correct.error = F,
+  pause = 250,
+  errorpause = 300,
+  tgtCol = "black",
+  catCol = "green",
+  norepeat = TRUE
 )
 }
 }

@@ -127,24 +127,29 @@ Prior to running, please see \code{combineIATfourblocks()}. This function proces
 \dontrun{
 
 ### CLEAN THE IAT USING THE BUILT IN ERROR PENALTY FOR FORCED-ERROR CORRECTION ###
-clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit,
-                  dat$incompatible.prac, dat$incompatible.crit)
+clean <- cleanIAT(
+  dat$compatible.prac, dat$compatible.crit,
+  dat$incompatible.prac, dat$incompatible.crit
+)
 
 ### CLEAN THE IAT USING THE D600 PROCEDURE ###
 clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit,
-                  dat$incompatible.prac, dat$incompatible.crit,
-                 error.penalty=TRUE, error.penalty.ms=600)
+  dat$incompatible.prac, dat$incompatible.crit,
+  error.penalty = TRUE, error.penalty.ms = 600
+)
 
 ### CLEAN THE IAT USING THE D2SD PROCEDURE###
 clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit,
-                  dat$incompatible.prac, dat$incompatible.crit,
-                 error.penalty=TRUE, error.penalty.ms = "2SD")
+  dat$incompatible.prac, dat$incompatible.crit,
+  error.penalty = TRUE, error.penalty.ms = "2SD"
+)
 
 ### CLEAN THE IAT USING THE D2SD PROCEDURE WITH TRIALS UNDER 400 MS DROPPED ###
 clean <- cleanIAT(dat$compatible.prac, dat$compatible.crit,
-                  dat$incompatible.prac, dat$incompatible.crit,
-                  fastprt.drop=FALSE, fasttrial.drop=TRUE, fasttrial.ms=400,
-                  error.penalty=TRUE, error.penalty.ms = "2SD")
+  dat$incompatible.prac, dat$incompatible.crit,
+  fastprt.drop = FALSE, fasttrial.drop = TRUE, fasttrial.ms = 400,
+  error.penalty = TRUE, error.penalty.ms = "2SD"
+)
 
 ### EXAMINE CLEAN IAT SCORES
 clean$D
