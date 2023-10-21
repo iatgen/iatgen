@@ -22,28 +22,28 @@ IATreliability <- function(data, inclusive.sd=TRUE){
   b1.prac <-c()
   for (i in 1:nrow(data$clean.latencies.prac1)){
     temp <- data$clean.latencies.prac1[i,]
-    temp <- temp[order(data$raw.stim.number.prac1[i,])]
+    temp <- unlist(temp[order(unlist(data$raw.stim.number.prac1[i,]))])
     b1.prac <- rbind(b1.prac, temp)
   }
 
   b2.prac <-c()
   for (i in 1:nrow(data$clean.latencies.prac2)){
     temp <- data$clean.latencies.prac2[i,]
-    temp <- temp[order(data$raw.stim.number.prac2[i,])]
+    temp <- unlist(temp[order(unlist(data$raw.stim.number.prac2[i,]))])
     b2.prac <- rbind(b2.prac, temp)
   }
 
   b1.crit <-c()
   for (i in 1:nrow(data$clean.latencies.crit1)){
     temp <- data$clean.latencies.crit1[i,]
-    temp <- temp[order(data$raw.stim.number.crit1[i,])]
+    temp <- unlist(temp[order(unlist(data$raw.stim.number.crit1[i,]))])
     b1.crit <- rbind(b1.crit, temp)
   }
 
   b2.crit <-c()
   for (i in 1:nrow(data$clean.latencies.crit2)){
     temp <- data$clean.latencies.crit2[i,]
-    temp <- temp[order(data$raw.stim.number.crit2[i,])]
+    temp <- unlist(temp[order(unlist(data$raw.stim.number.crit2[i,]))])
     b2.crit <- rbind(b2.crit, temp)
   }
 
