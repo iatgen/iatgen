@@ -1,6 +1,6 @@
-context("reliability")
+context("alpha")
 
-test_that("IATreliability", {
+test_that("IATalpha", {
   filename <- "iat_small.csv"
   allContent <- readLines(filename, encoding = "UTF-8")
   allContent <- allContent[-2]
@@ -24,6 +24,7 @@ test_that("IATreliability", {
     dat$incompatible.prac, dat$incompatible.crit
   )
 
-  reliability <- IATreliability(clean)
-  expect_equal(round(reliability$reliability, 4), 1)
+  parcel <- parcelIAT(clean)
+  expect_equal(as.numeric(round(parcel[1,], 4)), c(-1.0826, -0.2992, -0.4367, -0.1931))
 })
+

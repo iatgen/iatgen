@@ -1,6 +1,6 @@
-context("reliability")
+context("alpha")
 
-test_that("IATreliability", {
+test_that("IATalpha", {
   filename <- "iat_small.csv"
   allContent <- readLines(filename, encoding = "UTF-8")
   allContent <- allContent[-2]
@@ -24,6 +24,7 @@ test_that("IATreliability", {
     dat$incompatible.prac, dat$incompatible.crit
   )
 
-  reliability <- IATreliability(clean)
-  expect_equal(round(reliability$reliability, 4), 1)
+  alpha <- IATalpha(clean)
+  alpha_total <- as.numeric(alpha$alpha.total)
+  expect_equal(round(alpha_total, 4), 0.9444)
 })

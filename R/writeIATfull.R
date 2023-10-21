@@ -1,20 +1,28 @@
 ############## WRITE IAT STIMULI POOLS AND CODE ##############
-# requireNamespace("stringr")
-# requireNamespace("jsonlite")
-
-writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, catType, nPos, nNeg, poswords, negwords, tgtType, nA, nB, Awords, Bwords,
-                         tgtCol="black", catCol="green", norepeat=FALSE, write.me, out){
-
+writeIATstim <- function(type, combined.type = "alternating", n, posside, Aside, catType, nPos, nNeg, poswords, negwords, tgtType, nA, nB, Awords, Bwords,
+                         tgtCol = "black", catCol = "green", norepeat = FALSE, write.me, out) {
   ## Misspecification errors:
-  if ( n %% 2 != 0 ) {stop("The number of trials per block must be even in all IAT blocks in Iatgen. This allows an equal distribution of left-hand and right-hand stimuli.")}
-
-  if (type == "combined"){
-    if ( n %% 4 != 0 ) {stop("The number of trials per combined block must be divisible by four in Iatgen. This allows an equal distribution of Positive, Negative, Target A, and Target B stimuli.")}
-    if (combined.type != "random" && combined.type != "alternating") {stop("Type must be 'random' or 'alternating.'")}
+  if (n %% 2 != 0) {
+    stop("The number of trials per block must be even in all IAT blocks in Iatgen. This allows an equal distribution of left-hand and right-hand stimuli.")
   }
-  if (type != "combined" && type != "target" && type != "category") {stop("The type of block must be either combined or target. Type is misspecified.")}
-  if (catType != "words" && catType != "images") {stop("Category must be either words or images.")}
-  if (tgtType != "words" && tgtType != "images") {stop("Targets must be either words or images.")}
+
+  if (type == "combined") {
+    if (n %% 4 != 0) {
+      stop("The number of trials per combined block must be divisible by four in Iatgen. This allows an equal distribution of Positive, Negative, Target A, and Target B stimuli.")
+    }
+    if (combined.type != "random" && combined.type != "alternating") {
+      stop("Type must be 'random' or 'alternating.'")
+    }
+  }
+  if (type != "combined" && type != "target" && type != "category") {
+    stop("The type of block must be either combined or target. Type is misspecified.")
+  }
+  if (catType != "words" && catType != "images") {
+    stop("Category must be either words or images.")
+  }
+  if (tgtType != "words" && tgtType != "images") {
+    stop("Targets must be either words or images.")
+  }
 
   ### DEFINE ELEMENTS
   startpos <- "\tposstim = ["
@@ -25,149 +33,204 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   end <- "\t];"
 
   ### IMAGE NUMBER INDEXING
-  if (tgtType == "images" && catType =="images"){
-    nums.pos <- c(0:(nPos-1))
-    nums.neg <- c(nPos:(nPos+nNeg-1))
-    nums.A <- c( (nPos + nNeg) : (nPos + nNeg + nA - 1))
-    nums.B <- c( (nPos + nNeg + nA) : (nPos + nNeg + nA + nB - 1) )
+  if (tgtType == "images" && catType == "images") {
+    nums.pos <- c(0:(nPos - 1))
+    nums.neg <- c(nPos:(nPos + nNeg - 1))
+    nums.A <- c((nPos + nNeg):(nPos + nNeg + nA - 1))
+    nums.B <- c((nPos + nNeg + nA):(nPos + nNeg + nA + nB - 1))
   }
 
-  if (tgtType == "words" && catType =="images"){
-    nums.pos <- c(0:(nPos-1))
-    nums.neg <- c(nPos:(nPos+nNeg-1))
+  if (tgtType == "words" && catType == "images") {
+    nums.pos <- c(0:(nPos - 1))
+    nums.neg <- c(nPos:(nPos + nNeg - 1))
   }
 
-  if (tgtType == "images" && catType =="words"){
-    nums.A <- c( 0 : (nA - 1))
-    nums.B <- c( nA : (nA + nB - 1) )
+  if (tgtType == "images" && catType == "words") {
+    nums.A <- c(0:(nA - 1))
+    nums.B <- c(nA:(nA + nB - 1))
   }
 
   ### BUILD POSITIVE STIMULI POOL
   # build posbody
-  if (catType=="words"){length.pos <- length(poswords)}
-  if (catType=="images"){length.pos <- nPos}
+  if (catType == "words") {
+    length.pos <- length(poswords)
+  }
+  if (catType == "images") {
+    length.pos <- nPos
+  }
   body <- character()
-  for (i in 1:length.pos) {body <- rbind(body, mid)} # add more sections to body
-  body[length(body)] <-  gsub("}," , "}",  body[length(body)]) #remove last comma
+  for (i in 1:length.pos) {
+    body <- rbind(body, mid)
+  } # add more sections to body
+  body[length(body)] <- gsub("},", "}", body[length(body)]) # remove last comma
   body <- rbind(startpos, body, end)
   finpos <- body
 
   # pos stimuli builder
-  if (catType=="words"){
-    stim.pos <- paste('\"<b style=\'color:',catCol,'\'>',    poswords,  '</b>"' , sep="")
+  if (catType == "words") {
+    stim.pos <- paste('\"<b style=\'color:', catCol, "'>", poswords, '</b>"', sep = "")
   } else {
-    stim.pos <- paste('images[',nums.pos, ']' , sep="")
+    stim.pos <- paste("images[", nums.pos, "]", sep = "")
   }
 
   # add content to finpos
-  for (i in 2:(length.pos+1)){  #loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
-    finpos[i] <- gsub("INSERTSTIM", stim.pos[(i-1)], finpos[i])
-    if (posside == "right") {finpos[i] <- gsub("INSERTCOR", 73, finpos[i])}
-    if (posside == "left") {finpos[i] <- gsub("INSERTCOR", 69, finpos[i])}
-    if (posside == "none") {finpos[i] <- gsub("INSERTCOR", "\"NA\"", finpos[i])}
-    finpos[i] <- gsub("INSERTINDEX", i-1, finpos[i])
+  for (i in 2:(length.pos + 1)) { # loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
+    finpos[i] <- gsub("INSERTSTIM", stim.pos[(i - 1)], finpos[i])
+    if (posside == "right") {
+      finpos[i] <- gsub("INSERTCOR", 73, finpos[i])
+    }
+    if (posside == "left") {
+      finpos[i] <- gsub("INSERTCOR", 69, finpos[i])
+    }
+    if (posside == "none") {
+      finpos[i] <- gsub("INSERTCOR", "\"NA\"", finpos[i])
+    }
+    finpos[i] <- gsub("INSERTINDEX", i - 1, finpos[i])
   }
 
   ### BUILD NEGATIVE STIMULI POOL
   # build negbody
-  if (catType=="words"){length.neg <- length(negwords)}
-  if (catType=="images"){length.neg <- nNeg}
+  if (catType == "words") {
+    length.neg <- length(negwords)
+  }
+  if (catType == "images") {
+    length.neg <- nNeg
+  }
   body <- character()
-  for (i in 1:length.neg) {body <- rbind(body, mid)} # add more sections to body
-  body[length(body)] <-  gsub("}," , "}",  body[length(body)]) #remove last comma
+  for (i in 1:length.neg) {
+    body <- rbind(body, mid)
+  } # add more sections to body
+  body[length(body)] <- gsub("},", "}", body[length(body)]) # remove last comma
   body <- rbind(startneg, body, end)
   finneg <- body
 
   # neg stimuli builder
-  if (catType=="words"){
-    stim.neg <- paste('\"<b style=\'color:',catCol,'\'>',    negwords,  '</b>"' , sep="")
+  if (catType == "words") {
+    stim.neg <- paste('\"<b style=\'color:', catCol, "'>", negwords, '</b>"', sep = "")
   } else {
-    stim.neg <- paste('images[',nums.neg, ']' , sep="")
+    stim.neg <- paste("images[", nums.neg, "]", sep = "")
   }
 
   # add content to finneg
-  for (i in 2:(length.neg+1)){  #loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
-    finneg[i] <- gsub("INSERTSTIM", stim.neg[(i-1)], finneg[i])
-    if (posside == "left") {finneg[i] <- gsub("INSERTCOR", 73, finneg[i])}
-    if (posside == "right") {finneg[i] <- gsub("INSERTCOR", 69, finneg[i])}
-    if (posside == "none")  {finneg[i] <- gsub("INSERTCOR", "\"NA\"", finneg[i])}
+  for (i in 2:(length.neg + 1)) { # loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
+    finneg[i] <- gsub("INSERTSTIM", stim.neg[(i - 1)], finneg[i])
+    if (posside == "left") {
+      finneg[i] <- gsub("INSERTCOR", 73, finneg[i])
+    }
+    if (posside == "right") {
+      finneg[i] <- gsub("INSERTCOR", 69, finneg[i])
+    }
+    if (posside == "none") {
+      finneg[i] <- gsub("INSERTCOR", "\"NA\"", finneg[i])
+    }
     finneg[i] <- gsub("INSERTINDEX", i + length.pos - 1, finneg[i])
   }
 
   ### BUILD A STIMULI POOL
   # build Abody
-  if (tgtType=="words"){length.A <- length(Awords)}
-  if (tgtType=="images"){length.A <- nA}
+  if (tgtType == "words") {
+    length.A <- length(Awords)
+  }
+  if (tgtType == "images") {
+    length.A <- nA
+  }
   body <- character()
-  for (i in 1:length.A) {body <- rbind(body, mid)} # add more sections to body
-  body[length(body)] <-  gsub("}," , "}",  body[length(body)]) #remove last comma
+  for (i in 1:length.A) {
+    body <- rbind(body, mid)
+  } # add more sections to body
+  body[length(body)] <- gsub("},", "}", body[length(body)]) # remove last comma
   body <- rbind(startA, body, end)
   finA <- body
 
   # A stimuli builder
-  if (tgtType=="words"){
-    stim.A <- paste('\"<b style=\'color:',tgtCol,'\'>',    Awords,  '</b>"' , sep="")
+  if (tgtType == "words") {
+    stim.A <- paste('\"<b style=\'color:', tgtCol, "'>", Awords, '</b>"', sep = "")
   } else {
-    stim.A <- paste('images[',nums.A, ']' , sep="")
+    stim.A <- paste("images[", nums.A, "]", sep = "")
   }
 
   # add content to finA
-  for (i in 2:(length.A+1)){  #loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
-    finA[i] <- gsub("INSERTSTIM", stim.A[(i-1)], finA[i])
-    if (Aside == "right") {finA[i] <- gsub("INSERTCOR", 73, finA[i])}
-    if (Aside == "left") {finA[i] <- gsub("INSERTCOR", 69, finA[i])}
-    if (Aside == "none") {finA[i] <- gsub("INSERTCOR", "\"NA\"", finA[i])}
-    finA[i] <- gsub("INSERTINDEX", (i+length.pos+length.neg-1), finA[i])
+  for (i in 2:(length.A + 1)) { # loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
+    finA[i] <- gsub("INSERTSTIM", stim.A[(i - 1)], finA[i])
+    if (Aside == "right") {
+      finA[i] <- gsub("INSERTCOR", 73, finA[i])
+    }
+    if (Aside == "left") {
+      finA[i] <- gsub("INSERTCOR", 69, finA[i])
+    }
+    if (Aside == "none") {
+      finA[i] <- gsub("INSERTCOR", "\"NA\"", finA[i])
+    }
+    finA[i] <- gsub("INSERTINDEX", (i + length.pos + length.neg - 1), finA[i])
   }
 
   ### BUILD B STIMULI POOL
   # build Bbody
-  if (tgtType=="words"){length.B <- length(Bwords)}
-  if (tgtType=="images"){length.B <- nB}
+  if (tgtType == "words") {
+    length.B <- length(Bwords)
+  }
+  if (tgtType == "images") {
+    length.B <- nB
+  }
   body <- character()
-  for (i in 1:length.B) {body <- rbind(body, mid)} # add more sections to body
-  body[length(body)] <-  gsub("}," , "}",  body[length(body)]) #remove last comma
+  for (i in 1:length.B) {
+    body <- rbind(body, mid)
+  } # add more sections to body
+  body[length(body)] <- gsub("},", "}", body[length(body)]) # remove last comma
   body <- rbind(startB, body, end)
   finB <- body
 
   # B stimuli builder
-  if (tgtType=="words"){
-    stim.B <- paste('\"<b style=\'color:',tgtCol,'\'>',    Bwords,  '</b>"' , sep="")
+  if (tgtType == "words") {
+    stim.B <- paste('\"<b style=\'color:', tgtCol, "'>", Bwords, '</b>"', sep = "")
   } else {
-    stim.B <- paste('images[',nums.B, ']' , sep="")
+    stim.B <- paste("images[", nums.B, "]", sep = "")
   }
 
   # add content to finB
-  for (i in 2:(length.B+1)){  #loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
-    finB[i] <- gsub("INSERTSTIM", stim.B[(i-1)], finB[i])
-    if (Aside == "left") {finB[i] <- gsub("INSERTCOR", 73, finB[i])}
-    if (Aside == "right") {finB[i] <- gsub("INSERTCOR", 69, finB[i])}
-    if (Aside == "none") {finB[i] <- gsub("INSERTCOR", "\"NA\"", finB[i])}
+  for (i in 2:(length.B + 1)) { # loops through row numbers containing stimuli=normal count + 1. Use i-1 to get normal count.
+    finB[i] <- gsub("INSERTSTIM", stim.B[(i - 1)], finB[i])
+    if (Aside == "left") {
+      finB[i] <- gsub("INSERTCOR", 73, finB[i])
+    }
+    if (Aside == "right") {
+      finB[i] <- gsub("INSERTCOR", 69, finB[i])
+    }
+    if (Aside == "none") {
+      finB[i] <- gsub("INSERTCOR", "\"NA\"", finB[i])
+    }
     finB[i] <- gsub("INSERTINDEX", (i + length.pos + length.neg + length.A - 1), finB[i])
   }
 
 
   ## MID SECTION IS EITHER EMPTY OR CONTAINS INTERMEDIATE CODE FOR ALTERNATING-TRIAL COMBINED BLOCKS
-  if (type == "target") {altsection <- ""}
-  if (type == "category") {altsection <- ""}
-  if (type == "combined" && combined.type=="random") {altsection <- ""}
-  if (type == "combined" && combined.type=="alternating") {
-
+  if (type == "target") {
+    altsection <- ""
+  }
+  if (type == "category") {
+    altsection <- ""
+  }
+  if (type == "combined" && combined.type == "random") {
+    altsection <- ""
+  }
+  if (type == "combined" && combined.type == "alternating") {
     starttgts <- "\ttgts = ["
     startcats <- "\tcats = ["
-    midalt<- "\t\t{stimulus: \"\", correct: \"\", index: \"\"},"
+    midalt <- "\t\t{stimulus: \"\", correct: \"\", index: \"\"},"
     lastalt <- "\t\t{stimulus: \"\", correct: \"\", index: \"\"}"
     endalt <- "\t];"
 
     bodyalt <- character()
-    for (i in 1:(n/2)) {bodyalt <- rbind(bodyalt, midalt)} # add more sections to body
-    bodyalt[length(bodyalt)] <- lastalt #replace last row with row w/o ending comma
+    for (i in 1:(n / 2)) {
+      bodyalt <- rbind(bodyalt, midalt)
+    } # add more sections to body
+    bodyalt[length(bodyalt)] <- lastalt # replace last row with row w/o ending comma
 
-    #CATS
+    # CATS
     headercats <- "\t//EMPTY SET OF CATEGORY STIMULI - USED FOR ALTERNATING TRIALS FORMAT ONLY"
     bodycats <- rbind(headercats, startcats, bodyalt, endalt)
 
-    #TGTS
+    # TGTS
     headertgts <- "\t//EMPTY SET OF TARGET STIMULI - USED FOR ALTERNATING TRIALS FORMAT ONLY"
     bodytgts <- rbind(headertgts, starttgts, bodyalt, endalt)
 
@@ -176,31 +239,31 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
     ## ADD CODE TO TAKE CONTENTS FROM THESE POOLS TO FINAL STIMULI OBJECT
     # default version randomly samples w/o replacement and randomizes order; otherwise they can be displayed without
 
-      if (norepeat==FALSE) {
-        altcode <- rbind(
-          "\t//ASSEMBLE TGTS AND CATS FOR ALTERNATING TRIAL FORMAT",
-          "\tvar half = tgts.length / 2; //SAME FOR TGTS AND CATS",
-          "\tvar cutoffs = [0, half, tgts.length];",
-          "\tstimBuilder(Astim, tgts, cutoffs[0], cutoffs[1]);",
-          "\tstimBuilder(Bstim, tgts, cutoffs[1], cutoffs[2]);",
-          "\tstimBuilder(posstim, cats,  cutoffs[0], cutoffs[1]);",
-          "\tstimBuilder(negstim, cats, cutoffs[1], cutoffs[2]);",
-          "\tshuffle(tgts);",
-          "\tshuffle(tgts);",
-          "\tshuffle(cats);",
-          "\tshuffle(cats);"
-        )
-        altsection <- rbind(bodycats, "", bodytgts, "", altcode, "")
-      } else {
-        altcode <- rbind(
-          "\t//ASSEMBLE TGTS AND CATS FOR ALTERNATING TRIAL FORMAT - WILL NOT DISPLAY REPEATS UNTIL ALL TGT/CAT STIMULI ARE SHOWN",
-          "\tvar tgtcombo = Astim.concat(Bstim);",
-          "\tvar catcombo = posstim.concat(negstim);",
-          "\tstimBuilder(tgtcombo, tgts, 0, tgts.length);",
-          "\tstimBuilder(catcombo, cats,  0, cats.length);"
-        )
-        altsection <- rbind(bodycats, "", bodytgts, "", altcode, "")
-      }
+    if (norepeat == FALSE) {
+      altcode <- rbind(
+        "\t//ASSEMBLE TGTS AND CATS FOR ALTERNATING TRIAL FORMAT",
+        "\tvar half = tgts.length / 2; //SAME FOR TGTS AND CATS",
+        "\tvar cutoffs = [0, half, tgts.length];",
+        "\tstimBuilder(Astim, tgts, cutoffs[0], cutoffs[1]);",
+        "\tstimBuilder(Bstim, tgts, cutoffs[1], cutoffs[2]);",
+        "\tstimBuilder(posstim, cats,  cutoffs[0], cutoffs[1]);",
+        "\tstimBuilder(negstim, cats, cutoffs[1], cutoffs[2]);",
+        "\tshuffle(tgts);",
+        "\tshuffle(tgts);",
+        "\tshuffle(cats);",
+        "\tshuffle(cats);"
+      )
+      altsection <- rbind(bodycats, "", bodytgts, "", altcode, "")
+    } else {
+      altcode <- rbind(
+        "\t//ASSEMBLE TGTS AND CATS FOR ALTERNATING TRIAL FORMAT - WILL NOT DISPLAY REPEATS UNTIL ALL TGT/CAT STIMULI ARE SHOWN",
+        "\tvar tgtcombo = Astim.concat(Bstim);",
+        "\tvar catcombo = posstim.concat(negstim);",
+        "\tstimBuilder(tgtcombo, tgts, 0, tgts.length);",
+        "\tstimBuilder(catcombo, cats,  0, cats.length);"
+      )
+      altsection <- rbind(bodycats, "", bodytgts, "", altcode, "")
+    }
   }
 
 
@@ -212,20 +275,22 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   endstim <- "\t];"
 
   body <- character()
-  for (i in 1:n) {body <- rbind(body, midstim)} # add more sections to body
+  for (i in 1:n) {
+    body <- rbind(body, midstim)
+  } # add more sections to body
   body <- rbind(startstim, body)
-  body[length(body)] <- laststim #replace last row with row w/o ending comma
+  body[length(body)] <- laststim # replace last row with row w/o ending comma
   stimheader <- "\t//EMPTY SET OF TRIALS - LOADS FROM POOLS ABOVE"
   finstim <- rbind(stimheader, body, endstim)
 
   ### COMPILE TRIALS CODE
-  trials <- rbind(finpos, "", finneg, "", finA, "", finB, "", altsection, "" , finstim)
+  trials <- rbind(finpos, "", finneg, "", finA, "", finB, "", altsection, "", finstim)
 
 
 
   ### JAVASCRIPT CODE THAT ADDS CONTENT TO STIMULI
 
-  if (type=="combined" && combined.type=="random"){
+  if (type == "combined" && combined.type == "random") {
     call <- rbind(
       "\tvar quarter = stimuli.length / 4;",
       "\tvar cutoffs = [0, quarter, quarter*2, quarter*3, stimuli.length];",
@@ -242,7 +307,7 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
 
 
   # The reverse is needed for 'norepeat' variants; stimuli displayer pulls from end. Doesn't impact standard variatn as it's random order anywayß
-  if(type=="combined" & combined.type=="alternating"){
+  if (type == "combined" & combined.type == "alternating") {
     call <- rbind(
       "\taltStimuil();",
       "\tstimuli.reverse();"
@@ -250,7 +315,7 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   }
 
 
-  if (type=="target" & norepeat==FALSE){
+  if (type == "target" & norepeat == FALSE) {
     call <- rbind(
       "\tvar half = stimuli.length / 2;",
       "\tvar cutoffs = [0, half, stimuli.length];",
@@ -263,7 +328,7 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
     )
   }
 
-  if (type=="target" & norepeat==TRUE){
+  if (type == "target" & norepeat == TRUE) {
     call <- rbind(
       "\tvar tgtcombo = Astim.concat(Bstim);",
       "\tstimBuilder(tgtcombo, stimuli, 0, stimuli.length);",
@@ -272,7 +337,7 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
   }
 
 
-   if (type=="category" & norepeat==FALSE){
+  if (type == "category" & norepeat == FALSE) {
     call <- rbind(
       "\tvar half = stimuli.length / 2;",
       "\tvar cutoffs = [0, half, stimuli.length];",
@@ -283,9 +348,9 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
       "\tshuffle(stimuli);",
       "\tshuffle(stimuli);"
     )
-   }
+  }
 
-  if (type=="category" & norepeat==TRUE){
+  if (type == "category" & norepeat == TRUE) {
     call <- rbind(
       "\tvar catcombo = posstim.concat(negstim);",
       "\tstimBuilder(catcombo, stimuli, 0, stimuli.length);",
@@ -295,9 +360,9 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
 
   fin <- rbind(trials, "", "", "\t//BUILD TRIALS", "", call)
 
-  if (write.me){
-    con <- file(out, open="wb")
-    writeLines(fin, con=out, sep="\n")
+  if (write.me) {
+    con <- file(out, open = "wb")
+    writeLines(fin, con = out, sep = "\n")
     close(con)
   }
   return(fin)
@@ -307,63 +372,70 @@ writeIATstim <- function(type, combined.type="alternating", n, posside, Aside, c
 
 ############## WRITE IAT JAVASCRIPT FILE ##############
 
-writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, catType, catCol="green", nPos, nNeg,
-                       poswords, negwords, tgtType, tgtCol="black", nA, nB, Awords, Bwords,
-                       pause=250, errorpause=300, correct.error=F, note=F, norepeat=FALSE,
+writeIATjs <- function(type, combined.type = "alternating", n, posside, Aside, catType, catCol = "green", nPos, nNeg,
+                       poswords, negwords, tgtType, tgtCol = "black", nA, nB, Awords, Bwords,
+                       pause = 250, errorpause = 300, correct.error = F, note = F, norepeat = FALSE,
                        imgs, out) {
-
-  apath  <- system.file("codefiles", "codeA.txt", package="iatgen")
-  codeA <- as.matrix(readLines(apath, warn=F))
+  apath <- system.file("codefiles", "codeA.txt", package = "iatgen")
+  codeA <- as.matrix(readLines(apath, warn = F))
 
 
   ## if IAT uses images, build an image_srcs array
-  if (tgtType == "images" || catType == "images"){
+  if (tgtType == "images" || catType == "images") {
     codeimage <- "\timage_srcs = ["
     for (i in 1:length(imgs)) {
-      codeimage <- rbind(codeimage, paste('\t\t\"',imgs[i],'\",', sep=""))
+      codeimage <- rbind(codeimage, paste('\t\t\"', imgs[i], '\",', sep = ""))
     }
     codeimage[length(codeimage)] <- gsub(",$", "", codeimage[length(codeimage)]) # remove comma from last line
-    codeimage <- rbind(codeimage,"\t];")
+    codeimage <- rbind(codeimage, "\t];")
   } else {
     codeimage <- "\timage_srcs = [];"
   }
 
-  bpath  <- system.file("codefiles", "codeB.txt", package="iatgen")
-  codeB <- as.matrix(readLines(bpath, warn=F))
-  codestim <- writeIATstim(type=type, combined.type=combined.type, n=n, catType=catType, catCol=catCol, nPos=nPos, nNeg=nNeg,
-                           poswords=poswords, negwords=negwords, posside=posside, tgtType=tgtType,
-                           tgtCol=tgtCol, nA=nA, nB=nB, Awords=Awords, Bwords=Bwords, Aside=Aside, norepeat=norepeat, write.me=FALSE)
-  cpath  <- system.file("codefiles", "codeC.txt", package="iatgen")
-  codeC <- as.matrix(readLines(cpath, warn=F))
+  bpath <- system.file("codefiles", "codeB.txt", package = "iatgen")
+  codeB <- as.matrix(readLines(bpath, warn = F))
+  codestim <- writeIATstim(
+    type = type, combined.type = combined.type, n = n, catType = catType, catCol = catCol, nPos = nPos, nNeg = nNeg,
+    poswords = poswords, negwords = negwords, posside = posside, tgtType = tgtType,
+    tgtCol = tgtCol, nA = nA, nB = nB, Awords = Awords, Bwords = Bwords, Aside = Aside, norepeat = norepeat, write.me = FALSE
+  )
+  cpath <- system.file("codefiles", "codeC.txt", package = "iatgen")
+  codeC <- as.matrix(readLines(cpath, warn = F))
   temp <- rbind(codeA, codeimage, codeB, codestim, codeC)
 
-  #for forced error correction, change the keycheck function call and remover
-  if(correct.error==T){
-    temp <- gsub(", keyCheck, false);",
-                 ", keyCheckForcedError, false);",
-                  temp)
+  # for forced error correction, change the keycheck function call and remover
+  if (correct.error == T) {
+    temp <- gsub(
+      ", keyCheck, false);",
+      ", keyCheckForcedError, false);",
+      temp
+    )
   }
 
-  #add note below IAT window
-  if(correct.error==T && note==T){
-    temp <- gsub("note.innerHTML = \"\";",
-                 "note.innerHTML = \"Press E or I to advance to the next word/image. Correct mistakes by pressing the other key.\";",
-                 temp)
+  # add note below IAT window
+  if (correct.error == T && note == T) {
+    temp <- gsub(
+      "note.innerHTML = \"\";",
+      "note.innerHTML = \"Press E or I to advance to the next word/image. Correct mistakes by pressing the other key.\";",
+      temp
+    )
   }
-  if(correct.error==F && note==T){
-    temp <- gsub("note.innerHTML = \"\";",
-                 "note.innerHTML = \"Press E or I to advance to the next word/image.\";",
-                 temp)
+  if (correct.error == F && note == T) {
+    temp <- gsub(
+      "note.innerHTML = \"\";",
+      "note.innerHTML = \"Press E or I to advance to the next word/image.\";",
+      temp
+    )
   }
 
-  #replace the default 250 ms intertrial pause with one set by user. Greenwald et al 1998 settled on 250 ms
+  # replace the default 250 ms intertrial pause with one set by user. Greenwald et al 1998 settled on 250 ms
   temp <- gsub(250, pause, temp)
 
-  #replace the default 300 ms error pause with one set by the user.  Greenwald et al 1998 settled on 300 ms
+  # replace the default 300 ms error pause with one set by the user.  Greenwald et al 1998 settled on 300 ms
   temp <- gsub(300, errorpause, temp)
 
-  con <- file(out, open="wb")
-  writeLines(temp, con, sep="\n")
+  con <- file(out, open = "wb")
+  writeLines(temp, con, sep = "\n")
   close(con)
 }
 
@@ -388,24 +460,22 @@ writeIATjs <- function(type, combined.type="alternating", n, posside, Aside, cat
 
 ############## WRITE IAT BLOCKS TO WORKING DIRECTORY FILE ##############
 
-writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1, posname, negname, Aname, Bname, posstart, Astart, IATname="IAT", n=c(20, 20, 20, 40, 40, 20, 40),
-                           catType, catCol="green", poswords, negwords, nPos, nNeg, posimgs, negimgs, tgtType, tgtCol="black", nA, nB, Awords, Bwords, Aimgs, Bimgs,
-                           easy.img=F, pause=250, errorpause=300, correct.error=F, note=F, norepeat=FALSE, swap="category", imgs
-) {
-
+writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernum = 1, posname, negname, Aname, Bname, posstart, Astart, IATname = "IAT", n = c(20, 20, 20, 40, 40, 20, 40),
+                           catType, catCol = "green", poswords, negwords, nPos, nNeg, posimgs, negimgs, tgtType, tgtCol = "black", nA, nB, Awords, Bwords, Aimgs, Bimgs,
+                           easy.img = F, pause = 250, errorpause = 300, correct.error = F, note = F, norepeat = FALSE, swap = "category", imgs) {
   # add error message if tgtType and catType are not both either "images" or "words
 
-  if (easy.img==T) {
-    #easy.img inferrs the nA and nB from the number of images in the vector. I prefer the manual control. Might this cause issues?
+  if (easy.img == T) {
+    # easy.img inferrs the nA and nB from the number of images in the vector. I prefer the manual control. Might this cause issues?
 
-    if(tgtType == "images" && catType == "words") {
+    if (tgtType == "images" && catType == "words") {
       # add error message if there are not appropriately specified images
       imgs <- c(Aimgs, Bimgs)
       nA <- length(Aimgs)
       nB <- length(Bimgs)
     }
 
-    if(tgtType == "images" && catType == "images") {
+    if (tgtType == "images" && catType == "images") {
       # add error message if there are not appropriately specified images
       imgs <- c(posimgs, negimgs, Aimgs, Bimgs)
       nA <- length(Aimgs)
@@ -414,9 +484,9 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       nNeg <- length(negimgs)
     }
 
-    if(tgtType == "words" && catType == "words") {}
+    if (tgtType == "words" && catType == "words") {}
 
-    if(tgtType == "words" && catType == "images") {
+    if (tgtType == "words" && catType == "images") {
       # add error message if there are not appropriately specified images
       imgs <- c(posimgs, negimgs)
       nPos <- length(posimgs)
@@ -424,256 +494,288 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
     }
   }
 
-  if (easy.img==F){
-    if (tgtType == "images" || catType == "images"){
-      if (sum(c(nPos, nNeg, nA, nB), na.rm=T) != length(imgs)){warning("The number of image URLs provided did not match the number of images listed.")}
+  if (easy.img == F) {
+    if (tgtType == "images" || catType == "images") {
+      if (sum(c(nPos, nNeg, nA, nB), na.rm = T) != length(imgs)) {
+        warning("The number of image URLs provided did not match the number of images listed.")
+      }
     }
   }
 
-  #create matrices that show what goes where
-  if(swap=="category"){
-    possides <- cbind(matrix(c("none", "right", "right", "right", "left", "left", "left")),
-                      matrix(c("none", "left", "left", "left", "right", "right", "right")))
-    colnames(possides) <- c("right","left") # name columns for the STARTING valence position
+  # create matrices that show what goes where
+  if (swap == "category") {
+    possides <- cbind(
+      matrix(c("none", "right", "right", "right", "left", "left", "left")),
+      matrix(c("none", "left", "left", "left", "right", "right", "right"))
+    )
+    colnames(possides) <- c("right", "left") # name columns for the STARTING valence position
 
-    Asides <- cbind(matrix(c("right", "none", "right", "right", "none", "right", "right")),
-                    matrix(c("left", "none", "left", "left", "none", "left", "left")))
-    colnames(Asides) <- c("right","left") # name columns for the STARTING valence position
+    Asides <- cbind(
+      matrix(c("right", "none", "right", "right", "none", "right", "right")),
+      matrix(c("left", "none", "left", "left", "none", "left", "left"))
+    )
+    colnames(Asides) <- c("right", "left") # name columns for the STARTING valence position
   }
 
-  if(swap=="target"){
-    possides <- cbind(matrix(c("none", "right", "right", "right", "none", "right", "right")),
-                      matrix(c("none", "left", "left", "left", "none", "left", "left")))
-    colnames(possides) <- c("right","left") # name columns for the STARTING valence position
+  if (swap == "target") {
+    possides <- cbind(
+      matrix(c("none", "right", "right", "right", "none", "right", "right")),
+      matrix(c("none", "left", "left", "left", "none", "left", "left"))
+    )
+    colnames(possides) <- c("right", "left") # name columns for the STARTING valence position
 
-    Asides <- cbind(matrix(c("right", "none", "right", "right", "left", "left", "left")),
-                    matrix(c("left", "none", "left", "left", "right", "right", "right")))
-    colnames(Asides) <- c("right","left") # name columns for the STARTING valence position
+    Asides <- cbind(
+      matrix(c("right", "none", "right", "right", "left", "left", "left")),
+      matrix(c("left", "none", "left", "left", "right", "right", "right"))
+    )
+    colnames(Asides) <- c("right", "left") # name columns for the STARTING valence position
   }
 
 
-  if (Astart == "right" && posstart == "right") { suffix <- "rp" } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
-  if (Astart == "left" && posstart == "right") { suffix <- "ln" } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
-  if (Astart == "right" && posstart == "left") { suffix <- "rn" } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
-  if (Astart == "left" && posstart == "left") { suffix <- "lp" } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
+  if (Astart == "right" && posstart == "right") {
+    suffix <- "rp"
+  } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
+  if (Astart == "left" && posstart == "right") {
+    suffix <- "ln"
+  } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
+  if (Astart == "right" && posstart == "left") {
+    suffix <- "rn"
+  } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
+  if (Astart == "left" && posstart == "left") {
+    suffix <- "lp"
+  } # SUFFIX ALWAYS REFLECTS STATUS OF TGT A
 
   qids <- 0:6 + startqid
 
   mainDir <- getwd()
-  subDir <- paste(foldernum, " ",IATname,"_",suffix,sep="")
+  subDir <- paste(foldernum, " ", IATname, "_", suffix, sep = "")
 
-  if (!file.exists(subDir)){
+  if (!file.exists(subDir)) {
     dir.create(file.path(mainDir, subDir))
   }
 
   # move files to current folder. Note that tgtswap variants have the target changing sides instead of the category. Copy everything, then later delete what's unused
-  file.copy(system.file("codefiles", "html_1.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_2.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_3.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_4.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_5.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_6.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_7.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_5_tgtswap.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_6_tgtswap.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "html_7_tgtswap.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "codeA.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "codeB.txt", package="iatgen"), file.path(mainDir, subDir))
-  file.copy(system.file("codefiles", "codeC.txt", package="iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_1.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_2.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_3.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_4.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_5.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_6.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_7.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_5_tgtswap.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_6_tgtswap.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "html_7_tgtswap.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "codeA.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "codeB.txt", package = "iatgen"), file.path(mainDir, subDir))
+  file.copy(system.file("codefiles", "codeC.txt", package = "iatgen"), file.path(mainDir, subDir))
   setwd(file.path(mainDir, subDir))
 
-  #we only want html_1.txt-html_7.txt. If we have the tgtswap versions (swap="target), delete the non-swap versions and rename.
-  if(swap=="target"){
+  # we only want html_1.txt-html_7.txt. If we have the tgtswap versions (swap="target), delete the non-swap versions and rename.
+  if (swap == "target") {
     file.remove("html_5.txt")
     file.remove("html_6.txt")
     file.remove("html_7.txt")
-    file.rename(from="html_5_tgtswap.txt", to="html_5.txt")
-    file.rename(from="html_6_tgtswap.txt", to="html_6.txt")
-    file.rename(from="html_7_tgtswap.txt", to="html_7.txt")
+    file.rename(from = "html_5_tgtswap.txt", to = "html_5.txt")
+    file.rename(from = "html_6_tgtswap.txt", to = "html_6.txt")
+    file.rename(from = "html_7_tgtswap.txt", to = "html_7.txt")
   }
 
-  if(swap=="category"){
+  if (swap == "category") {
     file.remove("html_5_tgtswap.txt")
     file.remove("html_6_tgtswap.txt")
     file.remove("html_7_tgtswap.txt")
   }
 
 
-  writeIATjs(type = "target",
-             combined.type=combined.type,
-             n=n[1],
-             tgtType = tgtType,
-             tgtCol = tgtCol,
-             catType = catType,
-             catCol = catCol,
-             Aside = Asides[1,Astart],
-             posside = possides[1,posstart],
-             nA = nA,
-             nB = nA,
-             Awords = Awords,
-             Bwords = Bwords,
-             poswords = poswords,
-             negwords = negwords,
-             nPos = nPos,
-             nNeg = nNeg,
-             imgs=imgs,
-             pause=pause,
-             note=note,
-             errorpause=errorpause,
-             correct.error=correct.error,
-             norepeat=norepeat,
-             out = paste("Q",qids[1], " JavaScript_1.txt",sep=""))
+  writeIATjs(
+    type = "target",
+    combined.type = combined.type,
+    n = n[1],
+    tgtType = tgtType,
+    tgtCol = tgtCol,
+    catType = catType,
+    catCol = catCol,
+    Aside = Asides[1, Astart],
+    posside = possides[1, posstart],
+    nA = nA,
+    nB = nA,
+    Awords = Awords,
+    Bwords = Bwords,
+    poswords = poswords,
+    negwords = negwords,
+    nPos = nPos,
+    nNeg = nNeg,
+    imgs = imgs,
+    pause = pause,
+    note = note,
+    errorpause = errorpause,
+    correct.error = correct.error,
+    norepeat = norepeat,
+    out = paste("Q", qids[1], " JavaScript_1.txt", sep = "")
+  )
 
-  writeIATjs(type = "category",
-             combined.type=combined.type,
-             n = n[2],
-             tgtType = tgtType,
-             tgtCol = tgtCol,
-             catType = catType,
-             catCol = catCol,
-             posside = possides[2,posstart],
-             Aside = Asides[2,Astart],
-             poswords = poswords,
-             negwords = negwords,
-             nPos = nPos,
-             nNeg = nNeg,
-             Awords = Awords,
-             Bwords = Bwords,
-             nA = nA,
-             nB = nB,
-             imgs=imgs,
-             pause=pause,
-             note=note,
-             errorpause=errorpause,
-             correct.error=correct.error,
-             norepeat=norepeat,
-             out = paste("Q",qids[2], " JavaScript_2.txt",sep=""))
+  writeIATjs(
+    type = "category",
+    combined.type = combined.type,
+    n = n[2],
+    tgtType = tgtType,
+    tgtCol = tgtCol,
+    catType = catType,
+    catCol = catCol,
+    posside = possides[2, posstart],
+    Aside = Asides[2, Astart],
+    poswords = poswords,
+    negwords = negwords,
+    nPos = nPos,
+    nNeg = nNeg,
+    Awords = Awords,
+    Bwords = Bwords,
+    nA = nA,
+    nB = nB,
+    imgs = imgs,
+    pause = pause,
+    note = note,
+    errorpause = errorpause,
+    correct.error = correct.error,
+    norepeat = norepeat,
+    out = paste("Q", qids[2], " JavaScript_2.txt", sep = "")
+  )
 
-  writeIATjs(type = "combined",
-             combined.type=combined.type,
-             n = n[3],
-             tgtType = tgtType,
-             tgtCol = tgtCol,
-             catType = catType,
-             catCol = catCol,
-             posside=possides[3,posstart],
-             Aside = Asides[3,Astart],
-             poswords = poswords,
-             negwords = negwords,
-             nPos = nPos,
-             nNeg = nNeg,
-             nA = nA,
-             nB = nA,
-             Awords = Awords,
-             Bwords = Bwords,
-             imgs=imgs,
-             pause=pause,
-             note=note,
-             errorpause=errorpause,
-             correct.error=correct.error,
-             norepeat=norepeat,
-             out = paste("Q",qids[3], " JavaScript_3.txt",sep=""))
+  writeIATjs(
+    type = "combined",
+    combined.type = combined.type,
+    n = n[3],
+    tgtType = tgtType,
+    tgtCol = tgtCol,
+    catType = catType,
+    catCol = catCol,
+    posside = possides[3, posstart],
+    Aside = Asides[3, Astart],
+    poswords = poswords,
+    negwords = negwords,
+    nPos = nPos,
+    nNeg = nNeg,
+    nA = nA,
+    nB = nA,
+    Awords = Awords,
+    Bwords = Bwords,
+    imgs = imgs,
+    pause = pause,
+    note = note,
+    errorpause = errorpause,
+    correct.error = correct.error,
+    norepeat = norepeat,
+    out = paste("Q", qids[3], " JavaScript_3.txt", sep = "")
+  )
 
-  writeIATjs(type = "combined",
-             combined.type=combined.type,
-             n = n[4],
-             tgtType = tgtType,
-             tgtCol = tgtCol,
-             catType = catType,
-             catCol = catCol,
-             posside=possides[4,posstart],
-             Aside = Asides[4,Astart],
-             poswords = poswords,
-             negwords = negwords,
-             nPos = nPos,
-             nNeg = nNeg,
-             nA = nA,
-             nB = nA,
-             Awords = Awords,
-             Bwords = Bwords,
-             imgs=imgs,
-             pause=pause,
-             note=note,
-             errorpause=errorpause,
-             correct.error=correct.error,
-             norepeat=norepeat,
-             out = paste("Q",qids[4], " JavaScript_4.txt",sep=""))
+  writeIATjs(
+    type = "combined",
+    combined.type = combined.type,
+    n = n[4],
+    tgtType = tgtType,
+    tgtCol = tgtCol,
+    catType = catType,
+    catCol = catCol,
+    posside = possides[4, posstart],
+    Aside = Asides[4, Astart],
+    poswords = poswords,
+    negwords = negwords,
+    nPos = nPos,
+    nNeg = nNeg,
+    nA = nA,
+    nB = nA,
+    Awords = Awords,
+    Bwords = Bwords,
+    imgs = imgs,
+    pause = pause,
+    note = note,
+    errorpause = errorpause,
+    correct.error = correct.error,
+    norepeat = norepeat,
+    out = paste("Q", qids[4], " JavaScript_4.txt", sep = "")
+  )
 
-  #whatever swaps here--garget or category--is what block 5 type should be. Populates stimuli builder
-  writeIATjs(type = swap,
-             combined.type=combined.type,
-             n = n[5],
-             tgtType = tgtType,
-             tgtCol = tgtCol,
-             catType = catType,
-             catCol = catCol,
-             posside = possides[5,posstart],
-             Aside = Asides[5,Astart],
-             poswords = poswords,
-             negwords = negwords,
-             nPos = nPos,
-             nNeg = nNeg,
-             Awords = Awords,
-             Bwords = Bwords,
-             nA = nA,
-             nB = nB,
-             imgs=imgs,
-             pause=pause,
-             note=note,
-             errorpause=errorpause,
-             correct.error=correct.error,
-             norepeat=norepeat,
-             out = paste("Q",qids[5], " JavaScript_5.txt",sep=""))
+  # whatever swaps here--garget or category--is what block 5 type should be. Populates stimuli builder
+  writeIATjs(
+    type = swap,
+    combined.type = combined.type,
+    n = n[5],
+    tgtType = tgtType,
+    tgtCol = tgtCol,
+    catType = catType,
+    catCol = catCol,
+    posside = possides[5, posstart],
+    Aside = Asides[5, Astart],
+    poswords = poswords,
+    negwords = negwords,
+    nPos = nPos,
+    nNeg = nNeg,
+    Awords = Awords,
+    Bwords = Bwords,
+    nA = nA,
+    nB = nB,
+    imgs = imgs,
+    pause = pause,
+    note = note,
+    errorpause = errorpause,
+    correct.error = correct.error,
+    norepeat = norepeat,
+    out = paste("Q", qids[5], " JavaScript_5.txt", sep = "")
+  )
 
-  writeIATjs(type = "combined",
-             combined.type=combined.type,
-             n = n[6],
-             tgtType = tgtType,
-             tgtCol = tgtCol,
-             catType = catType,
-             catCol = catCol,
-             posside=possides[6,posstart],
-             Aside = Asides[6,Astart],
-             poswords = poswords,
-             negwords = negwords,
-             nPos = nPos,
-             nNeg = nNeg,
-             nA = nA,
-             nB = nA,
-             Awords = Awords,
-             Bwords = Bwords,
-             imgs=imgs,
-             pause=pause,
-             note=note,
-             errorpause=errorpause,
-             correct.error=correct.error,
-             norepeat=norepeat,
-             out = paste("Q",qids[6], " JavaScript_6.txt",sep=""))
+  writeIATjs(
+    type = "combined",
+    combined.type = combined.type,
+    n = n[6],
+    tgtType = tgtType,
+    tgtCol = tgtCol,
+    catType = catType,
+    catCol = catCol,
+    posside = possides[6, posstart],
+    Aside = Asides[6, Astart],
+    poswords = poswords,
+    negwords = negwords,
+    nPos = nPos,
+    nNeg = nNeg,
+    nA = nA,
+    nB = nA,
+    Awords = Awords,
+    Bwords = Bwords,
+    imgs = imgs,
+    pause = pause,
+    note = note,
+    errorpause = errorpause,
+    correct.error = correct.error,
+    norepeat = norepeat,
+    out = paste("Q", qids[6], " JavaScript_6.txt", sep = "")
+  )
 
-  writeIATjs(type = "combined",
-             combined.type=combined.type,
-             n = n[7],
-             tgtType = tgtType,
-             tgtCol = tgtCol,
-             catType = catType,
-             catCol = catCol,
-             posside=possides[7,posstart],
-             Aside = Asides[7,Astart],
-             poswords = poswords,
-             negwords = negwords,
-             nPos = nPos,
-             nNeg = nNeg,
-             nA = nA,
-             nB = nA,
-             Awords = Awords,
-             Bwords = Bwords,
-             imgs=imgs,
-             pause=pause,
-             note=note,
-             errorpause=errorpause,
-             correct.error=correct.error,
-             norepeat=norepeat,
-             out = paste("Q",qids[7], " JavaScript_7.txt",sep=""))
+  writeIATjs(
+    type = "combined",
+    combined.type = combined.type,
+    n = n[7],
+    tgtType = tgtType,
+    tgtCol = tgtCol,
+    catType = catType,
+    catCol = catCol,
+    posside = possides[7, posstart],
+    Aside = Asides[7, Astart],
+    poswords = poswords,
+    negwords = negwords,
+    nPos = nPos,
+    nNeg = nNeg,
+    nA = nA,
+    nB = nA,
+    Awords = Awords,
+    Bwords = Bwords,
+    imgs = imgs,
+    pause = pause,
+    note = note,
+    errorpause = errorpause,
+    correct.error = correct.error,
+    norepeat = norepeat,
+    out = paste("Q", qids[7], " JavaScript_7.txt", sep = "")
+  )
 
   ### change the html text
   blocknames <- c("html_1.txt", "html_2.txt", "html_3.txt", "html_4.txt", "html_5.txt", "html_6.txt", "html_7.txt")
@@ -681,9 +783,9 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
   ## NOTE: HTML files are hard-coded with the defaults (green for targets, black for categories). Thus, these just need to be swapped out for tgtCol and catCol regardless of configuration.
 
   ## Keep the A starts right, good format from the source files
-  if (suffix == "rp"){
-    for (i in 1:length(blocknames)){
-      bltemp <- readLines(blocknames[i], warn=F)
+  if (suffix == "rp") {
+    for (i in 1:length(blocknames)) {
+      bltemp <- readLines(blocknames[i], warn = F)
       bltemp <- gsub("tgtA", Aname, bltemp)
       bltemp <- gsub("tgtCol", tgtCol, bltemp)
       bltemp <- gsub("tgtB", Bname, bltemp)
@@ -694,20 +796,20 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       if (tolower(tgtCol) != "black" || tolower(catCol) != "black") {
         bltemp <- gsub("<!-- colins -->", "The label/item colors may help you identify the appropriate category.", bltemp)
       }
-      if (correct.error==T) {
+      if (correct.error == T) {
         bltemp <- gsub("<!--errorins-->", "Correct errors by hitting the other key.", bltemp)
       }
 
-      con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb")
-      writeLines(as.matrix(bltemp), con,sep="\n")
+      con <- file(paste("Q", qids[i], " ", blocknames[i], sep = ""), open = "wb")
+      writeLines(as.matrix(bltemp), con, sep = "\n")
       close(con)
     }
   }
 
   # A starts right, bad
-  if (suffix == "rn"){
-    for (i in 1:length(blocknames)){
-      bltemp <- readLines(blocknames[i], warn=F)
+  if (suffix == "rn") {
+    for (i in 1:length(blocknames)) {
+      bltemp <- readLines(blocknames[i], warn = F)
       bltemp <- gsub("tgtA", Aname, bltemp)
       bltemp <- gsub("tgtB", Bname, bltemp)
       bltemp <- gsub("tgtCol", tgtCol, bltemp)
@@ -718,19 +820,19 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       if (tolower(tgtCol) != "black" || tolower(catCol) != "black") {
         bltemp <- gsub("<!-- colins -->", "The label/item colors may help you identify the appropriate category.", bltemp)
       }
-      if (correct.error==T) {
+      if (correct.error == T) {
         bltemp <- gsub("<!--errorins-->", "Correct errors by hitting the other key.", bltemp)
       }
-      con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb")
-      writeLines(as.matrix(bltemp), con,sep="\n")
+      con <- file(paste("Q", qids[i], " ", blocknames[i], sep = ""), open = "wb")
+      writeLines(as.matrix(bltemp), con, sep = "\n")
       close(con)
     }
   }
 
   # A starts left, bad
-  if (suffix == "ln"){
-    for (i in 1:length(blocknames)){
-      bltemp <- readLines(blocknames[i], warn=F)
+  if (suffix == "ln") {
+    for (i in 1:length(blocknames)) {
+      bltemp <- readLines(blocknames[i], warn = F)
       bltemp <- gsub("tgtA", Bname, bltemp)
       bltemp <- gsub("tgtB", Aname, bltemp)
       bltemp <- gsub("tgtCol", tgtCol, bltemp)
@@ -741,19 +843,19 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       if (tolower(tgtCol) != "black" || tolower(catCol) != "black") {
         bltemp <- gsub("<!-- colins -->", "The label/item colors may help you identify the appropriate category.", bltemp)
       }
-      if (correct.error==T) {
+      if (correct.error == T) {
         bltemp <- gsub("<!--errorins-->", "Correct errors by hitting the other key.", bltemp)
       }
-      con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb")
-      writeLines(as.matrix(bltemp), con,sep="\n")
+      con <- file(paste("Q", qids[i], " ", blocknames[i], sep = ""), open = "wb")
+      writeLines(as.matrix(bltemp), con, sep = "\n")
       close(con)
     }
   }
 
   ## A starts left, good
-  if (suffix == "lp"){
-    for (i in 1:length(blocknames)){
-      bltemp <- readLines(blocknames[i], warn=F)
+  if (suffix == "lp") {
+    for (i in 1:length(blocknames)) {
+      bltemp <- readLines(blocknames[i], warn = F)
       bltemp <- gsub("tgtA", Bname, bltemp)
       bltemp <- gsub("tgtB", Aname, bltemp)
       bltemp <- gsub("tgtCol", tgtCol, bltemp)
@@ -764,11 +866,11 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
       if (tolower(tgtCol) != "black" || tolower(catCol) != "black") {
         bltemp <- gsub("<!-- colins -->", "The label/item colors may help you identify the appropriate category.", bltemp)
       }
-      if (correct.error==T) {
+      if (correct.error == T) {
         bltemp <- gsub("<!--errorins-->", "Correct errors by hitting the other key.", bltemp)
       }
-      con <- file(paste("Q",qids[i], " ",blocknames[i],sep=""), open="wb")
-      writeLines(as.matrix(bltemp), con,sep="\n")
+      con <- file(paste("Q", qids[i], " ", blocknames[i], sep = ""), open = "wb")
+      writeLines(as.matrix(bltemp), con, sep = "\n")
       close(con)
     }
   }
@@ -783,7 +885,7 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
   file.remove("html_5.txt")
   file.remove("html_6.txt")
   file.remove("html_7.txt")
-  setwd(mainDir) #revert WD back to original
+  setwd(mainDir) # revert WD back to original
 }
 
 
@@ -830,277 +932,298 @@ writeIATblocks <- function(startqid=1, combined.type="alternating", foldernum=1,
 #' @examples \dontrun{
 #'
 #' ### A words-only IAT with recommended settings. IAT examines insects vs. flowers
-#'     and is named "flowins". Recommended settings builds a QSF file automatically
-#'     with forced error correction and a note reminding participants of the instructions.
-#' ## Note: the following are specified below for example purposes but are specified
-#'     by default automatically and can be omitted: coloring of stimuli,
-#'     number of trials per block, pause between trials.
+#' #   and is named "flowins". Recommended settings builds a QSF file automatically
+#' #   with forced error correction and a note reminding participants of the instructions.
+#' ### Note: the following are specified below for example purposes but are specified
+#' #   by default automatically and can be omitted: coloring of stimuli,
+#' #   number of trials per block, pause between trials.
 #'
-#' writeIATfull(IATname="flowins",
-#'            posname="Pleasant",
-#'            negname="Unpleasant",
-#'            Aname="Flowers",
-#'            Bname="Insects",
-#'            catType="words",
-#'            poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-#'            negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-#'            tgtType="words",
-#'            Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-#'            Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+#' writeIATfull(
+#'   IATname = "flowins",
+#'   posname = "Pleasant",
+#'   negname = "Unpleasant",
+#'   Aname = "Flowers",
+#'   Bname = "Insects",
+#'   catType = "words",
+#'   poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+#'   negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+#'   tgtType = "words",
+#'   Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+#'   Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 #'
-#'            #advanced options with recommended IAT settings
-#'            n=c(20, 20, 20, 40, 40, 20, 40),
-#'            qsf=T,
-#'            note=T,
-#'            correct.error=T,
-#'            pause=250,
-#'            tgtCol="black",
-#'            catCol="green"
+#'   # advanced options with recommended IAT settings
+#'   n = c(20, 20, 20, 40, 40, 20, 40),
+#'   qsf = T,
+#'   note = T,
+#'   correct.error = T,
+#'   pause = 250,
+#'   tgtCol = "black",
+#'   catCol = "green"
 #' )
 #'
-#'  ### Same IAT but with the persistent task directions disabled (\code{note=FALSE}),
-#'      forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause
-#'      for the error message (\code{errorpause=300}).
+#' ### Same IAT but with the persistent task directions disabled (\code{note=FALSE}),
+#' #   forced error correction disabled (\code{correct.error=FALSE}) and a 300 ms pause
+#' #   for the error message (\code{errorpause=300}).
 #'
-#'writeIATfull(IATname="flowins",
-#'             posname="Pleasant",
-#'             negname="Unpleasant",
-#'             Aname="Flowers",
-#'             Bname="Insects",
-#'             catType="words",
-#'             poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-#'             negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-#'             tgtType="words",
-#'             Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-#'             Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+#' writeIATfull(
+#'   IATname = "flowins",
+#'   posname = "Pleasant",
+#'   negname = "Unpleasant",
+#'   Aname = "Flowers",
+#'   Bname = "Insects",
+#'   catType = "words",
+#'   poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+#'   negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+#'   tgtType = "words",
+#'   Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+#'   Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 #'
-#'             #advanced options
-#'             n=c(20, 20, 20, 40, 40, 20, 40),
-#'             qsf=T,
-#'             note=F,
-#'             correct.error=F,
-#'             pause=250,
-#'             errorpause=300,
-#'             tgtCol="black",
-#'             catCol="green"
-#')
+#'   # advanced options
+#'   n = c(20, 20, 20, 40, 40, 20, 40),
+#'   qsf = T,
+#'   note = F,
+#'   correct.error = F,
+#'   pause = 250,
+#'   errorpause = 300,
+#'   tgtCol = "black",
+#'   catCol = "green"
+#' )
 #'
 #' ### Same IAT as prior example but with 10 trials for all non-critical blocks
-#'     and 12 trials for all critical blocks.
+#' #   and 12 trials for all critical blocks.
 #'
-#'writeIATfull(IATname="flowins",
-#'             posname="Pleasant",
-#'             negname="Unpleasant",
-#'             Aname="Flowers",
-#'             Bname="Insects",
-#'             catType="words",
-#'             poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-#'             negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-#'             tgtType="words",
-#'             Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-#'             Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+#' writeIATfull(
+#'   IATname = "flowins",
+#'   posname = "Pleasant",
+#'   negname = "Unpleasant",
+#'   Aname = "Flowers",
+#'   Bname = "Insects",
+#'   catType = "words",
+#'   poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+#'   negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+#'   tgtType = "words",
+#'   Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+#'   Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 #'
-#'             #advanced options
-#'             n=c(10, 10, 10, 12, 10, 10, 12),
-#'             qsf=T,
-#'             note=F,
-#'             correct.error=F,
-#'             pause=250,
-#'             errorpause=300,
-#'             tgtCol="black",
-#'             catCol="green"
-#')
+#'   # advanced options
+#'   n = c(10, 10, 10, 12, 10, 10, 12),
+#'   qsf = T,
+#'   note = F,
+#'   correct.error = F,
+#'   pause = 250,
+#'   errorpause = 300,
+#'   tgtCol = "black",
+#'   catCol = "green"
+#' )
 #'
 #' ### An images-only IAT with recommended settings. Note that image URL vectors
-#'     are specified first to simplify the code.
-#' goodjpg <- c("www.website.com/gentle.jpg",
-#'              "www.website.com/enjoy.jpg",
-#'              "www.website.com/Heaven.jpg",
-#'              "www.website.com/Cheer.jpg")
+#' #   are specified first to simplify the code.
+#' goodjpg <- c(
+#'   "www.website.com/gentle.jpg",
+#'   "www.website.com/enjoy.jpg",
+#'   "www.website.com/Heaven.jpg",
+#'   "www.website.com/Cheer.jpg"
+#' )
 #'
-#' badjpg <- c("www.website.com/Poison.jpg",
-#'             "www.website.com/Evil.jpg.",
-#'             "www.website.com/Vomit.jpg",
-#'             "www.website.com/Ugly.jpg")
+#' badjpg <- c(
+#'   "www.website.com/Poison.jpg",
+#'   "www.website.com/Evil.jpg.",
+#'   "www.website.com/Vomit.jpg",
+#'   "www.website.com/Ugly.jpg"
+#' )
 #'
-#' Ajpg <- c("www.website.com/Orchid.jpg",
-#'           "www.website.com/Tulip.jpg",
-#'           "www.website.com/Rose.jpg",
-#'           "www.website.com/Daisy.jpg")
+#' Ajpg <- c(
+#'   "www.website.com/Orchid.jpg",
+#'   "www.website.com/Tulip.jpg",
+#'   "www.website.com/Rose.jpg",
+#'   "www.website.com/Daisy.jpg"
+#' )
 #'
-#' Bjpg <- c("www.website.com/Wasp.jpg",
-#'           "www.website.com/Flea.jpg",
-#'           "www.website.com/Moth.jpg",
-#'           "www.website.com/Bedbug.jpg")
+#' Bjpg <- c(
+#'   "www.website.com/Wasp.jpg",
+#'   "www.website.com/Flea.jpg",
+#'   "www.website.com/Moth.jpg",
+#'   "www.website.com/Bedbug.jpg"
+#' )
 #'
-#' writeIATfull(IATname="flowins",
-#'             posname="Pleasant",
-#'             negname="Unpleasant",
-#'             Aname="Flowers",
-#'             Bname="Insects",
-#'             catType="images",
-#'             posimgs = goodjpg,
-#'             negimgs = badjpg,
-#'             tgtType="images",
-#'             Aimgs = Ajpg,
-#'             Bimgs = Bjpg,
+#' writeIATfull(
+#'   IATname = "flowins",
+#'   posname = "Pleasant",
+#'   negname = "Unpleasant",
+#'   Aname = "Flowers",
+#'   Bname = "Insects",
+#'   catType = "images",
+#'   posimgs = goodjpg,
+#'   negimgs = badjpg,
+#'   tgtType = "images",
+#'   Aimgs = Ajpg,
+#'   Bimgs = Bjpg,
 #'
-#'             #advanced options with recommended IAT settings
-#'             n=c(20, 20, 20, 40, 40, 20, 40),
-#'             qsf=T,
-#'             note=T,
-#'             correct.error=T,
-#'             pause=250,
-#'             tgtCol="black",
-#'             catCol="green"
-#')
+#'   # advanced options with recommended IAT settings
+#'   n = c(20, 20, 20, 40, 40, 20, 40),
+#'   qsf = T,
+#'   note = T,
+#'   correct.error = T,
+#'   pause = 250,
+#'   tgtCol = "black",
+#'   catCol = "green"
+#' )
 #'
 #' ### Example IAT with images for categories and words for targets, with recommended settings.
-#' goodjpg <- c("www.website.com/gentle.jpg",
-#'              "www.website.com/enjoy.jpg",
-#'              "www.website.com/Heaven.jpg",
-#'              "www.website.com/Cheer.jpg")
+#' goodjpg <- c(
+#'   "www.website.com/gentle.jpg",
+#'   "www.website.com/enjoy.jpg",
+#'   "www.website.com/Heaven.jpg",
+#'   "www.website.com/Cheer.jpg"
+#' )
 #'
-#' badjpg <- c("www.website.com/Poison.jpg",
-#'             "www.website.com/Evil.jpg.",
-#'             "www.website.com/Vomit.jpg",
-#'             "www.website.com/Ugly.jpg")
+#' badjpg <- c(
+#'   "www.website.com/Poison.jpg",
+#'   "www.website.com/Evil.jpg.",
+#'   "www.website.com/Vomit.jpg",
+#'   "www.website.com/Ugly.jpg"
+#' )
 #'
-#'writeIATfull(IATname="flowins",
-#'             posname="Pleasant",
-#'             negname="Unpleasant",
-#'             Aname="Flowers",
-#'             Bname="Insects",
-#'             catType="images",
-#'             posimgs = goodjpg,
-#'             negimgs = badjpg,
-#'             tgtType="words",
-#'             Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-#'             Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+#' writeIATfull(
+#'   IATname = "flowins",
+#'   posname = "Pleasant",
+#'   negname = "Unpleasant",
+#'   Aname = "Flowers",
+#'   Bname = "Insects",
+#'   catType = "images",
+#'   posimgs = goodjpg,
+#'   negimgs = badjpg,
+#'   tgtType = "words",
+#'   Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+#'   Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 #'
-#'             #advanced options with recommended IAT settings
-#'             n=c(20, 20, 20, 40, 40, 20, 40),
-#'             qsf=T,
-#'             note=T,
-#'             correct.error=T,
-#'             pause=250,
-#'             tgtCol="black",
-#'             catCol="green"
-#')
+#'   # advanced options with recommended IAT settings
+#'   n = c(20, 20, 20, 40, 40, 20, 40),
+#'   qsf = T,
+#'   note = T,
+#'   correct.error = T,
+#'   pause = 250,
+#'   tgtCol = "black",
+#'   catCol = "green"
+#' )
 #'
 #' ### Example IAT with images for targets and words for categories, with recommended settings.
-#' Ajpg <- c("www.website.com/Orchid.jpg",
-#'           "www.website.com/Tulip.jpg",
-#'           "www.website.com/Rose.jpg",
-#'           "www.website.com/Daisy.jpg")
+#' Ajpg <- c(
+#'   "www.website.com/Orchid.jpg",
+#'   "www.website.com/Tulip.jpg",
+#'   "www.website.com/Rose.jpg",
+#'   "www.website.com/Daisy.jpg"
+#' )
 #'
-#' Bjpg <- c("www.website.com/Wasp.jpg",
-#'           "www.website.com/Flea.jpg",
-#'           "www.website.com/Moth.jpg",
-#'           "www.website.com/Bedbug.jpg")
+#' Bjpg <- c(
+#'   "www.website.com/Wasp.jpg",
+#'   "www.website.com/Flea.jpg",
+#'   "www.website.com/Moth.jpg",
+#'   "www.website.com/Bedbug.jpg"
+#' )
 #'
-#' writeIATfull(IATname="flowins",
-#'             posname="Pleasant",
-#'             negname="Unpleasant",
-#'             Aname="Flowers",
-#'             Bname="Insects",
-#'             catType="words",
-#'             poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-#'             negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-#'             tgtType="images",
-#'             Aimgs = Ajpg,
-#'             Bimgs = Bjpg,
+#' writeIATfull(
+#'   IATname = "flowins",
+#'   posname = "Pleasant",
+#'   negname = "Unpleasant",
+#'   Aname = "Flowers",
+#'   Bname = "Insects",
+#'   catType = "words",
+#'   poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+#'   negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+#'   tgtType = "images",
+#'   Aimgs = Ajpg,
+#'   Bimgs = Bjpg,
 #'
-#'             #advanced options with recommended IAT settings
-#'             n=c(20, 20, 20, 40, 40, 20, 40),
-#'             qsf=T,
-#'             note=T,
-#'             correct.error=T,
-#'             pause=250,
-#'             tgtCol="black",
-#'             catCol="green"
-#')
+#'   # advanced options with recommended IAT settings
+#'   n = c(20, 20, 20, 40, 40, 20, 40),
+#'   qsf = T,
+#'   note = T,
+#'   correct.error = T,
+#'   pause = 250,
+#'   tgtCol = "black",
+#'   catCol = "green"
+#' )
 #'
 #' ### EXAMPLE IAT USING 'norepeat=TRUE" TO SUPPRESS REPEAT STIMULI UNTIL ALL STIMULI
-#'     FROM THAT CATEGORY HAVE BEEN SEEN
+#' #   FROM THAT CATEGORY HAVE BEEN SEEN
 #'
-#'#'writeIATfull(IATname="flowins",
-#'             posname="Pleasant",
-#'             negname="Unpleasant",
-#'             Aname="Flowers",
-#'             Bname="Insects",
-#'             catType="words",
-#'             poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
-#'             negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
-#'             tgtType="words",
-#'             Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
-#'             Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
+#' writeIATfull(
+#'   IATname = "flowins",
+#'   posname = "Pleasant",
+#'   negname = "Unpleasant",
+#'   Aname = "Flowers",
+#'   Bname = "Insects",
+#'   catType = "words",
+#'   poswords = c("Gentle", "Enjoy", "Heaven", "Cheer", "Happy", "Love", "Friend"),
+#'   negwords = c("Poison", "Evil", "Gloom", "Damage", "Vomit", "Ugly", "Hurt"),
+#'   tgtType = "words",
+#'   Awords = c("Orchid", "Tulip", "Rose", "Daffodil", "Daisy", "Lilac", "Lily"),
+#'   Bwords = c("Wasp", "Flea", "Roach", "Centipede", "Moth", "Bedbug", "Gnat"),
 #'
-#'             #advanced options
-#'             n=c(20, 20, 20, 40, 40, 20, 40),
-#'             qsf=T,
-#'             note=F,
-#'             correct.error=F,
-#'             pause=250,
-#'             errorpause=300,
-#'             tgtCol="black",
-#'             catCol="green",
-#'             norepeat=TRUE
-#')
+#'   # advanced options
+#'   n = c(20, 20, 20, 40, 40, 20, 40),
+#'   qsf = T,
+#'   note = F,
+#'   correct.error = F,
+#'   pause = 250,
+#'   errorpause = 300,
+#'   tgtCol = "black",
+#'   catCol = "green",
+#'   norepeat = TRUE
+#' )
 #' }
-writeIATfull <- function(IATname="IAT",
+writeIATfull <- function(IATname = "IAT",
                          posname,
                          negname,
                          Aname,
                          Bname,
-                         n=c(20,20,20,40,40,20,40),
+                         n = c(20, 20, 20, 40, 40, 20, 40),
                          catType,
-                         catCol="green",
+                         catCol = "green",
                          poswords,
                          negwords,
                          posimgs,
                          negimgs,
                          tgtType,
-                         tgtCol="black",
+                         tgtCol = "black",
                          Awords,
                          Bwords,
                          Aimgs,
                          Bimgs,
-                         swap="target",
-                         qsf=FALSE,
-                         pause=250,
-                         errorpause=300,
-                         correct.error=TRUE,
-                         note=FALSE,
-                         norepeat=FALSE,
-                         startqid = 1
-) {
-
-  ##IF FORCED ERROR CORRECTION, MAKE ERRORPAUSE THE SAME AS THE REGULAR PAUSE
+                         swap = "target",
+                         qsf = FALSE,
+                         pause = 250,
+                         errorpause = 300,
+                         correct.error = TRUE,
+                         note = FALSE,
+                         norepeat = FALSE,
+                         startqid = 1) {
+  ## IF FORCED ERROR CORRECTION, MAKE ERRORPAUSE THE SAME AS THE REGULAR PAUSE
   # NOTE: ERRORPAUSE IS USED TO HANDLE ISI FOR ERROR TRIALS. IF FORCED ERROR CORRECTION,
   # WE WANT TO USE THE SAME PAUSE REGARDLESS OF ERROR OR NOT
-  if (correct.error==T){
+  if (correct.error == T) {
     errorpause <- pause
   }
 
-  if ((tgtType != "images") & (tgtType != "words")){
+  if ((tgtType != "images") & (tgtType != "words")) {
     stop("tgtType argument is not correctly specified.")
   }
 
-  if ((catType != "images") & (catType != "words")){
+  if ((catType != "images") & (catType != "words")) {
     stop("catType argument is not correctly specified.")
   }
 
-  if (length(n) != 7){
+  if (length(n) != 7) {
     stop("n argument is not correctly specified. You must provide the number of trials for all seven blocks.")
   }
 
-  if (swap!="target" & swap!="category") {
+  if (swap != "target" & swap != "category") {
     stop("the 'swap' argument is inccorectly specified. It must say either 'target' or 'category'")
-    }
+  }
 
   ## BY DEFAULT, IMPLEMENTS THE EASY IMAGE METHOD. nA, nB, nPos, and nNeg not specified by user in this version. Pulls that information from image URL vectors directly.
-  if(tgtType == "images" & catType == "words") {
+  if (tgtType == "images" & catType == "words") {
     # add error message if there are not appropriately specified images
     imgs <- c(Aimgs, Bimgs)
     nA <- length(Aimgs)
@@ -1110,7 +1233,7 @@ writeIATfull <- function(IATname="IAT",
   }
 
 
-  if(tgtType == "images" & catType == "images") {
+  if (tgtType == "images" & catType == "images") {
     # add error message if there are not appropriately specified images
     imgs <- c(posimgs, negimgs, Aimgs, Bimgs)
     nA <- length(Aimgs)
@@ -1119,14 +1242,14 @@ writeIATfull <- function(IATname="IAT",
     nNeg <- length(negimgs)
   }
 
-  if(tgtType == "words" & catType == "words") {
+  if (tgtType == "words" & catType == "words") {
     nA <- 0
     nB <- 0
     nPos <- 0
     nNeg <- 0
   }
 
-  if(tgtType == "words" & catType == "images") {
+  if (tgtType == "words" & catType == "images") {
     # add error message if there are not appropriately specified images
     imgs <- c(posimgs, negimgs)
     nPos <- length(posimgs)
@@ -1135,62 +1258,68 @@ writeIATfull <- function(IATname="IAT",
     nB <- 0
   }
 
-  #Enforce this to prevent errors
+  # Enforce this to prevent errors
   # May not be needed in v10 and up; keep for backwards compatibility
-  if(qsf==T){
+  if (qsf == T) {
     startqid <- 1
   }
 
   # not modifiable to user in v10.
   combined.type <- "alternating"
 
-    writeIATblocks(startqid=startqid, posstart="right", Astart="right", IATname=IATname, foldernum=1, n=n,
-                   posname = posname, negname = negname, Aname = Aname, Bname = Bname,
-                   catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
-                   tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
-                   swap=swap,
-                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
+  writeIATblocks(
+    startqid = startqid, posstart = "right", Astart = "right", IATname = IATname, foldernum = 1, n = n,
+    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
+    catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
+    tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
+    swap = swap,
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs
+  )
 
-    writeIATblocks(startqid=(startqid+7), posstart="left", Astart="right", IATname=IATname, foldernum=2, n=n,
-                   posname = posname, negname = negname, Aname = Aname, Bname = Bname,
-                   catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
-                   tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
-                   swap=swap,
-                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
+  writeIATblocks(
+    startqid = (startqid + 7), posstart = "left", Astart = "right", IATname = IATname, foldernum = 2, n = n,
+    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
+    catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
+    tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
+    swap = swap,
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs
+  )
 
-    writeIATblocks(startqid=(startqid+14), posstart="left", Astart="left", IATname=IATname, foldernum=3, n=n,
-                   posname = posname, negname = negname, Aname = Aname, Bname = Bname,
-                   catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
-                   tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
-                   swap=swap,
-                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
+  writeIATblocks(
+    startqid = (startqid + 14), posstart = "left", Astart = "left", IATname = IATname, foldernum = 3, n = n,
+    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
+    catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
+    tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
+    swap = swap,
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs
+  )
 
-    writeIATblocks(startqid=(startqid+21), posstart="right", Astart="left", IATname=IATname, foldernum=4, n=n,
-                   posname = posname, negname = negname, Aname = Aname, Bname = Bname,
-                   catType = catType, catCol=catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
-                   tgtType = tgtType, tgtCol=tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
-                   swap=swap,
-                   pause=pause, errorpause=errorpause, correct.error=correct.error, combined.type=combined.type, norepeat=norepeat, note=note, imgs = imgs)
+  writeIATblocks(
+    startqid = (startqid + 21), posstart = "right", Astart = "left", IATname = IATname, foldernum = 4, n = n,
+    posname = posname, negname = negname, Aname = Aname, Bname = Bname,
+    catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
+    tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
+    swap = swap,
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs
+  )
 
 
 
   ## if qsf argument is true, make a qsf file
   ## Thanks to Michal Kouril for this incredible code!
-  if(qsf==T){
-
-
-    #code below uses lowercase
+  if (qsf == T) {
+    # code below uses lowercase
     iatname <- IATname
 
-    #copy the template file to the wd
-    file.copy(system.file("codefiles", "FullTemplate_-_For_Shiny_V11.qsf", package="iatgen"), file.path(getwd()))
+    # copy the template file to the wd
+    file.copy(system.file("codefiles", "FullTemplate_-_For_Shiny_V11.qsf", package = "iatgen"), file.path(getwd()))
 
-    filename = function() {
-      paste('iat-', iatname, '.qsf', sep='')
+    filename <- function() {
+      paste("iat-", iatname, ".qsf", sep = "")
     }
 
 
-    qsfTemplate="FullTemplate_-_For_Shiny_V11.qsf"
+    qsfTemplate <- "FullTemplate_-_For_Shiny_V11.qsf"
 
     # library(jsonlite)
     # require(jsonlite)
@@ -1199,18 +1328,20 @@ writeIATfull <- function(IATname="IAT",
     q$SurveyName <- iatname
     q$SurveyEntry$SurveyName <- iatname
 
-    files=c(paste("1 ",iatname,"_rp", sep=''),
-            paste("2 ",iatname,"_rn", sep=''),
-            paste("3 ",iatname,"_lp", sep=''),
-            paste("4 ",iatname,"_ln", sep=''))
+    files <- c(
+      paste("1 ", iatname, "_rp", sep = ""),
+      paste("2 ", iatname, "_rn", sep = ""),
+      paste("3 ", iatname, "_lp", sep = ""),
+      paste("4 ", iatname, "_ln", sep = "")
+    )
 
 
     filecontent <- c()
-    txtfiles <- list.files(path=files, pattern="*.txt", full.names=T, recursive=T)
+    txtfiles <- list.files(path = files, pattern = "*.txt", full.names = T, recursive = T)
     cat(toJSON(txtfiles))
     lapply(txtfiles, function(x) {
-      cat(paste("reading file:",x,"\n"))
-      t <- readChar(x,file.info(x)$size) # load file
+      cat(paste("reading file:", x, "\n"))
+      t <- readChar(x, file.info(x)$size) # load file
       k <- gsub("^.*/(Q[0-9]+) ([hJ]).*$", "\\1\\2", x)
       filecontent[[k]] <<- t
     })
@@ -1225,9 +1356,9 @@ writeIATfull <- function(IATname="IAT",
       if (!(m == 0)) {
         # q$SurveyElements$Payload[i][[1]]$DataExportTag
         qnumber <- gsub("^(Q[0-9]+) [RL][NP][0-9]$", "\\1", q$SurveyElements$Payload[i][[1]]$DataExportTag)
-        qnumberhtml <- paste(qnumber,'h',sep="")
-        qnumberjs <- paste(qnumber,'J',sep="")
-        paste(qnumberhtml,qnumberjs)
+        qnumberhtml <- paste(qnumber, "h", sep = "")
+        qnumberjs <- paste(qnumber, "J", sep = "")
+        paste(qnumberhtml, qnumberjs)
         q$SurveyElements$Payload[i][[1]]$QuestionText <- filecontent[[qnumberhtml]]
         q$SurveyElements$Payload[i][[1]]$QuestionJS <- filecontent[[qnumberjs]]
       } else {
@@ -1241,9 +1372,9 @@ writeIATfull <- function(IATname="IAT",
         m <- length(grep("Q[0-9]+ [RL][NP][0-9]", q$SurveyElements$Payload$DataExportTag[i]))
         if (!(m == 0)) {
           qnumber <- gsub("^(Q[0-9]+) [RL][NP][0-9]$", "\\1", q$SurveyElements$Payload$DataExportTag[i])
-          qnumberhtml <- paste(qnumber,'h',sep="")
-          qnumberjs <- paste(qnumber,'J',sep="")
-          paste(qnumberhtml,qnumberjs)
+          qnumberhtml <- paste(qnumber, "h", sep = "")
+          qnumberjs <- paste(qnumber, "J", sep = "")
+          paste(qnumberhtml, qnumberjs)
           q$SurveyElements$Payload$QuestionText[i] <- filecontent[[qnumberhtml]]
           q$SurveyElements$Payload$QuestionJS[i] <- filecontent[[qnumberjs]]
         }
@@ -1251,38 +1382,20 @@ writeIATfull <- function(IATname="IAT",
     }
 
     cat("Generating JSON....\n")
-    qjson <- toJSON(q,null="null",auto_unbox=T)
+    qjson <- toJSON(q, null = "null", auto_unbox = T)
     minify(qjson)
-    con <- file(filename(), open="wb")
+    con <- file(filename(), open = "wb")
     write(qjson, con)
     close(con)
 
 
-    #remove template
+    # remove template
     file.remove("FullTemplate_-_For_Shiny_V11.qsf")
 
-    #remove HTML and JavaScript folders if QSF
+    # remove HTML and JavaScript folders if QSF
     unlink(files[1], recursive = T)
     unlink(files[2], recursive = T)
     unlink(files[3], recursive = T)
     unlink(files[4], recursive = T)
   }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
