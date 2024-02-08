@@ -1,7 +1,7 @@
 Package: iatgen
 Type: Package
 Title: IATs for Qualtrics
-Version: 1.6.0
+Version: 1.7.0
 Authors@R: c(person("Tom","Carpenter", role = c("aut"), email = "tcarpenter@spu.edu"),
 	     person("Michal","Kouril", role = c("aut", "cre"), email = "michal.kouril@cchmc.org"))
 Description: Generate and analyze IATs (Implicit Association Tests) for use in Qualtrics
