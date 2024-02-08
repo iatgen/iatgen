@@ -1,6 +1,6 @@
 context("build qsf process")
 
-test_that("Function to create qsf", {
+writeIATfull_canned_recipe <- function() {
   writeIATfull(
     IATname = "flowins",
     posname = "Pleasant",
@@ -23,5 +23,33 @@ test_that("Function to create qsf", {
     tgtCol = "black",
     catCol = "green"
   )
+}
+
+test_that("Function to create qsf generates a qsf file with the correct name", {
+
+  # Remove file from previous testing for clean environment
+  if ("iat-flowins.qsf" %in% list.files()) {
+    file.remove("iat-flowins.qsf")
+  }
+  writeIATfull_canned_recipe()
+
   expect_true("iat-flowins.qsf" %in% list.files())
+  # Clean generated files for future tests to run in clean environment
+  file.remove("iat-flowins.qsf")
+})
+
+# Note: there may be a cleaner way using `expect_snapshot_output_file()`
+test_that("Function to create qsf creates a qsf withe the expected contents", {
+  #generated_contents <- character()
+  #expected_contents <- character()
+
+  # Remove file from previous testing for clean environment
+  if ("iat-flowins.qsf" %in% list.files()) {
+    file.remove("iat-flowins.qsf")
+  }
+  writeIATfull_canned_recipe()
+
+  expect_true(compare_file_text("expected_iat-flowins.qsf", "iat-flowins.qsf"))
+  # Clean generated files for future tests to run in clean environment
+  file.remove("iat-flowins.qsf")
 })
