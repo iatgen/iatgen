@@ -830,11 +830,11 @@ Commons Attribution-NonCommercial 4.0 International License</a>.
 Authors
 -------
 
-The iatgen package was built and maintained by Tom Carpenter
-(<a href="mailto:tcarpenter@spu.edu" class="email">tcarpenter@spu.edu</a>),
-Michal Kouril, Ruth Pogacar, and Chris Pullig. An early prototype of the
-HTML and JavaScript were built by Aleksandr Chakroff. Questions
-regarding iatgen should be directed to Tom Carpenter.
+The iatgen package was originally built by Tom Carpenter,
+Michal Kouril, Ruth Pogacar, and Chris Pullig. It is now maintained by
+Michal Kouril and Ruth Pogacar.
+An early prototype of the HTML and JavaScript were built by Aleksandr Chakroff. 
+Questions regarding iatgen should be directed to the GitHub issues.
 
 Acknowledgments
 ---------------
