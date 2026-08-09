@@ -48,7 +48,7 @@ cleanIAT(
 
 \item{error.penalty.ms}{(Required if \code{error.penalty=TRUE}; set to \code{error.penalty.ms=600} by default). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. Can be manually set to any desired value. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}. Ignored if \code{error.penalty=FALSE}.}
 
-\item{inclusive.sd}{Unused parameter.}
+\item{inclusive.sd}{(Required, set \code{TRUE} by default). For testing and algorithm development only; leave enabled for actual analyses. When \code{TRUE}, D scores are divided by the inclusive SD of all clean trials across both blocks, per Greenwald et al. (2003). When \code{FALSE}, the denominator is instead the SD pooled across the two blocks, which does not follow the published D-score algorithm. Setting this to \code{FALSE} changes the resulting D scores and raises a warning.}
 }
 \value{
 Returns a list containing several important elements.

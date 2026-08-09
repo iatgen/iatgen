@@ -1,30 +1,44 @@
 context("alpha")
 
 test_that("IATalpha", {
-  filename <- "iat_small.csv"
-  allContent <- readLines(filename, encoding = "UTF-8")
-  allContent <- allContent[-2]
-  dat <- read.csv(textConnection(allContent), header = TRUE, stringsAsFactors = FALSE)
+  clean <- clean_iat_fixture()
 
-  suppressWarnings(
-    dat$compatible.crit <- combineIATfourblocks(dat$Q4.RP4, dat$Q18.LP4, dat$Q14.RN7, dat$Q28.LN7)
-  )
-  suppressWarnings(
-    dat$incompatible.crit <- combineIATfourblocks(dat$Q7.RP7, dat$Q21.LP7, dat$Q11.RN4, dat$Q25.LN4)
-  )
-  suppressWarnings(
-    dat$compatible.prac <- combineIATfourblocks(dat$Q3.RP3, dat$Q17.LP3, dat$Q13.RN6, dat$Q27.LN6)
-  )
-  suppressWarnings(
-    dat$incompatible.prac <- combineIATfourblocks(dat$Q6.RP6, dat$Q20.LP6, dat$Q10.RN3, dat$Q24.LN3)
-  )
-
-  clean <- cleanIAT(
-    dat$compatible.prac, dat$compatible.crit,
-    dat$incompatible.prac, dat$incompatible.crit
-  )
-
-  alpha <- IATalpha(clean)
+  alpha <- quiet_IATalpha(clean)
   alpha_total <- as.numeric(alpha$alpha.total)
   expect_equal(round(alpha_total, 4), 0.9444)
+})
+
+test_that("IATalpha reports practice, critical and total alphas", {
+  clean <- clean_iat_fixture()
+
+  alpha <- quiet_IATalpha(clean)
+
+  expect_named(alpha, c("alpha.prac", "alpha.crit", "alpha.total", "diffscores"))
+  for (a in c(alpha$alpha.prac, alpha$alpha.crit, alpha$alpha.total)) {
+    expect_true(is.finite(as.numeric(a)))
+    expect_lte(as.numeric(a), 1)
+  }
+})
+
+test_that("the difference-score matrix pairs every practice and critical trial", {
+  clean <- clean_iat_fixture()
+
+  alpha <- quiet_IATalpha(clean)
+
+  # one row per participant, one column per paired trial (20 practice + 40 critical)
+  expect_equal(nrow(alpha$diffscores), 2)
+  expect_equal(ncol(alpha$diffscores), 60)
+  expect_equal(colnames(alpha$diffscores), paste0("trial", 1:60))
+})
+
+test_that("difference scores are compatible minus incompatible latencies", {
+  clean <- clean_iat_fixture()
+
+  alpha <- quiet_IATalpha(clean)
+
+  # the first 20 columns come from the practice blocks
+  expect_equal(
+    as.numeric(alpha$diffscores[1, 1:20]),
+    as.numeric(clean$clean.latencies.prac1[1, ] - clean$clean.latencies.prac2[1, ])
+  )
 })

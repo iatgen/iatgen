@@ -1,3 +1,11 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-.github
+^\.github$
+^\.claude$
+# Generator for the synthetic test fixture; not needed in the built package.
+^data-raw$
+# Scratch copies of the Qualtrics template kept for manual diffing. They are not read
+# by any code and would otherwise add ~1.9 MB to the built package.
+^inst/codefiles/fnew$
+^inst/codefiles/fold$
+^inst/codefiles/FullTemplate_-_For_Shiny_V11qsf\.qsf$
