@@ -1,0 +1,88 @@
+name: test-coverage
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    name: coverage
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Coverage must not fall below this. The package currently sits at 100%:
+      # code that genuinely cannot be reached from the public API is marked
+      # `# nocov start` / `# nocov end` with a comment saying why, rather than
+      # being left to drag the figure down. Lower this line if that becomes
+      # impractical.
+      COVERAGE_THRESHOLD: "100"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr, any::testthat
+          needs: coverage
+
+      - name: Measure coverage and write the job summary
+        shell: Rscript {0}
+        run: |
+          threshold <- as.numeric(Sys.getenv("COVERAGE_THRESHOLD", "100"))
+
+          cov <- covr::package_coverage(type = "tests", quiet = TRUE)
+          per.file <- covr::coverage_to_list(cov)$filecoverage
+          total <- covr::percent_coverage(cov)
+
+          pct <- function(x) sprintf("%.2f%%", x)
+
+          out <- c(
+            "## Test coverage",
+            "",
+            sprintf("**Overall: %s** &nbsp;&nbsp; (required: %s)", pct(total), pct(threshold)),
+            "",
+            "| File | Coverage | |",
+            "| :-- | --: | :-: |"
+          )
+          for (f in names(per.file)) {
+            v <- per.file[[f]]
+            mark <- if (v >= threshold) ":white_check_mark:" else ":warning:"
+            out <- c(out, sprintf("| `%s` | %s | %s |", f, pct(v), mark))
+          }
+          out <- c(out, sprintf("| **Total** | **%s** | |", pct(total)))
+
+          uncovered <- as.data.frame(cov)
+          uncovered <- uncovered[uncovered$value == 0, c("filename", "first_line")]
+          if (nrow(uncovered) > 0) {
+            out <- c(out, "", "<details><summary>Uncovered lines</summary>", "", "```")
+            out <- c(out, sprintf("%s:%d", uncovered$filename, uncovered$first_line))
+            out <- c(out, "```", "", "</details>")
+          } else {
+            out <- c(out, "", "Every expression is either covered or explicitly marked `# nocov`.")
+          }
+
+          # Renders on the run's summary page in the Actions tab.
+          step.summary <- Sys.getenv("GITHUB_STEP_SUMMARY")
+          if (nzchar(step.summary)) writeLines(out, step.summary)
+          cat(paste(out, collapse = "\n"), "\n", sep = "")
+
+          if (total < threshold) {
+            stop(sprintf("Coverage %s is below the required %s.", pct(total), pct(threshold)),
+                 call. = FALSE)
+          }
+
+      - name: Show test failures if coverage could not be measured
+        if: failure()
+        shell: bash
+        run: |
+          find "${{ runner.temp }}/package" -name '*.Rout*' -exec cat '{}' \; || true

@@ -1,6 +1,9 @@
 iatgen
 ==============
 
+[![ci-tests](https://github.com/iatgen/iatgen/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/iatgen/iatgen/actions/workflows/ci-tests.yml)
+[![test-coverage](https://github.com/iatgen/iatgen/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/iatgen/iatgen/actions/workflows/test-coverage.yml)
+
 iatgen (pronounced “I A T gen”) is an R package and Shiny App that
 builds and analyzes Qualtrics surveys that contain IATs (Implicit
 Association Tests; Greenwald et al., 1998) following a procedure
