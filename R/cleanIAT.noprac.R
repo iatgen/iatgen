@@ -1,3 +1,19 @@
+# ---------------------------------------------------------------------------------
+# KEEP IN SYNC WITH R/cleanIAT.R
+#
+# This function is cleanIAT() with the two practice blocks removed. The two share
+# roughly 650 near-identical lines, so a fix made in one almost always belongs in the
+# other. See the header of R/cleanIAT.R for the full list of intended differences; in
+# brief, this version drops the prac1 / prac2 arguments and their returned elements,
+# scores D from the critical blocks alone rather than averaging practice and critical,
+# and accepts but ignores inclusive.sd.
+#
+# Everything else - parsing, timeout / fast-trial / fast-participant dropping, error
+# penalties, error-rate reporting - is meant to behave identically to cleanIAT().
+# tests/testthat/test-dscore-oracle.R checks both against an independent implementation
+# of the Greenwald et al. (2003) algorithm.
+# ---------------------------------------------------------------------------------
+
 #' Data analysis function: Cleans the IAT without Practice Blocks
 #' @description A variant of \code{cleanIAT()}. Inputs and outputs are identical, except that this function accepts only two blocks. This can be used when practice blocks are omitted from the IAT.
 #' @param crit1 A vector of that same kind of critical responses (e.g., compatible critical), one per participant.
@@ -95,6 +111,19 @@ cleanIAT.noprac <- function(crit1, crit2, timeout.drop = TRUE, timeout.ms = 1000
   # update skip counts to reflect number of validly completed IATs
   skipped.crit1 <- crit1 == ""
   skipped.crit2 <- crit2 == ""
+
+  # If every participant is blank in a block there is nothing to score. This is almost
+  # always a mistyped variable name, but it can also happen when a whole block is lost
+  # to browser errors. Report it here; without this the failure surfaces much later as
+  # an opaque "argument is of length zero" from inside the trial-parsing loops.
+  empty.blocks <- c(crit1 = all(skipped.crit1), crit2 = all(skipped.crit2))
+  if (any(empty.blocks)) {
+    stop(
+      "No usable IAT data in: ", paste(names(empty.blocks)[empty.blocks], collapse = ", "),
+      ". Every participant is blank in that block, so there is nothing to score. ",
+      "Please check your data / variable names and try again."
+    )
+  }
 
 
   ## BUILD data frames

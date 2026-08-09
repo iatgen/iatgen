@@ -1,3 +1,24 @@
+# ---------------------------------------------------------------------------------
+# KEEP IN SYNC WITH R/cleanIAT.noprac.R
+#
+# cleanIAT() and cleanIAT.noprac() are parallel implementations of the same scoring
+# algorithm; roughly 650 lines are near-identical. A fix made here almost always needs
+# making there as well. The duplication is why the two can silently drift apart.
+#
+# What legitimately differs:
+#   * arguments    - cleanIAT.noprac() drops prac1 and prac2
+#   * D score      - here D is the mean of D.prac and D.crit; there it is D.crit alone
+#   * return value - cleanIAT.noprac() returns a strict subset: no *.prac1 / *.prac2
+#                    elements, and no D.prac, D.crit, diff.prac or inclusive.sd.prac
+#   * inclusive.sd - honoured here (switches to a pooled within-block SD, and warns);
+#                    accepted but ignored by cleanIAT.noprac(), as its docs state
+#
+# Everything else - parsing, timeout / fast-trial / fast-participant dropping, error
+# penalties, error-rate reporting - is meant to behave identically. Both are checked
+# against an independent implementation of the Greenwald et al. (2003) algorithm in
+# tests/testthat/test-dscore-oracle.R, which is the cheapest way to catch drift.
+# ---------------------------------------------------------------------------------
+
 #' Data analysis function: Processes and cleans raw IAT data
 #' @description Prior to running, please see \code{combineIATfourblocks()}. This function processes, cleans, and scores the combined IAT data. In addition, it returns diagnostics (see examples, below). By default, the function implements the D-score algorithm (Greenwald et al., 2003, p 214, center column). Because it assumes users were forced to correct errors, no error penalty is imposed (unless the user requests it; see below). The function can be easily configured to do other scoring procedures as well. The function accepts as an input four vectors of IAT responses (see \code{prac1}, \code{crit1}, \code{prac2}, and \code{crit2}, below). It returns a list containing a variety of IAT variables, including matrices of clean latencies and other information (see below). The most important is \code{clean$D}, which is the final D scores for the analysis. Users can also extract clean block means for each participant using \code{clean$clean.means.prac1}, \code{clean$clean.means.crit1}, \code{clean$clean.means.prac2}, and \code{clean$clean.means.crit2}. Users can extract matrices of clean latencies using \code{clean$clean.latencies.prac1}, \code{clean$clean.latencies.crit1}, etc. Raw latencies can be requested with \code{clean$raw.latencies.prac1}, etc. Users can request to know whether a trial was correct with \code{clean$clean.correct.prac1}, etc. and precisely which stimulus was used on a given trial with \code{clean$clean.stim.number.prac1}, etc. (Stimuli are numbered based on their order entered within each category and following the sequence "positive, negative, tgtA, tgtB". For example, stimulus 1 is the first positive stimulus). See below for more information on what is returned from this function. The data cleaning function adheres to Greenwald et al. (2003; see also Lane et al., 2005, p. 92 for a simplified table of data cleaning steps). There are four main data cleaning options. First, long responses are usually dealt with by setting \code{timeout.drop=TRUE} (enabled by default), which drops individual trials over a given threshold (\code{timeout.ms}, which is 10000 ms by default). Next, overly short responses (i.e., button mashing) are dealt with by setting \code{fastprt.drop=TRUE} (enabled by default), which drops participants who have too many fast responses (more than a \code{fastprt.percent} proportion [default = .10] of responses faster than \code{fastprt.ms} [default = 300 ms]). Alternatively, one can remove individual fast trials by setting \code{fasttrial.drop=TRUE} (disabled by default), which uses a default threshold of \code{fasttrial.ms=400} ms. (This is seldom used but enables users to use alternative scoring methods [e.g., Greenwald et al., 2003, p 214, right column]). Finally, an error penalty is imposed on incorrect responses in some variants. If the IAT forces participants to correct errors, then no error penalty should be imposed (\code{error.penalty=FALSE}, the default setting). However, if participants are not forced to correct errors, one is added. Most common is a 600 ms penalty above the clean block mean (Greenwald et al., 2003), which is done by setting \code{error.penalty.ms=600}, sometimes known as the D600 scoring procedure. Greenwald et al. (2003) also suggested one could use two standard deviations instead of 600 ms, which is done by setting \code{error.penalty.ms="2SD"}. Finally, the function ensures that the data are not corrupted (i.e., JavaScript malfunction on participant's computer when completing the survey) by requiring that only appropriate characters (numbers, commas, "C", "X", and "END) are in the raw data.
 #' @param prac1 A vector of one kind of practice responses (e.g., compatible practice), one per participant.
@@ -13,7 +34,7 @@
 #' @param fasttrial.ms (Required if \code{fasttrial.drop=TRUE}; set to 400 ms by default). The threshold for \code{fastprt.drop}, above. Ignored if \code{fastprt.drop=FALSE}.
 #' @param error.penalty (Required, set \code{FALSE} by default). Logical value stating whether an error penalty is added. This should be disabled if forced error correction was used in the IAT and enabled otherwise (Greenwald et al., 2003).
 #' @param error.penalty.ms (Required if \code{error.penalty=TRUE}; set to \code{error.penalty.ms=600} by default). Following the D600 procedure, IAT errors are scored as the correct-trial block mean plus an error penalty of 600 ms. Can be manually set to any desired value. One can also use the 2SD penalty [Greenwald et al., 2003, p 214, right column] by setting  \code{error.penalty.ms="2SD"}. Ignored if \code{error.penalty=FALSE}.
-#' @param inclusive.sd Unused parameter.
+#' @param inclusive.sd (Required, set \code{TRUE} by default). For testing and algorithm development only; leave enabled for actual analyses. When \code{TRUE}, D scores are divided by the inclusive SD of all clean trials across both blocks, per Greenwald et al. (2003). When \code{FALSE}, the denominator is instead the SD pooled across the two blocks, which does not follow the published D-score algorithm. Setting this to \code{FALSE} changes the resulting D scores and raises a warning.
 #' @importFrom stats median sd
 #' @importFrom stringr str_count str_length str_locate str_replace_all str_sub
 #' @export
@@ -236,6 +257,24 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop = TRUE, timeout.ms
   skipped.crit1 <- crit1 == ""
   skipped.prac2 <- prac2 == ""
   skipped.crit2 <- crit2 == ""
+
+  # If every participant is blank in a block there is nothing to score. This is almost
+  # always a mistyped variable name, but it can also happen when a whole block is lost
+  # to browser errors. Report it here; without this the failure surfaces much later as
+  # an opaque "argument is of length zero" from inside the trial-parsing loops.
+  empty.blocks <- c(
+    prac1 = all(skipped.prac1),
+    crit1 = all(skipped.crit1),
+    prac2 = all(skipped.prac2),
+    crit2 = all(skipped.crit2)
+  )
+  if (any(empty.blocks)) {
+    stop(
+      "No usable IAT data in: ", paste(names(empty.blocks)[empty.blocks], collapse = ", "),
+      ". Every participant is blank in that block, so there is nothing to score. ",
+      "Please check your data / variable names and try again."
+    )
+  }
 
 
   ## BUILD data frames
@@ -1143,6 +1182,7 @@ cleanIAT <- function(prac1, crit1, prac2, crit2, timeout.drop = TRUE, timeout.ms
 
   #### FOR TESTING ONLY--DO NOT USE IN ACTUAL ANALYSEES ###
   if (inclusive.sd == FALSE) {
+    warning("inclusive.sd=FALSE replaces the inclusive SD with a pooled within-block SD. This does not follow the D-score algorithm of Greenwald et al. (2003) and is intended for testing and algorithm development only. The D scores returned are not standard D scores.")
     ## generate within-block SDs for pooling based on final clean data
     # prac1
     num.clean.trials.prac1 <- clean.latencies.prac1 # skip handling: make NA

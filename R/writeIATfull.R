@@ -210,9 +210,16 @@ writeIATstim <- function(type, combined.type = "alternating", n, posside, Aside,
   if (type == "category") {
     altsection <- ""
   }
+  # nocov start
+  # Unreachable from the public API: writeIATfull() hardcodes
+  # combined.type <- "alternating" and threads that value down to here, so the
+  # random-ordering variant never runs. Kept because random ordering of combined
+  # blocks is a documented IAT variant that could be re-enabled by exposing
+  # combined.type as an argument again.
   if (type == "combined" && combined.type == "random") {
     altsection <- ""
   }
+  # nocov end
   if (type == "combined" && combined.type == "alternating") {
     starttgts <- "\ttgts = ["
     startcats <- "\tcats = ["
@@ -290,6 +297,9 @@ writeIATstim <- function(type, combined.type = "alternating", n, posside, Aside,
 
   ### JAVASCRIPT CODE THAT ADDS CONTENT TO STIMULI
 
+  # nocov start
+  # Unreachable: see the note above on combined.type. This is the stimulus-building
+  # code for the random-ordering variant.
   if (type == "combined" && combined.type == "random") {
     call <- rbind(
       "\tvar quarter = stimuli.length / 4;",
@@ -304,6 +314,7 @@ writeIATstim <- function(type, combined.type = "alternating", n, posside, Aside,
       "\tshuffle(stimuli);"
     )
   }
+  # nocov end
 
 
   # The reverse is needed for 'norepeat' variants; stimuli displayer pulls from end. Doesn't impact standard variatn as it's random order anywayß
@@ -360,11 +371,15 @@ writeIATstim <- function(type, combined.type = "alternating", n, posside, Aside,
 
   fin <- rbind(trials, "", "", "\t//BUILD TRIALS", "", call)
 
+  # nocov start
+  # Unreachable: the only caller, writeIATjs(), always passes write.me = FALSE and
+  # writes the files itself. Retained so writeIATstim() can still be used standalone.
   if (write.me) {
     con <- file(out, open = "wb")
     writeLines(fin, con = out, sep = "\n")
     close(con)
   }
+  # nocov end
   return(fin)
 }
 
@@ -462,9 +477,13 @@ writeIATjs <- function(type, combined.type = "alternating", n, posside, Aside, c
 
 writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernum = 1, posname, negname, Aname, Bname, posstart, Astart, IATname = "IAT", n = c(20, 20, 20, 40, 40, 20, 40),
                            catType, catCol = "green", poswords, negwords, nPos, nNeg, posimgs, negimgs, tgtType, tgtCol = "black", nA, nB, Awords, Bwords, Aimgs, Bimgs,
-                           easy.img = F, pause = 250, errorpause = 300, correct.error = F, note = F, norepeat = FALSE, swap = "category", imgs) {
+                           easy.img = F, pause = 250, errorpause = 300, correct.error = F, note = F, norepeat = FALSE, swap = "category", imgs, outdir = getwd()) {
   # add error message if tgtType and catType are not both either "images" or "words
 
+  # nocov start
+  # Unreachable from the public API: writeIATfull() never passes easy.img, so it is
+  # always FALSE and the manual-count path below is taken instead. Kept as a parked
+  # alternative - see the author's note on the next line.
   if (easy.img == T) {
     # easy.img inferrs the nA and nB from the number of images in the vector. I prefer the manual control. Might this cause issues?
 
@@ -493,6 +512,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
       nNeg <- length(negimgs)
     }
   }
+  # nocov end
 
   if (easy.img == F) {
     if (tgtType == "images" || catType == "images") {
@@ -547,10 +567,14 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
 
   qids <- 0:6 + startqid
 
-  mainDir <- getwd()
+  mainDir <- outdir
   subDir <- paste(foldernum, " ", IATname, "_", suffix, sep = "")
 
-  if (!file.exists(subDir)) {
+  # restore the caller's working directory even if writing the block fails partway through
+  startDir <- getwd()
+  on.exit(setwd(startDir), add = TRUE)
+
+  if (!file.exists(file.path(mainDir, subDir))) {
     dir.create(file.path(mainDir, subDir))
   }
 
@@ -885,7 +909,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
   file.remove("html_5.txt")
   file.remove("html_6.txt")
   file.remove("html_7.txt")
-  setwd(mainDir) # revert WD back to original
+  setwd(startDir) # revert WD back to original
 }
 
 
@@ -922,8 +946,9 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
 #' @param note (Required, set by default). Logical value, set to \code{FALSE} by default. When \code{note=TRUE}, displays a persistent note at the bottom of the window reminding participants which keys to press and how to handle errors (if \code{correct.error=TRUE}). This is recommended for non-laboratory use, where participants are unable to ask for assistance.
 #' @param norepeat (Required, set by default). Logical value, set to \code{FALSE} by default. This controls the order in which stimuli are displayed. In the IAT, we always sample stimuli randomly without replacement from pools, replenishing the pools after they are depleted. In other words, any given stimulus will not appear twice in the IAT until all other stimuli from that pool are depleted. This keeps the distribution of stimuli even from participant to participant. However, iatgen then randomizes (within each block) the order in which those stimuli are displayed (e.g., Gawronski, 2002). Setting this to \code{TRUE} displays stimuli in the order sampled, meaning that there are no repeats seen *by the participant* until all stimuli from that stimuli set have been seen. This only changes the display order within a block.
 #' @param startqid (Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).
-#' @importFrom jsonlite toJSON minify
-#' @return Nothing is returned. However, a QSF file (if \code{qsf=T}) or folders (if \code{qsf=F}) are made in the working directory containing both HTML and JavaScript files that are to be pasted into Qualtrics.
+#' @param outdir (Required, set by default). The directory in which the QSF file (if \code{qsf=T}) or the folders of HTML and JavaScript files (if \code{qsf=F}) are created. By default, \code{outdir=getwd()}, the current working directory, which preserves the historical behavior of this function. The directory must already exist.
+#' @importFrom jsonlite toJSON
+#' @return Nothing is returned. However, a QSF file (if \code{qsf=T}) or folders (if \code{qsf=F}) are made in \code{outdir} (the working directory by default) containing both HTML and JavaScript files that are to be pasted into Qualtrics.
 #' @export
 #' @seealso See www.iatgen.wordpress.com for tutorials and files.
 #' @references Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
@@ -1198,7 +1223,13 @@ writeIATfull <- function(IATname = "IAT",
                          correct.error = TRUE,
                          note = FALSE,
                          norepeat = FALSE,
-                         startqid = 1) {
+                         startqid = 1,
+                         outdir = getwd()) {
+  if (!dir.exists(outdir)) {
+    stop("The directory given in the 'outdir' argument does not exist: ", outdir)
+  }
+  outdir <- normalizePath(outdir, mustWork = TRUE)
+
   ## IF FORCED ERROR CORRECTION, MAKE ERRORPAUSE THE SAME AS THE REGULAR PAUSE
   # NOTE: ERRORPAUSE IS USED TO HANDLE ISI FOR ERROR TRIALS. IF FORCED ERROR CORRECTION,
   # WE WANT TO USE THE SAME PAUSE REGARDLESS OF ERROR OR NOT
@@ -1267,13 +1298,23 @@ writeIATfull <- function(IATname = "IAT",
   # not modifiable to user in v10.
   combined.type <- "alternating"
 
+  # Folders written by the four writeIATblocks() calls below. Note which of them already
+  # exist so that the qsf cleanup step only removes folders that this call created.
+  files <- c(
+    paste("1 ", IATname, "_rp", sep = ""),
+    paste("2 ", IATname, "_rn", sep = ""),
+    paste("3 ", IATname, "_lp", sep = ""),
+    paste("4 ", IATname, "_ln", sep = "")
+  )
+  preexisting.folder <- dir.exists(file.path(outdir, files))
+
   writeIATblocks(
     startqid = startqid, posstart = "right", Astart = "right", IATname = IATname, foldernum = 1, n = n,
     posname = posname, negname = negname, Aname = Aname, Bname = Bname,
     catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
     tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
     swap = swap,
-    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir
   )
 
   writeIATblocks(
@@ -1282,7 +1323,7 @@ writeIATfull <- function(IATname = "IAT",
     catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
     tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
     swap = swap,
-    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir
   )
 
   writeIATblocks(
@@ -1291,7 +1332,7 @@ writeIATfull <- function(IATname = "IAT",
     catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
     tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
     swap = swap,
-    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir
   )
 
   writeIATblocks(
@@ -1300,7 +1341,7 @@ writeIATfull <- function(IATname = "IAT",
     catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
     tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
     swap = swap,
-    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir
   )
 
 
@@ -1311,15 +1352,20 @@ writeIATfull <- function(IATname = "IAT",
     # code below uses lowercase
     iatname <- IATname
 
-    # copy the template file to the wd
-    file.copy(system.file("codefiles", "FullTemplate_-_For_Shiny_V11.qsf", package = "iatgen"), file.path(getwd()))
-
     filename <- function() {
-      paste("iat-", iatname, ".qsf", sep = "")
+      file.path(outdir, paste("iat-", iatname, ".qsf", sep = ""))
     }
 
-
-    qsfTemplate <- "FullTemplate_-_For_Shiny_V11.qsf"
+    # read the template straight from the installed package rather than copying it into
+    # outdir, so that a same-named file belonging to the user is never read or removed
+    qsfTemplate <- system.file("codefiles", "FullTemplate_-_For_Shiny_V11.qsf", package = "iatgen")
+    # nocov start
+    # Defensive: only reachable if the installed package is missing its own data files,
+    # which no test can produce without breaking the installation under test.
+    if (qsfTemplate == "") {
+      stop("Could not locate the QSF template in the installed iatgen package. Please reinstall iatgen.")
+    }
+    # nocov end
 
     # library(jsonlite)
     # require(jsonlite)
@@ -1328,17 +1374,8 @@ writeIATfull <- function(IATname = "IAT",
     q$SurveyName <- iatname
     q$SurveyEntry$SurveyName <- iatname
 
-    files <- c(
-      paste("1 ", iatname, "_rp", sep = ""),
-      paste("2 ", iatname, "_rn", sep = ""),
-      paste("3 ", iatname, "_lp", sep = ""),
-      paste("4 ", iatname, "_ln", sep = "")
-    )
-
-
     filecontent <- c()
-    txtfiles <- list.files(path = files, pattern = "*.txt", full.names = T, recursive = T)
-    cat(toJSON(txtfiles))
+    txtfiles <- list.files(path = file.path(outdir, files), pattern = "*.txt", full.names = T, recursive = T)
     lapply(txtfiles, function(x) {
       cat(paste("reading file:", x, "\n"))
       t <- readChar(x, file.info(x)$size) # load file
@@ -1367,6 +1404,12 @@ writeIATfull <- function(IATname = "IAT",
       }
     }
 
+    # nocov start
+    # Fallback for the case where jsonlite renders SurveyElements$Payload as a data
+    # frame of columns rather than a list of question objects. The template shipped
+    # with the package always parses to the list form handled above, so this branch is
+    # not exercised; it is retained in case a future template or jsonlite version
+    # produces the other shape.
     if (is.character(q$SurveyElements$Payload$DataExportTag)) {
       for (i in 1:length(q$SurveyElements$Payload$DataExportTag)) {
         m <- length(grep("Q[0-9]+ [RL][NP][0-9]", q$SurveyElements$Payload$DataExportTag[i]))
@@ -1380,22 +1423,22 @@ writeIATfull <- function(IATname = "IAT",
         }
       }
     }
+    # nocov end
 
     cat("Generating JSON....\n")
     qjson <- toJSON(q, null = "null", auto_unbox = T)
-    minify(qjson)
     con <- file(filename(), open = "wb")
     write(qjson, con)
     close(con)
 
-
-    # remove template
-    file.remove("FullTemplate_-_For_Shiny_V11.qsf")
-
-    # remove HTML and JavaScript folders if QSF
-    unlink(files[1], recursive = T)
-    unlink(files[2], recursive = T)
-    unlink(files[3], recursive = T)
-    unlink(files[4], recursive = T)
+    # remove HTML and JavaScript folders if QSF, but only those this call created.
+    # A folder that already existed may hold the user's own files, so it is left alone.
+    for (i in seq_along(files)) {
+      if (preexisting.folder[i]) {
+        warning("The folder '", files[i], "' already existed in the output directory and was left in place rather than deleted. It may now contain intermediate iatgen files.")
+      } else {
+        unlink(file.path(outdir, files[i]), recursive = T)
+      }
+    }
   }
 }

@@ -1,7 +1,7 @@
 #' Data analysis function: Splits an IAT into Four Parcels
 #' @description Used for latent-variable modeling, this is run on an IAT object, the output from \code{cleanIAT()}. It outputs a list of four D-scores, each representing one 1/4 of the IAT. All four combined blocks are split into four parcels; corresponding portions of practice and critical blocks are then combined into two sets of trials (compatible, incompatible). These are then divided by the person-level SD of all trials across all combined blocks. The resulting four D-scores reflect four parcels of the IAT, with all combined blocks reflected in each parcel.
 #' @param input A cleaned IAT, the output from \code{cleanIAT()}.
-#' @return Returns a dataframe of D-scores, reflecting 1/4 of the IAT each.
+#' @return Returns a dataframe of D-scores, reflecting 1/4 of the IAT each. The parcel D-scores are signed in the same direction as \code{cleanIAT()$D}, so they can be used directly as indicators of the same latent variable.
 #' @export
 #' @seealso See www.iatgen.wordpress.com for tutorials and files.
 #' @references Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The Implicit Association Test. \emph{Journal of Personality and Social Psychology, 74}, 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
@@ -110,10 +110,12 @@ parcelIAT <- function(input) {
     inclusive.sd.x[i] <- sqrt(sum((row - avg)^2, na.rm = TRUE) / (inclusive.num[i] - 1))
   }
 
-  D.1 <- (clean.means.1.1 - clean.means.1.2) / inclusive.sd.x
-  D.2 <- (clean.means.2.1 - clean.means.2.2) / inclusive.sd.x
-  D.3 <- (clean.means.3.1 - clean.means.3.2) / inclusive.sd.x
-  D.4 <- (clean.means.4.1 - clean.means.4.2) / inclusive.sd.x
+  # subtract block 1 from block 2, matching the direction used by cleanIAT() so that
+  # the parcel D-scores are signed the same way as clean$D
+  D.1 <- (clean.means.1.2 - clean.means.1.1) / inclusive.sd.x
+  D.2 <- (clean.means.2.2 - clean.means.2.1) / inclusive.sd.x
+  D.3 <- (clean.means.3.2 - clean.means.3.1) / inclusive.sd.x
+  D.4 <- (clean.means.4.2 - clean.means.4.1) / inclusive.sd.x
 
   return(data.frame(
     D.1 = D.1,

@@ -8,7 +8,7 @@ Description: Generate and analyze IATs (Implicit Association Tests) for use in Q
     <https://iatgen.wordpress.com/>.
 License: CC BY-NC 4.0
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 Imports: jsonlite, psych, stringr
 Suggests: testthat
 NeedsCompilation: no

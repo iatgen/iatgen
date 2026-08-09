@@ -62,14 +62,17 @@ combineIATfourblocks <- function(name1, name2, name3, name4) {
 combineIATtwoblocks <- function(name1, name2) {
   name1 <- as.character(name1)
   name2 <- as.character(name2)
+
+  # Test for empty inputs before the NA values are replaced below, otherwise the
+  # condition can never be true. combineIATfourblocks() checks in this same order.
+  if (all(is.na(name1)) | all(is.na(name2))) {
+    warning("One or more of your input variables contained no data. Please check your variable names and raw data. This function is alerting you to the problem; portions of the IAT may not be scored.")
+  }
+
   name1[is.na(name1)] <- ""
   name2[is.na(name2)] <- ""
   name1[name1 == " "] <- ""
   name2[name2 == " "] <- ""
-
-  if (all(is.na(name1)) | all(is.na(name2))) {
-    warning("One or more of your input variables contained no data. Please check your variable names and raw data. This function is alerting you to the problem; portions of the IAT may not be scored.")
-  }
 
   namecombined <- name1
   namecombined[name1 == ""] <- as.character(name2[name1 == ""]) # for blank ones, use alts
