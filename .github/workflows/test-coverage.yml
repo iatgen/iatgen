@@ -15,6 +15,10 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Set at job level so the upload step below can test whether it exists.
+      # Until the CODECOV_TOKEN secret is added, that step simply skips and the
+      # job still runs, reporting coverage through the job summary alone.
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       # Coverage must not fall below this. The package currently sits at 100%:
       # code that genuinely cannot be reached from the public API is marked
       # `# nocov start` / `# nocov end` with a comment saying why, rather than
@@ -32,7 +36,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr, any::testthat
+          extra-packages: any::covr, any::testthat, any::xml2
           needs: coverage
 
       - name: Measure coverage and write the job summary
@@ -43,6 +47,10 @@ jobs:
           cov <- covr::package_coverage(type = "tests", quiet = TRUE)
           per.file <- covr::coverage_to_list(cov)$filecoverage
           total <- covr::percent_coverage(cov)
+
+          # Cobertura XML for Codecov. Written before the threshold check below, so
+          # that a run failing the threshold still uploads the figures that failed it.
+          covr::to_cobertura(cov, filename = "coverage.xml")
 
           pct <- function(x) sprintf("%.2f%%", x)
 
@@ -80,6 +88,18 @@ jobs:
             stop(sprintf("Coverage %s is below the required %s.", pct(total), pct(threshold)),
                  call. = FALSE)
           }
+
+      - name: Upload to Codecov
+        # Skipped until the CODECOV_TOKEN secret exists, so adding this step does not
+        # break the job for anyone who has not set Codecov up. Runs even when the
+        # threshold check above failed, since that is exactly when the report is
+        # most worth seeing.
+        if: ${{ !cancelled() && env.CODECOV_TOKEN != '' }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: true
 
       - name: Show test failures if coverage could not be measured
         if: failure()
