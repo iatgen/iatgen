@@ -1,11 +1,9 @@
 iatgen
 ==============
 
-<!-- Badges are pinned to the dev branch while development happens there. Drop the
-     ?branch=dev on both once this is merged to master, so they track the default
-     branch again. -->
-[![ci-tests](https://github.com/iatgen/iatgen/actions/workflows/ci-tests.yml/badge.svg?branch=dev)](https://github.com/iatgen/iatgen/actions/workflows/ci-tests.yml?query=branch%3Adev)
-[![test-coverage](https://github.com/iatgen/iatgen/actions/workflows/test-coverage.yml/badge.svg?branch=dev)](https://github.com/iatgen/iatgen/actions/workflows/test-coverage.yml?query=branch%3Adev)
+[![ci-tests](https://github.com/iatgen/iatgen/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/iatgen/iatgen/actions/workflows/ci-tests.yml)
+[![test-coverage](https://github.com/iatgen/iatgen/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/iatgen/iatgen/actions/workflows/test-coverage.yml)
+[![codecov](https://codecov.io/gh/iatgen/iatgen/branch/master/graph/badge.svg)](https://codecov.io/gh/iatgen/iatgen)
 
 iatgen (pronounced “I A T gen”) is an R package and Shiny App that
 builds and analyzes Qualtrics surveys that contain IATs (Implicit
