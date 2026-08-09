@@ -1,0 +1,71 @@
+name: release
+
+# Publishes a GitHub Release whenever a version tag is pushed. Tag the release
+# commit as vX.Y.Z (matching the Version field in DESCRIPTION) and push the tag:
+#
+#     git tag -a v1.8.0 -m "iatgen 1.8.0"
+#     git push origin v1.8.0
+#
+# The release notes are taken from the matching section of NEWS.md, so that file
+# is the single place release notes are written.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: publish release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches the version in DESCRIPTION
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_version="${GITHUB_REF_NAME#v}"
+          desc_version="$(grep '^Version:' DESCRIPTION | sed 's/^Version:[[:space:]]*//')"
+          echo "tag: $tag_version   DESCRIPTION: $desc_version"
+          if [ "$tag_version" != "$desc_version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match DESCRIPTION version $desc_version."
+            exit 1
+          fi
+
+      - name: Take the release notes from NEWS.md
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_version="${GITHUB_REF_NAME#v}"
+          awk -v version="$tag_version" '
+            BEGIN { found = 0 }
+            /^# iatgen / {
+              if (found) exit
+              if ($3 == version) { found = 1 }
+              next
+            }
+            found { print }
+          ' NEWS.md > release-notes.md
+
+          if [ ! -s release-notes.md ]; then
+            echo "::error::No section for $tag_version found in NEWS.md."
+            exit 1
+          fi
+          echo "--- notes ---"
+          cat release-notes.md
+
+      - name: Publish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file release-notes.md \
+            --verify-tag
