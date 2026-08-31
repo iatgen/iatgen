@@ -390,7 +390,7 @@ writeIATstim <- function(type, combined.type = "alternating", n, posside, Aside,
 writeIATjs <- function(type, combined.type = "alternating", n, posside, Aside, catType, catCol = "green", nPos, nNeg,
                        poswords, negwords, tgtType, tgtCol = "black", nA, nB, Awords, Bwords,
                        pause = 250, errorpause = 300, correct.error = F, note = F, norepeat = FALSE,
-                       imgs, out) {
+                       imgs, out, timing = "performance") {
   apath <- system.file("codefiles", "codeA.txt", package = "iatgen")
   codeA <- as.matrix(readLines(apath, warn = F))
 
@@ -443,6 +443,18 @@ writeIATjs <- function(type, combined.type = "alternating", n, posside, Aside, c
     )
   }
 
+  # Timestamp source. performance.now() is the default and is written into the
+  # template; only the older wall-clock behaviour needs substituting in. Done before
+  # the numeric substitutions below, neither of which can match this line.
+  if (timing == "date") {
+    temp <- gsub(
+      "return performance.now();",
+      "return new Date().getTime();",
+      temp,
+      fixed = TRUE
+    )
+  }
+
   # replace the default 250 ms intertrial pause with one set by user. Greenwald et al 1998 settled on 250 ms
   temp <- gsub(250, pause, temp)
 
@@ -477,7 +489,7 @@ writeIATjs <- function(type, combined.type = "alternating", n, posside, Aside, c
 
 writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernum = 1, posname, negname, Aname, Bname, posstart, Astart, IATname = "IAT", n = c(20, 20, 20, 40, 40, 20, 40),
                            catType, catCol = "green", poswords, negwords, nPos, nNeg, posimgs, negimgs, tgtType, tgtCol = "black", nA, nB, Awords, Bwords, Aimgs, Bimgs,
-                           easy.img = F, pause = 250, errorpause = 300, correct.error = F, note = F, norepeat = FALSE, swap = "category", imgs, outdir = getwd()) {
+                           easy.img = F, pause = 250, errorpause = 300, correct.error = F, note = F, norepeat = FALSE, swap = "category", imgs, outdir = getwd(), timing = "performance") {
   # add error message if tgtType and catType are not both either "images" or "words
 
   # nocov start
@@ -614,6 +626,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
   writeIATjs(
     type = "target",
     combined.type = combined.type,
+    timing = timing,
     n = n[1],
     tgtType = tgtType,
     tgtCol = tgtCol,
@@ -641,6 +654,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
   writeIATjs(
     type = "category",
     combined.type = combined.type,
+    timing = timing,
     n = n[2],
     tgtType = tgtType,
     tgtCol = tgtCol,
@@ -668,6 +682,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
   writeIATjs(
     type = "combined",
     combined.type = combined.type,
+    timing = timing,
     n = n[3],
     tgtType = tgtType,
     tgtCol = tgtCol,
@@ -695,6 +710,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
   writeIATjs(
     type = "combined",
     combined.type = combined.type,
+    timing = timing,
     n = n[4],
     tgtType = tgtType,
     tgtCol = tgtCol,
@@ -723,6 +739,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
   writeIATjs(
     type = swap,
     combined.type = combined.type,
+    timing = timing,
     n = n[5],
     tgtType = tgtType,
     tgtCol = tgtCol,
@@ -750,6 +767,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
   writeIATjs(
     type = "combined",
     combined.type = combined.type,
+    timing = timing,
     n = n[6],
     tgtType = tgtType,
     tgtCol = tgtCol,
@@ -777,6 +795,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
   writeIATjs(
     type = "combined",
     combined.type = combined.type,
+    timing = timing,
     n = n[7],
     tgtType = tgtType,
     tgtCol = tgtCol,
@@ -946,6 +965,7 @@ writeIATblocks <- function(startqid = 1, combined.type = "alternating", foldernu
 #' @param note (Required, set by default). Logical value, set to \code{FALSE} by default. When \code{note=TRUE}, displays a persistent note at the bottom of the window reminding participants which keys to press and how to handle errors (if \code{correct.error=TRUE}). This is recommended for non-laboratory use, where participants are unable to ask for assistance.
 #' @param norepeat (Required, set by default). Logical value, set to \code{FALSE} by default. This controls the order in which stimuli are displayed. In the IAT, we always sample stimuli randomly without replacement from pools, replenishing the pools after they are depleted. In other words, any given stimulus will not appear twice in the IAT until all other stimuli from that pool are depleted. This keeps the distribution of stimuli even from participant to participant. However, iatgen then randomizes (within each block) the order in which those stimuli are displayed (e.g., Gawronski, 2002). Setting this to \code{TRUE} displays stimuli in the order sampled, meaning that there are no repeats seen *by the participant* until all stimuli from that stimuli set have been seen. This only changes the display order within a block.
 #' @param startqid (Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).
+#' @param timing (Required, set by default). Chooses the clock the survey JavaScript uses to time trials. \code{timing="performance"} (the default) uses \code{performance.now()}, a monotonic timer that counts from page load and cannot run backwards. \code{timing="date"} restores the earlier behaviour of \code{new Date().getTime()}, which reads the computer's wall clock. The wall clock can step backwards mid-trial when the machine corrects its time (a network time sync, waking from sleep, a daylight-saving change), producing a negative reaction time for that trial. \code{performance.now()} is supported by every browser in current use; \code{timing="date"} exists for reproducing surveys built with earlier versions of iatgen, and for the rare case of a browser so old it lacks the Performance API. Reaction times are rounded to whole milliseconds under both settings.
 #' @param outdir (Required, set by default). The directory in which the QSF file (if \code{qsf=T}) or the folders of HTML and JavaScript files (if \code{qsf=F}) are created. By default, \code{outdir=getwd()}, the current working directory, which preserves the historical behavior of this function. The directory must already exist.
 #' @importFrom jsonlite toJSON
 #' @return Nothing is returned. However, a QSF file (if \code{qsf=T}) or folders (if \code{qsf=F}) are made in \code{outdir} (the working directory by default) containing both HTML and JavaScript files that are to be pasted into Qualtrics.
@@ -1224,7 +1244,8 @@ writeIATfull <- function(IATname = "IAT",
                          note = FALSE,
                          norepeat = FALSE,
                          startqid = 1,
-                         outdir = getwd()) {
+                         outdir = getwd(),
+                         timing = "performance") {
   if (!dir.exists(outdir)) {
     stop("The directory given in the 'outdir' argument does not exist: ", outdir)
   }
@@ -1251,6 +1272,10 @@ writeIATfull <- function(IATname = "IAT",
 
   if (swap != "target" & swap != "category") {
     stop("the 'swap' argument is inccorectly specified. It must say either 'target' or 'category'")
+  }
+
+  if (timing != "performance" && timing != "date") {
+    stop("the 'timing' argument is not correctly specified. It must be either 'performance' or 'date'.")
   }
 
   ## BY DEFAULT, IMPLEMENTS THE EASY IMAGE METHOD. nA, nB, nPos, and nNeg not specified by user in this version. Pulls that information from image URL vectors directly.
@@ -1314,7 +1339,7 @@ writeIATfull <- function(IATname = "IAT",
     catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
     tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
     swap = swap,
-    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir, timing = timing
   )
 
   writeIATblocks(
@@ -1323,7 +1348,7 @@ writeIATfull <- function(IATname = "IAT",
     catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
     tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
     swap = swap,
-    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir, timing = timing
   )
 
   writeIATblocks(
@@ -1332,7 +1357,7 @@ writeIATfull <- function(IATname = "IAT",
     catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
     tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
     swap = swap,
-    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir, timing = timing
   )
 
   writeIATblocks(
@@ -1341,7 +1366,7 @@ writeIATfull <- function(IATname = "IAT",
     catType = catType, catCol = catCol, poswords = poswords, negwords = negwords, nPos = nPos, nNeg = nNeg,
     tgtType = tgtType, tgtCol = tgtCol, Awords = Awords, Bwords = Bwords, nA = nA, nB = nB,
     swap = swap,
-    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir
+    pause = pause, errorpause = errorpause, correct.error = correct.error, combined.type = combined.type, norepeat = norepeat, note = note, imgs = imgs, outdir = outdir, timing = timing
   )
 
 

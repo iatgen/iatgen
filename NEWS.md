@@ -1,3 +1,25 @@
+# iatgen 1.9.0
+
+## Trials are now timed with a monotonic clock
+
+The survey JavaScript timed each trial by subtracting two readings of
+`new Date().getTime()`, which reports the computer's wall clock. That clock is not
+monotonic: it steps backwards when the machine corrects its time, so a trial spanning
+such a correction recorded a negative reaction time.
+
+Trials are now timed with `performance.now()`, which counts from page load and cannot
+run backwards. Reaction times are rounded to whole milliseconds, since
+`performance.now()` is fractional and a decimal point in the response string would be
+read as a corrupted record.
+
+`writeIATfull()` gains a `timing` argument. `timing="performance"` is the default;
+`timing="date"` restores the previous wall-clock behaviour, for reproducing a survey
+built with an earlier version or for a browser predating the Performance API.
+
+This affects newly generated surveys only. Data already collected is unchanged, and
+1.8.1 handles the negative latencies such data may contain.
+
+
 # iatgen 1.8.1
 
 ## Negative reaction times no longer discard the participant

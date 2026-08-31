@@ -31,7 +31,8 @@ writeIATfull(
   note = FALSE,
   norepeat = FALSE,
   startqid = 1,
-  outdir = getwd()
+  outdir = getwd(),
+  timing = "performance"
 )
 }
 \arguments{
@@ -88,6 +89,8 @@ writeIATfull(
 \item{startqid}{(Required, set by default). Numeric value that impacts how files are named, which is only visible to users in manual mode. Although this does not substantively impact the IAT, it can make building multi-IAT studies easier in manual mode (see tutorial at www.iatgen.wordpress.com). By default, \code{startqid=1}, which means that iatgen creates files named Q1 through Q28, which are intended to be pasted into Q1 through Q28 of a Qualtrics survey. If a user is starting an IAT on a different question number (e.g., adding a second IAT, which starts on Q29 and ends on adding an additional IAT (e.g., as in the multi-IAT templates on www.iatgen.wordpress.com), then (for convenience) the user should set \code{startqid} to the lowest question number for the new IAT. For example, if a user wished to add an a second IAT to Q29 through Q56, the user would set \code{startqid=29}. The software will then clearly label the files Q29 through Q56 so it is clear where to add the code to the survey. This is intended only for advanced users and users building multi-IAT studies (see www.iatgen.wordpress.com for more information).}
 
 \item{outdir}{(Required, set by default). The directory in which the QSF file (if \code{qsf=T}) or the folders of HTML and JavaScript files (if \code{qsf=F}) are created. By default, \code{outdir=getwd()}, the current working directory, which preserves the historical behavior of this function. The directory must already exist.}
+
+\item{timing}{(Required, set by default). Chooses the clock the survey JavaScript uses to time trials. \code{timing="performance"} (the default) uses \code{performance.now()}, a monotonic timer that counts from page load and cannot run backwards. \code{timing="date"} restores the earlier behaviour of \code{new Date().getTime()}, which reads the computer's wall clock. The wall clock can step backwards mid-trial when the machine corrects its time (a network time sync, waking from sleep, a daylight-saving change), producing a negative reaction time for that trial. \code{performance.now()} is supported by every browser in current use; \code{timing="date"} exists for reproducing surveys built with earlier versions of iatgen, and for the rare case of a browser so old it lacks the Performance API. Reaction times are rounded to whole milliseconds under both settings.}
 }
 \value{
 Nothing is returned. However, a QSF file (if \code{qsf=T}) or folders (if \code{qsf=F}) are made in \code{outdir} (the working directory by default) containing both HTML and JavaScript files that are to be pasted into Qualtrics.

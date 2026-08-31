@@ -161,3 +161,81 @@ test_that("writeIATblocks warns when the image counts contradict the URL list", 
     )
   })
 })
+
+
+## --- trial timing -----------------------------------------------------------
+
+# The survey times each trial by subtracting two timestamps. Taken from the wall
+# clock, that difference can come out negative when the machine corrects its time
+# mid-trial, which cleanIAT() then has to discard. performance.now() is monotonic
+# and cannot do this.
+
+# The explanatory comment in the template names both clocks whichever is selected, so
+# these assert on the body of the timestamp function rather than on any mention of it.
+PERF_TIMER <- "function iatTimestamp() { return performance.now(); }"
+DATE_TIMER <- "function iatTimestamp() { return new Date().getTime(); }"
+
+test_that("trials are timed with performance.now() by default", {
+  txt <- build_instr()
+
+  expect_true(grepl(PERF_TIMER, txt, fixed = TRUE))
+  expect_false(grepl(DATE_TIMER, txt, fixed = TRUE))
+})
+
+test_that("timing = 'performance' is the same as the default", {
+  expect_equal(build_instr(timing = "performance"), build_instr())
+})
+
+test_that("timing = 'date' restores the wall-clock timer", {
+  txt <- build_instr(timing = "date")
+
+  expect_true(grepl(DATE_TIMER, txt, fixed = TRUE))
+  expect_false(grepl(PERF_TIMER, txt, fixed = TRUE))
+})
+
+test_that("reaction times are rounded under both timers", {
+  # performance.now() is fractional. An unrounded difference would put a "." in the
+  # response string, which cleanIAT() reads as a corrupted record - so the rounding
+  # is what makes the monotonic timer usable at all.
+  for (timing in c("performance", "date")) {
+    txt <- build_instr(timing = timing)
+    expect_true(
+      grepl(
+        "currentStimulus.reactionTime = Math.round(currentStimulus.end - currentStimulus.start);",
+        txt,
+        fixed = TRUE
+      ),
+      info = timing
+    )
+    expect_false(grepl("= currentStimulus.end - currentStimulus.start;", txt, fixed = TRUE),
+      info = timing
+    )
+  }
+})
+
+test_that("every timestamp comes from the one helper", {
+  # Three sites take a timestamp; if any kept calling a clock directly, that trial
+  # would be timed against a different origin and the difference would be meaningless.
+  # Counted within a single block's JavaScript, since build_instr() returns all seven.
+  for (timing in c("performance", "date")) {
+    js <- in_temp_dir({
+      do.call(writeIATfull, instr_args(timing = timing))
+      paste(readLines(file.path("1 instr_rp", "Q1 JavaScript_1.txt"), warn = FALSE), collapse = "\n")
+    })
+    expect_equal(length(gregexpr("iatTimestamp()", js, fixed = TRUE)[[1]]), 4,
+      info = paste(timing, "- one definition plus three call sites")
+    )
+    expect_false(grepl("new Date().getTime()", js, fixed = TRUE) && timing == "performance",
+      info = timing
+    )
+  }
+})
+
+test_that("an invalid timing argument is rejected", {
+  in_temp_dir({
+    expect_error(
+      do.call(writeIATfull, instr_args(timing = "wallclock")),
+      "timing"
+    )
+  })
+})
