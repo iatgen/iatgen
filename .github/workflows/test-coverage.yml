@@ -91,10 +91,14 @@ jobs:
 
       - name: Upload to Codecov
         # Skipped until the CODECOV_TOKEN secret exists, so adding this step does not
-        # break the job for anyone who has not set Codecov up. Runs even when the
-        # threshold check above failed, since that is exactly when the report is
-        # most worth seeing.
-        if: ${{ !cancelled() && env.CODECOV_TOKEN != '' }}
+        # break the job for anyone who has not set Codecov up.
+        #
+        # Runs when the threshold check above failed, since that is exactly when the
+        # report is most worth seeing -- but only if a report was actually produced.
+        # Without the hashFiles guard, a step failing earlier (a dependency install,
+        # say) left no coverage.xml and this step failed too, reporting "No coverage
+        # reports found" and burying the real cause.
+        if: ${{ !cancelled() && env.CODECOV_TOKEN != '' && hashFiles('coverage.xml') != '' }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
