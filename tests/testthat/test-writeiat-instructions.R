@@ -233,9 +233,21 @@ test_that("every timestamp comes from the one helper", {
 
 test_that("an invalid timing argument is rejected", {
   in_temp_dir({
-    expect_error(
-      do.call(writeIATfull, instr_args(timing = "wallclock")),
-      "timing"
-    )
+    # NA, a vector or a number would otherwise reach the comparison and be reported
+    # as "missing value where TRUE/FALSE needed", naming no argument at all.
+    for (bad in list("wallclock", NA, c("performance", "date"), 1)) {
+      expect_error(
+        do.call(writeIATfull, instr_args(timing = bad)),
+        "timing",
+        info = paste(deparse(bad), collapse = " ")
+      )
+    }
+
+    # NULL has to be set rather than passed through modifyList(), which treats a
+    # NULL value as a request to drop the element. This is the case a Shiny app
+    # hits when the control backing the input has not been rendered.
+    null.args <- instr_args()
+    null.args["timing"] <- list(NULL)
+    expect_error(do.call(writeIATfull, null.args), "timing")
   })
 })

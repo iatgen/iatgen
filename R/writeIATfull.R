@@ -1274,7 +1274,10 @@ writeIATfull <- function(IATname = "IAT",
     stop("the 'swap' argument is inccorectly specified. It must say either 'target' or 'category'")
   }
 
-  if (timing != "performance" && timing != "date") {
+  # Length and NA are checked first: without that, a NULL or NA reaches the
+  # comparison and R reports "missing value where TRUE/FALSE needed", which says
+  # nothing about which argument was at fault.
+  if (length(timing) != 1 || is.na(timing) || (timing != "performance" && timing != "date")) {
     stop("the 'timing' argument is not correctly specified. It must be either 'performance' or 'date'.")
   }
 
