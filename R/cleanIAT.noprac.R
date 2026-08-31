@@ -79,6 +79,10 @@ cleanIAT.noprac <- function(crit1, crit2, timeout.drop = TRUE, timeout.ms = 1000
     temp <- stringr::str_replace_all(temp, ",", "")
     temp <- stringr::str_replace_all(temp, "C", "")
     temp <- stringr::str_replace_all(temp, "X", "")
+    # A leading minus is legal: a negative latency is a recordable number, not
+    # evidence of a corrupted record. Such trials are dropped individually below
+    # rather than costing the participant every one of their trials.
+    temp <- stringr::str_replace_all(temp, "-", "")
     temp <- stringr::str_replace_all(temp, "0", "")
     temp <- stringr::str_replace_all(temp, "1", "")
     temp <- stringr::str_replace_all(temp, "2", "")
@@ -274,6 +278,48 @@ cleanIAT.noprac <- function(crit1, crit2, timeout.drop = TRUE, timeout.ms = 1000
   clean.stim.number.crit2 <- raw.stim.number.crit2
 
 
+  ## DROP trials with an impossible (negative) latency
+  # A reaction time below zero cannot occur. It arises when the survey JavaScript
+  # times a trial against the wall clock and the system clock steps backwards
+  # mid-trial, typically an NTP correction or a machine waking from sleep. The
+  # affected trial is scored as missing, exactly as a timeout would be, leaving the
+  # participant's remaining trials intact.
+  count.negative <- function(latencies) sum(latencies < 0, na.rm = TRUE)
+  num.negative.removed.crit1 <- count.negative(clean.latencies.crit1)
+  num.negative.removed.crit2 <- count.negative(clean.latencies.crit2)
+
+  drop.negative <- function(latencies, correct, stim.number) {
+    bad <- !is.na(latencies) & latencies < 0
+    latencies[bad] <- NA
+    correct[bad] <- NA
+    stim.number[bad] <- NA
+    list(latencies = latencies, correct = correct, stim.number = stim.number)
+  }
+
+  temp.drop <- drop.negative(clean.latencies.crit1, clean.correct.crit1, clean.stim.number.crit1)
+  clean.latencies.crit1 <- temp.drop$latencies
+  clean.correct.crit1 <- temp.drop$correct
+  clean.stim.number.crit1 <- temp.drop$stim.number
+
+  temp.drop <- drop.negative(clean.latencies.crit2, clean.correct.crit2, clean.stim.number.crit2)
+  clean.latencies.crit2 <- temp.drop$latencies
+  clean.correct.crit2 <- temp.drop$correct
+  clean.stim.number.crit2 <- temp.drop$stim.number
+  rm(temp.drop)
+
+  num.negative.removed <- sum(c(
+    num.negative.removed.crit1, num.negative.removed.crit2
+  ), na.rm = TRUE)
+
+  if (num.negative.removed > 0) {
+    warning(paste(
+      num.negative.removed, "trial(s) recorded a negative reaction time and were scored as missing.",
+      "A negative latency means the clock on the participant's computer moved backwards during the trial;",
+      "the remaining trials are unaffected. See clean$num.negative.removed."
+    ))
+  }
+
+
   ## DROP trials that are too long
   num.timeout.removed.crit1 <- 0 # create a count of timeout responses removed
   num.timeout.removed.crit2 <- 0 # create a count of timeout responses removed
@@ -403,6 +449,7 @@ cleanIAT.noprac <- function(crit1, crit2, timeout.drop = TRUE, timeout.ms = 1000
   drop.participant[skipped] <- NA
 
   # calculate rates of  dropping
+  negative.rate <- num.negative.removed / sum(num.raw.trials.crit1, num.raw.trials.crit2, na.rm = T)
   timeout.rate <- num.timeout.removed / sum(num.raw.trials.crit1, num.raw.trials.crit2, na.rm = T)
   fasttrial.rate <- num.fasttrial.removed / sum(num.raw.trials.crit1, num.raw.trials.crit2, na.rm = T)
   fastprt.count <- sum(drop.participant, na.rm = T)
@@ -659,6 +706,10 @@ cleanIAT.noprac <- function(crit1, crit2, timeout.drop = TRUE, timeout.ms = 1000
     timeout.ms = timeout.ms,
     num.timeout.removed = num.timeout.removed,
     timeout.rate = timeout.rate,
+    num.negative.removed = num.negative.removed,
+    num.negative.removed.crit1 = num.negative.removed.crit1,
+    num.negative.removed.crit2 = num.negative.removed.crit2,
+    negative.rate = negative.rate,
     num.timeout.removed.crit1 = num.timeout.removed.crit1,
     num.timeout.removed.crit2 = num.timeout.removed.crit2,
     fasttrial.drop = fasttrial.drop,

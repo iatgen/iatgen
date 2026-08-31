@@ -140,3 +140,31 @@ test_that("corrupted data is warned about and excluded", {
   expect_true(is.na(clean$D[2]))
   expect_false(is.na(clean$D[1]))
 })
+
+
+test_that("a negative latency is counted in whichever block it appears in", {
+  negative <- make_iat_block(c(seq(450, 630, by = 10), -7124))
+
+  for (position in seq_along(NOPRAC_BLOCKS)) {
+    args <- noprac_blocks_with(position, negative, varied)
+    clean <- suppressWarnings(do.call(cleanIAT.noprac, args))
+
+    expected <- as.numeric(seq_along(NOPRAC_BLOCKS) == position)
+    expect_equal(
+      noprac_counters(clean, "num.negative.removed"),
+      setNames(expected, NOPRAC_BLOCKS),
+      info = paste("negative latency placed in", NOPRAC_BLOCKS[position])
+    )
+    expect_equal(clean$num.negative.removed, 1)
+  }
+})
+
+test_that("cleanIAT.noprac keeps a participant who has a negative latency", {
+  negative <- make_iat_block(c(seq(450, 630, by = 10), -7124))
+
+  clean <- suppressWarnings(cleanIAT.noprac(negative, varied))
+
+  expect_false(clean$skipped)
+  expect_false(is.na(clean$D))
+  expect_equal(clean$num.negative.removed, 1)
+})

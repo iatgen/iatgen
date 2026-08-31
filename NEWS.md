@@ -1,3 +1,33 @@
+# iatgen 1.8.1
+
+## Negative reaction times no longer discard the participant
+
+A reaction time below zero cannot occur physically. It appears when the clock on the
+participant's computer steps backwards during a trial -- an NTP correction, a machine
+waking from sleep, a daylight-saving adjustment -- because the survey JavaScript times
+trials against the wall clock.
+
+Previously the minus sign failed `cleanIAT()`'s data-integrity check, which treats
+unexpected characters as evidence of a browser malfunction and discards *every* trial
+that participant contributed. A single mistimed trial therefore cost all of their data;
+in a one-participant file it cost the entire dataset.
+
+Such a trial is now scored as missing on its own, exactly as an over-long trial is,
+and the participant's remaining trials are analysed normally. The impossible value is
+still visible in `clean$raw.latencies.*` for anyone auditing the data. New elements
+report what happened: `num.negative.removed`, the same broken down per block, and
+`negative.rate`. A warning is raised when any are found, since it points at a clock
+problem on the respondent's machine.
+
+The integrity check still rejects genuinely corrupt records; only the minus sign has
+been added to the permitted characters.
+
+Note that this addresses the symptom rather than the cause. Timing trials with
+`performance.now()` instead of `new Date().getTime()` would prevent negative latencies
+arising at all, but that is a change to the survey JavaScript and would only affect
+newly generated surveys.
+
+
 # iatgen 1.8.0
 
 ## Change to scores produced by `parcelIAT()`

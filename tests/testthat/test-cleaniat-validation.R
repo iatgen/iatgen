@@ -161,3 +161,91 @@ test_that("correct and incorrect trials are recorded per trial", {
   expect_equal(as.character(clean$raw.correct.prac1[1, ]), ifelse(pattern, "C", "X"))
   expect_equal(as.numeric(clean$error.num.prt), 4 * sum(!pattern))
 })
+
+
+## --- impossible (negative) latencies -----------------------------------------
+
+# A reaction time below zero happens when the clock on the participant's machine
+# steps backwards mid-trial. Earlier versions treated the minus sign as evidence of
+# a corrupted record and discarded every trial the participant had; the trial is
+# now dropped on its own.
+
+test_that("a negative latency costs one trial, not the whole participant", {
+  good <- make_iat_block(seq(450, 640, by = 10))
+  withnegative <- make_iat_block(c(seq(450, 630, by = 10), -7124))
+
+  clean <- suppressWarnings(cleanIAT(withnegative, good, good, good))
+
+  expect_false(clean$skipped)
+  expect_false(clean$drop.participant)
+  expect_false(is.na(clean$D))
+  expect_equal(clean$num.negative.removed, 1)
+  # 19 of the 20 trials in that block survive
+  expect_equal(sum(!is.na(clean$clean.latencies.prac1[1, ])), 19)
+})
+
+test_that("the raw negative latency is retained while the clean one is dropped", {
+  # The raw matrices are the record of what the browser actually reported, so the
+  # impossible value stays visible there for anyone auditing the data.
+  good <- make_iat_block(seq(450, 640, by = 10))
+  withnegative <- make_iat_block(c(seq(450, 630, by = 10), -7124))
+
+  clean <- suppressWarnings(cleanIAT(withnegative, good, good, good))
+
+  expect_equal(as.numeric(clean$raw.latencies.prac1[1, 20]), -7124)
+  expect_true(is.na(clean$clean.latencies.prac1[1, 20]))
+  expect_true(is.na(clean$clean.correct.prac1[1, 20]))
+  expect_true(is.na(clean$clean.stim.number.prac1[1, 20]))
+})
+
+test_that("negative latencies are reported and warned about", {
+  good <- make_iat_block(seq(450, 640, by = 10))
+  withnegative <- make_iat_block(c(seq(450, 620, by = 10), -50, -7124))
+
+  expect_warning(
+    clean <- cleanIAT(withnegative, good, good, good),
+    "negative reaction time"
+  )
+
+  expect_equal(clean$num.negative.removed, 2)
+  expect_equal(clean$num.negative.removed.prac1, 2)
+  expect_equal(clean$num.negative.removed.crit1, 0)
+  # two impossible trials out of 80
+  expect_equal(clean$negative.rate, 2 / 80)
+})
+
+test_that("no warning and a zero count when every latency is possible", {
+  good <- make_iat_block(seq(450, 640, by = 10))
+  slow <- make_iat_block(seq(550, 740, by = 10))
+
+  expect_silent(clean <- cleanIAT(good, good, slow, slow))
+  expect_equal(clean$num.negative.removed, 0)
+  expect_equal(clean$negative.rate, 0)
+})
+
+test_that("a negative latency does not change the score of the trials that remain", {
+  # Dropping the trial must be equivalent to it never having been recorded.
+  good <- make_iat_block(seq(450, 640, by = 10))
+  shortened <- make_iat_block(seq(450, 630, by = 10)) # the same 19 trials, no 20th
+  withnegative <- make_iat_block(c(seq(450, 630, by = 10), -7124))
+
+  with.bad <- suppressWarnings(cleanIAT(withnegative, good, good, good))
+  without <- cleanIAT(shortened, good, good, good)
+
+  expect_equal(as.numeric(with.bad$D), as.numeric(without$D))
+})
+
+test_that("genuinely corrupt data is still detected after allowing the minus sign", {
+  # Permitting "-" must not weaken the integrity check against real JavaScript
+  # malfunctions, which is what that check exists for.
+  good <- make_iat_block(seq(450, 640, by = 10))
+
+  for (corrupt in c("12C500,undefined,14C520,END", "12C500,NaN,END", "12C500,null,END")) {
+    expect_warning(
+      clean <- cleanIAT(c(good, corrupt), c(good, good), c(good, good), c(good, good)),
+      "web browser encountered an error",
+      info = corrupt
+    )
+    expect_true(clean$skipped[2], info = corrupt)
+  }
+})

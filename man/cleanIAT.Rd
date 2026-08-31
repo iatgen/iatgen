@@ -69,6 +69,12 @@ Returns a list containing several important elements.
 \code{timeout.ms} is the timeout threshold specified in the function call (see above), used if timeout.drop is enabled.
 \code{num.timeout.removed} is the grand total number of trials removed because they exceeded the timeout threshold in timeout.ms.
 \code{timeout.rate} is a vector indicating the proportion of responses per participant that were scored as missing due to timeouts.
+\code{num.negative.removed} is the grand total number of trials scored as missing because they recorded a negative (impossible) reaction time.
+\code{num.negative.removed.prac1} is the number of such trials in the first practice block.
+\code{num.negative.removed.crit1} is the number of such trials in the first critical block.
+\code{num.negative.removed.prac2} is the number of such trials in the second practice block.
+\code{num.negative.removed.crit2} is the number of such trials in the second critical block.
+\code{negative.rate} is the proportion of all trials that were scored as missing for this reason.
 \code{num.timeout.removed.prac1} is the number of trials removed in the first practice block because they exceeded the timeout threshold in timeout.ms.
 \code{num.timeout.removed.crit1} is the number of trials removed in the first critical block because they exceeded the timeout threshold in timeout.ms.
 \code{num.timeout.removed.prac2} is the number of trials removed in the second practice block because they exceeded the timeout threshold in timeout.ms.

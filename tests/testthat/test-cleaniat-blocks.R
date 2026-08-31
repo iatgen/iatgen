@@ -148,3 +148,22 @@ test_that("a participant who skipped is blanked in every block", {
     )
   }
 })
+
+
+## --- impossible (negative) latencies -----------------------------------------
+
+test_that("a negative latency is counted in whichever block it appears in", {
+  negative <- make_iat_block(c(seq(450, 630, by = 10), -7124))
+
+  for (position in seq_along(BLOCKS)) {
+    clean <- suppressWarnings(do.call(cleanIAT, blocks_with(position, negative, varied)))
+
+    expected <- as.numeric(seq_along(BLOCKS) == position)
+    expect_equal(counters(clean, "num.negative.removed"), setNames(expected, BLOCKS),
+      info = paste("negative latency placed in", BLOCKS[position])
+    )
+    expect_equal(clean$num.negative.removed, 1)
+    # the offending trial is blanked in that block only
+    expect_true(is.na(clean[[paste0("clean.latencies.", BLOCKS[position])]][1, 20]))
+  }
+})
